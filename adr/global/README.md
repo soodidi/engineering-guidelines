@@ -1,0 +1,32 @@
+# Guide global
+
+Règles transverses, applicables à tous les domaines.
+
+## Règles en bref
+
+**Process**
+- Toute décision structurante passe par un ADR, rangé par domaine. → [GLB-001](GLB-001-documenter-les-decisions-en-adr.md)
+- `main` toujours déployable, branches courtes `type/sujet`, Conventional Commits en anglais, squash merge. → [GLB-002](GLB-002-git-trunk-based-et-conventional-commits.md)
+- PR < 400 lignes, un seul sujet, 1 approbation (2 pour migrations, auth, infra prod), CI verte. Préfixes `bloquant:` / `suggestion:` / `question:` / `nit:`. → [GLB-003](GLB-003-revue-de-code.md)
+
+**Qualité**
+- On teste le comportement ; tout bug corrigé a son test ; E2E réservés aux parcours critiques. → [GLB-004](GLB-004-strategie-de-tests.md)
+- Code, commits et commentaires en anglais ; docs et ADR en français ; un concept métier = un seul nom (glossaire). → [GLB-007](GLB-007-langue-et-nommage.md)
+
+**Sécurité et livraison**
+- Aucun secret dans Git ; config par variables d'environnement validées au démarrage ; `.env.example` obligatoire ; rien de secret dans un bundle front ou mobile. → [GLB-005](GLB-005-secrets-et-configuration.md)
+- SemVer + tags `vX.Y.Z`, changelog généré par release-please. → [GLB-006](GLB-006-versioning-et-releases.md)
+- Lockfiles commités, versions d'outils épinglées, pnpm, Renovate hebdo ; dépendance structurante = ADR. → [GLB-008](GLB-008-gestion-des-dependances.md)
+
+## Index
+
+| ADR | Titre | Statut |
+|-----|-------|--------|
+| [GLB-001](GLB-001-documenter-les-decisions-en-adr.md) | Documenter les décisions structurantes en ADR | Proposé |
+| [GLB-002](GLB-002-git-trunk-based-et-conventional-commits.md) | Git : trunk-based et Conventional Commits | Proposé |
+| [GLB-003](GLB-003-revue-de-code.md) | Revue de code et pull requests | Proposé |
+| [GLB-004](GLB-004-strategie-de-tests.md) | Stratégie de tests | Proposé |
+| [GLB-005](GLB-005-secrets-et-configuration.md) | Secrets et configuration | Proposé |
+| [GLB-006](GLB-006-versioning-et-releases.md) | Versioning et releases | Proposé |
+| [GLB-007](GLB-007-langue-et-nommage.md) | Langue et nommage | Proposé |
+| [GLB-008](GLB-008-gestion-des-dependances.md) | Gestion des dépendances | Proposé |
