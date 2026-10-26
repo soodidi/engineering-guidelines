@@ -12,7 +12,8 @@ La CI est le garde-fou qui applique automatiquement la plupart des ADR. Elle doi
 ## Décision
 
 **Pipeline standard (sur chaque PR)**
-1. Installation avec cache (pnpm, Gradle, SPM).
+
+1. Installation avec cache (`npm ci`, Gradle, SPM).
 2. Lint + format + typecheck.
 3. Tests unitaires et d'intégration.
 4. Build (image Docker ou bundle).
@@ -24,6 +25,7 @@ La CI est le garde-fou qui applique automatiquement la plupart des ADR. Elle doi
 **Objectif** : retour de CI sur une PR en **moins de 10 minutes**.
 
 **Sécurité des workflows**
+
 - Les actions tierces DOIVENT être **épinglées par SHA** de commit (pas par tag `@v4`), mises à jour par Renovate.
 - `permissions:` déclarées explicitement au niveau du workflow, au minimum nécessaire (`contents: read` par défaut).
 - Authentification au cloud par **OIDC** quand le fournisseur le supporte ; sinon clés d'API **dédiées à la CI**, à portée minimale, stockées dans les secrets d'**Environment** (pas au niveau du repo), renouvelées régulièrement.
@@ -31,6 +33,7 @@ La CI est le garde-fou qui applique automatiquement la plupart des ADR. Elle doi
 - Les secrets ne sont jamais affichés dans les logs.
 
 **Organisation**
+
 - Workflows réutilisables (`workflow_call`) dans un repo partagé pour éviter de copier-coller les pipelines entre projets.
 - `concurrency` pour annuler les runs obsolètes d'une même branche.
 - Monorepo : jobs filtrés par chemins modifiés.

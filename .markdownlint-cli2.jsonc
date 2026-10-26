@@ -1,0 +1,21 @@
+{
+  // Règles markdownlint : https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+  "config": {
+    "default": true,
+    // Longueur de ligne : les paragraphes ne sont pas coupés à la main.
+    "MD013": false,
+    // Titres en double autorisés s'ils ne sont pas frères (sections Contexte/Décision répétées).
+    "MD024": { "siblings_only": true },
+    // HTML inline toléré (rare).
+    "MD033": false,
+    // Les intitulés en gras ("**Branches**") servent de sous-titres légers.
+    "MD036": false,
+    // Langue des blocs de code : non exigée pour les arborescences.
+    "MD040": false,
+    // Style des tableaux : non imposé.
+    "MD060": false,
+    // CLAUDE.md (« @AGENTS.md ») et templates de PR ne commencent pas par un titre.
+    "MD041": false
+  },
+  "ignores": ["node_modules/**"]
+}

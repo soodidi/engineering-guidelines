@@ -19,6 +19,7 @@ Les apps mobiles sont développées en natif. Côté iOS, Apple fait évoluer Sw
 - Version de Xcode épinglée (`.xcode-version`), GLB-008.
 
 **SwiftUI**
+
 - Vues petites et composables ; une vue au-delà de ~150 lignes DEVRAIT être découpée.
 - Les vues ne contiennent pas de logique métier ni d'appel réseau.
 - Chaque vue réutilisable a une `#Preview` (cas nominal + cas limite).

@@ -19,6 +19,7 @@ Déclinaison front de GLB-004. Les tests front qui vérifient des détails d'imp
 | End-to-end | **Playwright** | parcours critiques (login, création, paiement…) |
 
 **Règles**
+
 - Tester comme un utilisateur : requêtes par rôle et libellé (`getByRole`, `getByLabelText`). `getByTestId` en dernier recours.
 - Ne pas mocker les modules internes (hooks, composants enfants). Mocker la **frontière réseau** avec MSW.
 - Interactions avec `user-event`, pas `fireEvent`.

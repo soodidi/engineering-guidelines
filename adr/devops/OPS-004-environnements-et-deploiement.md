@@ -24,6 +24,7 @@ On veut déployer souvent et sans stress. Cela suppose que ce qui arrive en prod
 - Les données de production NE DOIVENT JAMAIS être copiées telles quelles hors production (RGPD). Une copie pour staging DOIT être anonymisée.
 
 **Déploiement**
+
 - **Build once, deploy many** : l'artefact (image, bundle) testé en staging est exactement celui promu en production.
 - Ordre : (1) job de **migration** de base (BE-003, compatible avec la version en cours) → (2) déploiement progressif des nouvelles instances → (3) bascule quand `/health/ready` répond.
 - **Rollback** : redéployer l'image précédente, en une commande ou un clic. Grâce aux migrations *expand/contract*, le schéma reste compatible avec la version N-1.
@@ -31,6 +32,7 @@ On veut déployer souvent et sans stress. Cela suppose que ce qui arrive en prod
 - Pas de déploiement de production le vendredi après-midi ni la veille d'un jour férié, sauf correctif urgent.
 
 **Front statique**
+
 - Fichiers avec hash dans le nom : cache long (`immutable`). `index.html` : pas de cache (ou très court).
 - La configuration propre à l'environnement (URL d'API…) est injectée au déploiement, pas codée en dur au build.
 

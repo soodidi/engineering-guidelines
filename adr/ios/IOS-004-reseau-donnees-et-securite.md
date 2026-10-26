@@ -12,6 +12,7 @@ Comme Android (AND-004), l'app consomme l'API OpenAPI du backend (BE-004), gère
 ## Décision
 
 **Réseau**
+
 - **URLSession** avec async/await.
 - Client et types générés depuis la spec OpenAPI avec **swift-openapi-generator** (plugin SPM), dans `Core/Networking`.
 - Un middleware ajoute l'access token et gère le renouvellement via le refresh token (un seul renouvellement simultané, protégé par un acteur).
@@ -19,11 +20,13 @@ Comme Android (AND-004), l'app consomme l'API OpenAPI du backend (BE-004), gère
 - App Transport Security actif : HTTPS uniquement, aucune exception en production.
 
 **Données locales**
+
 - **SwiftData** pour les données structurées et le cache hors-ligne simple. **GRDB** (SQLite) si les besoins de requêtes ou de migrations dépassent SwiftData (à acter par ADR).
 - `UserDefaults` / `@AppStorage` uniquement pour des préférences non sensibles.
 - Fichiers volumineux dans les dossiers appropriés (`Caches` pour ce qui peut être reconstruit, exclus de la sauvegarde iCloud).
 
 **Sécurité**
+
 - Tokens et données sensibles dans le **Keychain** avec une accessibilité restrictive (`…AfterFirstUnlockThisDeviceOnly` ou plus strict).
 - Aucun secret embarqué dans le binaire (GLB-005).
 - Pas de données personnelles ni de tokens dans les logs ; utiliser `Logger` (OSLog) avec la confidentialité par défaut (`.private`).

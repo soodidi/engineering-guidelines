@@ -23,6 +23,7 @@ Il faut un backend **robuste, fiable, capable de servir plusieurs types d'apps**
 | Contrat d'API | REST + OpenAPI (BE-004) |
 
 **Pourquoi cette combinaison**
+
 - **Un seul langage** du front au back : types et schémas partagés, montée en compétence plus rapide, pas de changement de contexte.
 - **NestJS** impose une structure (modules, injection de dépendances, guards, pipes, interceptors) qui tient quand le code et l'équipe grandissent. C'est aussi le framework Node le plus demandé en entreprise, en France notamment.
 - **Fastify** en dessous : nettement plus performant qu'Express, validation et sérialisation natives.

@@ -19,6 +19,7 @@ Les formulaires concentrent beaucoup de bugs : validations dupliquées entre fro
 - Validation au `blur` puis au `change` après la première erreur (mode `onTouched`).
 
 **Accessibilité des formulaires**
+
 - Chaque champ a un `<label>` associé.
 - Les erreurs sont liées au champ (`aria-describedby`) et le champ porte `aria-invalid`.
 - À la soumission en erreur, le focus va sur le premier champ invalide.

@@ -12,11 +12,13 @@ TypeScript ne protège que si on le laisse faire son travail. Les `any`, les ass
 ## Décision
 
 **tsconfig**
+
 - `"strict": true` DOIT être activé, ainsi que `noUncheckedIndexedAccess`, `noImplicitOverride`, `noFallthroughCasesInSwitch`.
 - `exactOptionalPropertyTypes` reste **désactivé** : trop de friction avec les librairies tierces pour un gain faible.
 - Alias d'import `@/` vers `src/`.
 
 **Règles de code**
+
 - `any` est interdit. Utiliser `unknown` puis affiner.
 - Les assertions `as` sont réservées aux cas justifiés par un commentaire. `as const` et `satisfies` sont encouragés.
 - Pas de `!` (non-null assertion) hors tests.
@@ -26,13 +28,15 @@ TypeScript ne protège que si on le laisse faire son travail. Les `any`, les ass
 - Exports nommés uniquement (sauf contrainte d'un outil, ex : `lazy()`).
 
 **Conventions de nommage**
+
 - Composants et types : `PascalCase`. Fichiers de composant : `PascalCase.tsx`.
 - Hooks : `useCamelCase`, fichier `useCamelCase.ts`.
 - Autres fichiers : `kebab-case.ts`.
 - Constantes globales : `SCREAMING_SNAKE_CASE`.
 
 **Outils**
-- ESLint (flat config) avec `typescript-eslint` (preset `strict-type-checked`), `eslint-plugin-react-hooks`, `eslint-plugin-jsx-a11y`.
+
+- ESLint (flat config) avec `typescript-eslint` (preset `strict-type-checked`), `eslint-plugin-react-hooks`, `eslint-plugin-jsx-a11y-x` (fork de `eslint-plugin-jsx-a11y` compatible ESLint 10 ; revenir à l'original dès qu'il le supporte).
 - Prettier pour le formatage, avec `prettier-plugin-tailwindcss` pour l'ordre des classes.
 - `tsc --noEmit` en CI.
 
@@ -48,5 +52,5 @@ TypeScript ne protège que si on le laisse faire son travail. Les `any`, les ass
 
 ## Mise en application
 
-- CI : `pnpm lint`, `pnpm typecheck`, `prettier --check`.
+- CI : `npm run lint`, `npm run typecheck`, `prettier --check`.
 - `lefthook` : lint et format des fichiers modifiés en pre-commit.

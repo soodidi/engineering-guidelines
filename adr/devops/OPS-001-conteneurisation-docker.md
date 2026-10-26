@@ -12,6 +12,7 @@
 ## Décision
 
 **Images**
+
 - Tout service backend est livré sous forme d'**image OCI** construite par un `Dockerfile` à la racine du projet.
 - **Multi-stage** : étape de build (dépendances de dev, compilation) séparée de l'image finale (dépendances de production uniquement).
 - Image de base **minimale et épinglée** : `node:<version>-slim` ou distroless, avec un tag de version précis (et idéalement le digest), jamais `latest`.
@@ -22,10 +23,12 @@
 - `HEALTHCHECK` ou sondes de la plateforme branchées sur `/health/live` et `/health/ready` (BE-007).
 
 **Tags**
+
 - Chaque image est taguée avec le **SHA du commit** ; les releases ajoutent `vX.Y.Z` (GLB-006). Le tag `latest` n'est jamais utilisé pour déployer.
 - La même image est promue d'un environnement à l'autre, jamais reconstruite.
 
 **Développement local**
+
 - `compose.yaml` pour lancer les dépendances (PostgreSQL, Redis, Mailpit…) avec les mêmes versions majeures que la production.
 - Le front (Vite) tourne en natif en local ; il est servi en statique en production (OPS-005).
 

@@ -12,22 +12,26 @@ Les branches longues créent des conflits, retardent l'intégration et rendent l
 ## Décision
 
 **Branches**
+
 - `main` est la seule branche longue. Elle DOIT toujours être déployable.
 - Les branches de travail DOIVENT être courtes (idéalement < 2 jours) et nommées `<type>/<sujet-court>` : `feat/login-form`, `fix/cart-total`, `chore/bump-deps`.
 - Une fonctionnalité inachevée DEVRAIT être fusionnée derrière un feature flag plutôt que de garder une branche ouverte.
 - Push direct sur `main` interdit.
 
 **Commits** — format [Conventional Commits](https://www.conventionalcommits.org/) :
+
 ```
 <type>(<scope>): <description à l'impératif, en anglais>
 
 feat(auth): add refresh token rotation
 fix(cart): round totals to 2 decimals
 ```
+
 - Types autorisés : `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `build`, `ci`, `chore`, `revert`, `adr`.
 - Un changement cassant DOIT être signalé par `!` (`feat(api)!: …`) et un footer `BREAKING CHANGE:`.
 
 **Fusion**
+
 - Fusion par **squash merge** : le titre de la PR devient le commit sur `main`, il DOIT donc respecter le format.
 
 ## Alternatives envisagées

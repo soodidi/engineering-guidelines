@@ -22,12 +22,14 @@ Mélanger français et anglais dans le code rend la recherche et la lecture diff
 **Termes métier** : on fixe une traduction anglaise unique par concept et on la note dans un glossaire (`docs/glossary.md` du projet). Exemple : *fonds de commerce* → `business`, *devis* → `quote`. Un même concept NE DOIT PAS avoir deux noms dans le code.
 
 **Nommage**
+
 - Noms explicites plutôt que courts : `unpaidInvoices` plutôt que `inv2`.
 - Booléens préfixés : `is`, `has`, `can`, `should`.
 - Pas d'abréviations maison ; seules les abréviations universelles sont admises (`id`, `url`, `api`, `db`).
 - Les conventions de casse suivent l'écosystème de chaque langage (détaillées dans chaque domaine).
 
 **Commentaires**
+
 - Un commentaire explique le **pourquoi**, pas le quoi. Si le code a besoin d'un commentaire pour expliquer ce qu'il fait, il faut d'abord essayer de le rendre plus clair.
 
 ## Alternatives envisagées

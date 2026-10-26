@@ -16,6 +16,10 @@ Ce fichier s'adresse aux assistants de code (Claude, Copilot, Cursor…) qui tra
 - Ne pas introduire de nouvelle dépendance, de nouveau pattern d'architecture ou de nouvel outil qui contredit un ADR. Si c'est nécessaire, **le dire explicitement** et proposer un nouvel ADR plutôt que de déroger en silence.
 - Quand une règle est volontairement contournée (cas exceptionnel), laisser un commentaire dans le code avec la référence : `// Dérogation FE-004 : <raison>`.
 
+## Nouveau projet
+
+Un nouveau projet part toujours du boilerplate correspondant dans le repo `boilerplates` (GLB-010). Ne pas générer un projet avec un autre outil (`create-vite`, `nest new`…) sans le signaler.
+
 ## Quand une décision manque
 
 Si une question d'architecture revient et qu'aucun ADR ne la couvre, proposer un brouillon d'ADR à partir de `adr/template.md` au lieu de trancher seul.

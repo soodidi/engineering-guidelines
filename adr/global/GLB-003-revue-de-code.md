@@ -12,16 +12,19 @@ Les grosses PR sont mal relues : au-delà de quelques centaines de lignes, la qu
 ## Décision
 
 **Taille et contenu**
+
 - Une PR DEVRAIT faire moins de **400 lignes modifiées** (hors fichiers générés, lockfiles, snapshots).
 - Une PR DOIT traiter **un seul sujet**. Refactoring et changement fonctionnel vont dans des PR séparées.
 - La description DOIT suivre le template : *Quoi*, *Pourquoi*, *Comment tester*, captures pour l'UI, ADR concernés.
 
 **Validation**
+
 - Au moins **1 approbation** d'une autre personne. 2 approbations pour : migrations de base de données, changements d'auth/sécurité, infrastructure de production.
 - La CI DOIT être verte avant fusion.
 - L'auteur fusionne sa propre PR une fois approuvée.
 
 **Commentaires**
+
 - Préfixer les commentaires pour lever l'ambiguïté :
   - `bloquant:` doit être traité avant fusion ;
   - `suggestion:` à l'appréciation de l'auteur ;
@@ -31,6 +34,7 @@ Les grosses PR sont mal relues : au-delà de quelques centaines de lignes, la qu
 - Délai de première revue visé : **1 jour ouvré**.
 
 **Code généré par IA**
+
 - Le code produit avec un assistant IA est relu exactement comme le reste. L'auteur de la PR en est responsable et DOIT pouvoir l'expliquer.
 
 ## Alternatives envisagées

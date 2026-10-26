@@ -27,10 +27,13 @@ View (SwiftUI)  ←  ViewModel (@Observable, @MainActor)
 - UseCase seulement quand une logique est partagée entre écrans.
 
 **Navigation**
+
 - `NavigationStack` piloté par un état de navigation typé (`enum Route: Hashable`), détenu par un objet de navigation par flux. Pas de `NavigationLink` dispersés avec destinations construites en dur pour les flux complexes.
 
 **Modularisation**
+
 - Code organisé en **packages Swift locaux** (Swift Package Manager) dans le workspace :
+
 ```
 Packages/
 ├── Features/<Nom>      # écrans + ViewModels d'une fonctionnalité
@@ -40,11 +43,13 @@ Packages/
 ├── Core/Models
 └── Core/Testing        # fakes
 ```
+
 - L'app (`App/`) assemble les modules et fait l'injection racine.
 - Un module Feature ne dépend pas d'un autre module Feature.
 - Visibilité `internal` par défaut, `public` uniquement pour l'API du module.
 
 **Injection de dépendances**
+
 - Injection par constructeur ; conteneur simple construit au démarrage de l'app ; `@Environment` pour les dépendances transverses de l'UI. Pas de singleton global accessible partout (`shared`) pour la logique métier.
 
 ## Alternatives envisagées

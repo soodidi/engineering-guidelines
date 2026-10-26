@@ -12,6 +12,7 @@ L'app consomme l'API décrite en OpenAPI (BE-004) et doit gérer le hors-ligne, 
 ## Décision
 
 **Réseau**
+
 - **Retrofit + OkHttp + kotlinx.serialization**.
 - Le client API et les DTO sont **générés depuis la spec OpenAPI** du backend, dans `:core:network`.
 - Un intercepteur OkHttp ajoute l'access token ; un `Authenticator` gère le renouvellement avec le refresh token (un seul renouvellement simultané).
@@ -20,11 +21,13 @@ L'app consomme l'API décrite en OpenAPI (BE-004) et doit gérer le hors-ligne, 
 - HTTPS uniquement : `usesCleartextTraffic=false`, Network Security Config.
 
 **Données locales**
+
 - **Room** pour les données structurées / le cache hors-ligne.
 - **DataStore** (Preferences ou Proto) pour les préférences. Pas de `SharedPreferences` dans le nouveau code.
 - Les migrations Room sont écrites et testées ; `fallbackToDestructiveMigration` interdit en production.
 
 **Sécurité**
+
 - Tokens et données sensibles **chiffrés avec une clé de l'Android Keystore** (par exemple via Tink) avant d'être stockés dans DataStore. Pas d'`EncryptedSharedPreferences` (bibliothèque dépréciée).
 - Aucun secret embarqué dans l'APK/AAB (GLB-005) : il est extractible.
 - `android:allowBackup` configuré pour exclure les données sensibles des sauvegardes.

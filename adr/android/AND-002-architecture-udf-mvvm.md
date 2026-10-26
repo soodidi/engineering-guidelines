@@ -22,20 +22,24 @@ Data layer      Repositories  →  DataSources (réseau, base locale, DataStore)
 ```
 
 **UI layer**
+
 - Un **ViewModel par écran**, qui expose un unique `StateFlow<XxxUiState>` (data class immuable ou `sealed interface` Loading/Success/Error).
 - L'UI collecte l'état avec `collectAsStateWithLifecycle()`.
 - Les actions utilisateur remontent sous forme d'appels de fonctions du ViewModel (`onSubmitClick()`), jamais de modification directe d'état par l'UI.
 - Les événements ponctuels (navigation, snackbar) sont modélisés dans l'état et consommés, plutôt que via des `Channel`/`SharedFlow` qui peuvent se perdre.
 
 **Domain layer**
+
 - Optionnelle : créer un **UseCase** seulement quand une logique est réutilisée par plusieurs ViewModels ou combine plusieurs repositories.
 
 **Data layer**
+
 - Les **repositories** sont la seule source de vérité exposée au reste de l'app ; ils exposent des `Flow` et des fonctions `suspend`.
 - Stratégie **offline-first** quand le produit le justifie : la base locale (Room) est la source de vérité, le réseau la met à jour.
 - Les modèles réseau (DTO) et base (entités) sont convertis en modèles du domaine ; l'UI ne voit jamais un DTO.
 
 **Navigation**
+
 - **Navigation Compose** avec routes **typées** (`@Serializable`). Les arguments passés sont des identifiants, pas des objets complets.
 
 ## Alternatives envisagées

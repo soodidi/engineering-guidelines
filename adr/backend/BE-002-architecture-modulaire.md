@@ -32,11 +32,13 @@ src/
 ```
 
 **Règles des couches**
+
 - **Controller** : aucun accès à la base, aucune règle métier. Il valide l'entrée, appelle un service, formate la réponse.
 - **Service** : porte les règles métier. Il ne connaît ni HTTP (pas de `Request`/`Response`) ni le détail SQL.
 - **Repository** : seul endroit qui parle à Drizzle. Retourne des objets du domaine, pas des lignes brutes si elles diffèrent.
 
 **Règles entre modules**
+
 - Un module n'accède **jamais** aux tables ou au repository d'un autre module. Il passe par le service exporté par ce module.
 - Pas de dépendance circulaire entre modules.
 - Pour réagir à un événement d'un autre module sans couplage fort : événements internes (`@nestjs/event-emitter`), puis file de messages si besoin d'asynchrone fiable.

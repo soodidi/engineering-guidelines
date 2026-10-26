@@ -12,6 +12,7 @@ Sans stratégie commune, on oscille entre « pas de tests » et « 100 % de couv
 ## Décision
 
 **Principes**
+
 - On teste le **comportement**, pas l'implémentation. Un refactoring qui ne change pas le comportement ne DEVRAIT pas casser de test.
 - Priorité à la **logique métier** et aux **zones à risque** (paiement, auth, calculs, migrations de données).
 - Tout bug corrigé DOIT être accompagné d'un test qui le reproduit.
@@ -26,9 +27,11 @@ Sans stratégie commune, on oscille entre « pas de tests » et « 100 % de couv
 | End-to-end | Parcours utilisateur critiques uniquement | Peu (5 à 15 parcours) |
 
 **Couverture**
+
 - Pas d'objectif de couverture global imposé. La couverture DEVRAIT être suivie et ne pas baisser sur le code modifié.
 
 **Nommage**
+
 - Un test se lit comme une spécification : `it("refuse un panier vide")`, `test_returns_404_when_user_not_found`.
 
 Les outils par domaine sont précisés dans FE-007, BE-008, AND-005 et IOS-005.

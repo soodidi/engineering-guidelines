@@ -12,13 +12,16 @@ Une app qui grandit dans un seul module Gradle compile de plus en plus lentement
 ## Décision
 
 **Injection de dépendances**
+
 - **Hilt** pour l'injection de dépendances.
 - Injection par constructeur partout où c'est possible. Pas de service locator ni de singletons statiques maison.
 - Les interfaces de repository sont injectées, ce qui permet de fournir des implémentations de test (fakes).
 
 **Modularisation progressive**
+
 - Démarrer avec `:app` + `:core:*` minimal. Découper en modules **feature** dès qu'il y a plusieurs fonctionnalités indépendantes ou que le build ralentit.
 - Structure cible :
+
 ```
 :app                      # point d'entrée, navigation globale, DI racine
 :feature:<nom>            # écrans + ViewModels d'une fonctionnalité
@@ -29,6 +32,7 @@ Une app qui grandit dans un seul module Gradle compile de plus en plus lentement
 :core:model               # modèles du domaine
 :core:testing             # fakes et utilitaires de test
 ```
+
 - Un module `:feature` NE DÉPEND PAS d'un autre module `:feature`. La navigation entre features passe par `:app`.
 - **Convention plugins** Gradle (`build-logic/`) pour factoriser la configuration commune des modules.
 - Visibilité `internal` par défaut dans les modules.

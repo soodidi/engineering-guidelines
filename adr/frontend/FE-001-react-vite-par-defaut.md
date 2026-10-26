@@ -14,6 +14,7 @@ La plupart de nos apps sont des interfaces authentifiées (back-offices, outils,
 **Par défaut : SPA React + TypeScript + Vite**, servie en statique (OPS-005).
 
 **Next.js est autorisé uniquement si au moins un critère est rempli** :
+
 - SEO indispensable sur des pages à contenu dynamique (catalogue, annonces, blog) ;
 - performance du premier affichage critique pour des visiteurs non connectés (landing, e-commerce) ;
 - besoin de rendu serveur pour des aperçus de partage (Open Graph dynamique).

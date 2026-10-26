@@ -39,6 +39,7 @@ Un ADR accepté **ne se réécrit pas**. On corrige les fautes de frappe, on com
 ## Quand écrire un ADR ?
 
 Écrire un ADR quand la décision :
+
 - est coûteuse à défaire (choix de framework, de base de données, d'architecture) ;
 - concerne plusieurs personnes ou plusieurs repos ;
 - a déjà été rediscutée deux fois en revue de code.

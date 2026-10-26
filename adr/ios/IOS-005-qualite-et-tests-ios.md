@@ -12,6 +12,7 @@ Déclinaison iOS de GLB-004 et OPS-002. La revue App Store ajoute un délai : un
 ## Décision
 
 **Qualité statique**
+
 - **SwiftLint** (règles d'analyse) et **SwiftFormat** (formatage), exécutés en local et en CI.
 - Conventions Swift (API Design Guidelines d'Apple) : types en `UpperCamelCase`, le reste en `lowerCamelCase`, noms qui se lisent comme des phrases au point d'appel.
 - Avertissements du compilateur traités comme des erreurs en CI.
@@ -29,6 +30,7 @@ Déclinaison iOS de GLB-004 et OPS-002. La revue App Store ajoute un délai : un
 - Le temps et l'aléatoire sont injectés (`Clock`, générateurs) pour des tests déterministes.
 
 **Livraison**
+
 - Build, signature et publication automatisés avec **Fastlane** sur runners **macOS GitHub Actions** ; certificats et profils gérés par `fastlane match` (stockage chiffré) ou par la signature gérée via clé d'API App Store Connect.
 - Parcours : TestFlight interne → TestFlight externe → App Store en **publication progressive** (phased release).
 - `CFBundleVersion` généré par la CI (GLB-006).

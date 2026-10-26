@@ -30,6 +30,7 @@ src/
 ```
 
 **Règles**
+
 - Une feature N'importe PAS les fichiers internes d'une autre feature. Elle passe par son `index.ts`.
 - Les dépendances vont dans un seul sens : `app` → `features` → `components/ui`, `lib`, `hooks`, `utils`. Les dossiers partagés n'importent jamais une feature.
 - Un composant n'est déplacé dans `components/ui` que lorsqu'il est utilisé par **au moins deux features** et ne contient pas de logique métier.

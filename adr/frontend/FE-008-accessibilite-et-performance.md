@@ -12,6 +12,7 @@ L'accessibilité et la performance sont coûteuses à rattraper après coup. En 
 ## Décision
 
 **Accessibilité (cible : WCAG 2.2 niveau AA)**
+
 - HTML sémantique d'abord : `button` pour une action, `a` pour une navigation, titres `h1`–`h6` hiérarchisés, landmarks (`main`, `nav`, `header`).
 - Toute l'app DOIT être utilisable au clavier, avec un focus visible.
 - Images informatives : `alt` pertinent ; images décoratives : `alt=""`.
@@ -21,6 +22,7 @@ L'accessibilité et la performance sont coûteuses à rattraper après coup. En 
 - À chaque changement de route, le titre de la page change et le focus est géré.
 
 **Performance**
+
 - Routes chargées en lazy (`React.lazy` par feature).
 - Budget de bundle JS initial (compressé) : **≤ 200 Ko**, suivi en CI.
 - Images : formats modernes (WebP/AVIF), dimensions explicites, `loading="lazy"` sous la ligne de flottaison.
@@ -40,7 +42,7 @@ L'accessibilité et la performance sont coûteuses à rattraper après coup. En 
 
 ## Mise en application
 
-- `eslint-plugin-jsx-a11y`.
+- `eslint-plugin-jsx-a11y-x` (voir FE-002).
 - `@axe-core/playwright` dans les tests E2E.
 - `size-limit` ou équivalent en CI pour le budget de bundle.
 - Lighthouse CI sur les pages publiques.

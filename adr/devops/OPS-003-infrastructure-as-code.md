@@ -15,6 +15,7 @@ Une infrastructure créée à la main dans la console (*click-ops*) ne peut êtr
 - La console cloud sert à **observer**, pas à modifier. Une modification manuelle d'urgence DOIT être reportée dans le code le jour même.
 - **State distant** dans un bucket Object Storage (backend compatible S3), chiffré, versionné, avec verrouillage du state activé. Un state par environnement.
 - Structure :
+
 ```
 infra/
 ├── modules/            # briques réutilisables : app-service, database, static-site…
@@ -22,6 +23,7 @@ infra/
     ├── staging/
     └── production/
 ```
+
 - Les environnements utilisent les **mêmes modules** avec des variables différentes (taille, nombre d'instances).
 - Versions des providers et de l'outil épinglées.
 - Toute modification passe par une PR avec le `plan` affiché en commentaire ; l'`apply` est fait par la CI après fusion (staging) ou approbation (production).

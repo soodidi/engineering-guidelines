@@ -18,6 +18,7 @@ Déclinaison backend de GLB-004. Les tests qui mockent la base de données passe
 | API / e2e | **Vitest + `app.inject()` (Fastify)** ou supertest | endpoints complets : auth, validation, codes HTTP, format d'erreur |
 
 **Règles**
+
 - On NE mocke PAS la base de données pour tester les repositories : on utilise un PostgreSQL réel en conteneur, avec les vraies migrations.
 - Chaque test d'intégration part d'un état propre (transaction annulée en fin de test, ou base tronquée).
 - Les données de test sont créées via des **factories** (`createUser({ role: 'admin' })`), pas par des fixtures SQL géantes partagées.

@@ -20,6 +20,7 @@ Les apps mobiles sont développées en natif (choix fait face à React Native) p
 - JDK épinglé (GLB-008).
 
 **Compose**
+
 - Composables sans état (*stateless*) par défaut : ils reçoivent l'état et émettent des événements (*state hoisting*). Seul l'écran de plus haut niveau est relié au ViewModel.
 - Chaque composable public a un `@Preview` (cas nominal + au moins un cas limite : vide, erreur, texte long).
 - Paramètre `modifier: Modifier = Modifier` en premier paramètre optionnel de tout composable d'UI réutilisable.

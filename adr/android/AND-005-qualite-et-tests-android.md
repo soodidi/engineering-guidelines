@@ -12,6 +12,7 @@ Déclinaison Android de GLB-004 et OPS-002. Une app publiée ne se corrige pas i
 ## Décision
 
 **Qualité statique**
+
 - **ktlint** pour le formatage, **detekt** (avec règles Compose) pour l'analyse, **Android Lint** avec les avertissements traités comme des erreurs pour les catégories sécurité et correction.
 - Conventions Kotlin officielles : classes en `PascalCase`, fonctions et variables en `camelCase`, constantes en `SCREAMING_SNAKE_CASE`, fichiers nommés comme leur classe principale.
 
@@ -28,6 +29,7 @@ Déclinaison Android de GLB-004 et OPS-002. Une app publiée ne se corrige pas i
 - Les ViewModels sont testés via l'`UiState` émis, pas via leurs méthodes privées.
 
 **Livraison**
+
 - Build et signature en CI (GitHub Actions) ; clé de signature d'upload stockée dans les secrets d'Environment, **Play App Signing** activé.
 - Publication via **Fastlane** (ou Gradle Play Publisher) : piste interne → tests fermés → production en **déploiement progressif**.
 - `versionCode` généré par la CI (GLB-006).

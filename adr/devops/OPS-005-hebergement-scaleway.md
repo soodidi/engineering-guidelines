@@ -31,6 +31,7 @@ On veut un hébergement **européen** (données en France/UE, RGPD, souverainet�
 Seulement si au moins un besoin n'est plus couvert : plusieurs services avec communication interne complexe, workers longs ou nombreux, besoins réseau/stockage spécifiques, ou coût des conteneurs serverless devenu supérieur à un cluster. Ce passage DOIT faire l'objet d'un ADR.
 
 **Règles**
+
 - Base de données dans un réseau privé (Private Network), jamais exposée publiquement.
 - Production : base en haute disponibilité, sauvegardes quotidiennes avec rétention ≥ 7 jours.
 - Budgets et alertes de facturation configurés par projet.

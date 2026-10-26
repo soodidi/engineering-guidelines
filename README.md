@@ -14,6 +14,13 @@ Ce repo sert de référence commune, pour les humains comme pour les assistants 
 | Android  | Kotlin + Jetpack Compose + Hilt ([AND-001](adr/android/AND-001-kotlin-compose.md)) |
 | iOS      | Swift 6 + SwiftUI + Swift Package Manager ([IOS-001](adr/ios/IOS-001-swift-swiftui.md)) |
 
+## Repos associés
+
+| Repo | Rôle |
+|------|------|
+| `boilerplates` | Points de départ des nouveaux projets, qui appliquent déjà ces ADR ([GLB-010](adr/global/GLB-010-boilerplates-et-libs-partagees.md)) |
+| `shared-libs` | Configurations et libs communes (`@soodidi/*`), preset Renovate, workflows GitHub réutilisables |
+
 ## Organisation
 
 ```

@@ -20,6 +20,7 @@ La plupart de l'« état global » d'une app est en réalité une **copie des do
 | État client partagé | Context (rarement modifié) ou **Zustand** | thème, panier hors-ligne, préférences |
 
 **Règles**
+
 - Les données serveur NE DOIVENT PAS être copiées dans un store client ou un `useState`.
 - Chaque feature expose ses requêtes via des hooks dans `features/x/api/` (`useInvoices()`, `useCreateInvoice()`), avec une **factory de query keys** par feature.
 - Les mutations invalident précisément les query keys concernées.

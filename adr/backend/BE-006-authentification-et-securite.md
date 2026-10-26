@@ -12,20 +12,24 @@ L'API sert des navigateurs (où les cookies sont le mécanisme le plus sûr) et 
 ## Décision
 
 **Ne pas réinventer l'authentification**
+
 - Hachage des mots de passe : **Argon2id** uniquement.
 - On s'appuie sur une solution éprouvée plutôt que d'écrire le protocole soi-même : librairie d'auth reconnue intégrée au backend, ou fournisseur d'identité OIDC (Keycloak auto-hébergé, ou un service managé hébergé en Europe) quand il y a SSO, multi-apps ou exigences fortes.
 
 **Sessions**
+
 - **Web** : session en cookie `HttpOnly`, `Secure`, `SameSite=Lax` (ou `Strict`), pas de token dans `localStorage`. Protection CSRF sur les requêtes qui modifient l'état.
 - **Mobile** : *access token* court (≤ 15 min) + *refresh token* **rotatif** à usage unique, stocké dans le Keystore Android / Keychain iOS (AND-004, IOS-004). La réutilisation d'un refresh token révoque toute la famille de tokens.
 - Les sessions et refresh tokens sont révocables côté serveur (déconnexion, changement de mot de passe).
 
 **Autorisation**
+
 - Toute route est **protégée par défaut** (guard global) ; les routes publiques sont marquées explicitement (`@Public()`).
 - Vérification des droits dans le service **sur la ressource** (ex : la facture appartient-elle à l'organisation de l'utilisateur ?), pas seulement sur le rôle. C'est la première cause de fuite de données (IDOR).
 - Modèle par défaut : rôles (RBAC) + vérification d'appartenance.
 
 **Sécurité HTTP**
+
 - CORS : liste blanche explicite des origines, jamais `*` avec credentials.
 - En-têtes de sécurité (`@fastify/helmet`).
 - Rate limiting sur l'API, renforcé sur login, inscription, mot de passe oublié.
