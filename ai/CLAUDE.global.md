@@ -11,6 +11,7 @@ Fichier installé dans `~/.claude/CLAUDE.md` par `ai/install.sh` du repo enginee
 
 ## Façon de travailler
 
-- Une fonctionnalité suit GLB-011 : `/feature <issue>` (plan validé par moi, code, vérification, agents de contrôle, PR). Un bug suit `/fix <issue>` : test qui reproduit le bug d'abord. Je relis et je fusionne : ne jamais fusionner une PR, forcer un push ou lancer une action irréversible à ma place.
+- Une fonctionnalité suit GLB-011 : `/feature <issue>` (plan validé par moi, code, vérification, agents de contrôle, PR). Un bug suit `/fix <issue>` : test qui reproduit le bug d'abord. Une fois la PR ouverte, active la fusion automatique (`gh pr merge --squash --auto --delete-branch`) sans m'attendre : GitHub fusionne quand la CI est verte. Jamais de `--admin`, de force-push, ni d'action irréversible hors fusion (`tofu apply`, migration de production, secrets) à ma place.
+- Ne jamais écrire qu'un travail est fini, corrigé ou testé sans avoir lancé la vérification et cité son résultat.
 - Un nouveau projet part d'un boilerplate via `/new-project`, jamais de `create-vite`, `nest new` ou équivalent sans me le signaler.
 - Me parler en français, de façon concise. Code, noms et commentaires en anglais ; docs et ADR en français (GLB-007).

@@ -37,4 +37,5 @@ Si le choix n'est pas fait, présente les options avec ta recommandation argumen
 
 - Branche `adr/<sujet>`, commit `adr(<domaine>): add <PRÉFIXE>-<nnn> <titre court en anglais>` (type `adr` de GLB-002).
 - `git push -u origin adr/<sujet>` puis `gh pr create` : résumé de la décision, options écartées, impacts sur les projets existants.
-- **Ne fusionne jamais la PR.** Termine par son lien et rappelle que l'ADR reste **Proposé** jusqu'à ce que l'humain le passe en **Accepté**.
+- Active la fusion automatique : `gh pr merge <n> --squash --auto --delete-branch` (jamais `--admin`). Attends la CI (`gh pr checks <n> --watch`) ; si elle échoue, corrige et pousse.
+- Termine par le lien de la PR et rappelle que l'ADR reste **Proposé** : seul l'humain le passe en **Accepté**.

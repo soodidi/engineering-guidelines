@@ -29,7 +29,7 @@ Règles transverses, applicables à tous les domaines.
 
 **Travail avec l'IA**
 
-- Cycle `/feature` : issue avec critères d'acceptation → plan validé par un humain → code + `verify` → contrôles par agents spécialisés (`reviewer`, `qa`, `security`, `devops`) → PR. Bugs : `/fix` (test qui reproduit d'abord). L'IA ne fusionne jamais ; actions irréversibles interdites par la config `.claude/`. → [GLB-011](GLB-011-developpement-avec-l-ia.md)
+- Cycle `/feature` : issue avec critères d'acceptation → plan validé par un humain → code + `verify` → contrôles par agents spécialisés (`reviewer`, `qa`, `security`, `devops`) → PR. Bugs : `/fix` (test qui reproduit d'abord). Fusion par l'IA via `gh pr merge --auto` une fois les checks verts (règle temporaire) ; vérifier avant d'annoncer ; actions irréversibles hors fusion interdites par la config `.claude/`. → [GLB-011](GLB-011-developpement-avec-l-ia.md)
 
 ## Index
 

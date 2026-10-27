@@ -22,7 +22,7 @@ Un nouveau projet part toujours du boilerplate correspondant dans le repo `boile
 
 ## Cycle de travail
 
-Une fonctionnalité suit le cycle de [GLB-011](adr/global/GLB-011-developpement-avec-l-ia.md) : issue, plan validé par un humain, code, vérification, contrôles par les agents spécialisés, PR. L'IA ne fusionne jamais une PR.
+Une fonctionnalité suit le cycle de [GLB-011](adr/global/GLB-011-developpement-avec-l-ia.md) : issue, plan validé par un humain, code, vérification, contrôles par les agents spécialisés, PR, puis fusion automatique une fois la CI verte (`gh pr merge --squash --auto`, jamais `--admin`). Ne jamais annoncer qu'un travail est fini sans avoir lancé la vérification et cité son résultat.
 
 ## Quand une décision manque
 
