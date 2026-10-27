@@ -23,6 +23,7 @@ TypeScript ne protège que si on le laisse faire son travail. Les `any`, les ass
 - Les assertions `as` sont réservées aux cas justifiés par un commentaire. `as const` et `satisfies` sont encouragés.
 - Pas de `!` (non-null assertion) hors tests.
 - Les données venant de l'extérieur (API, localStorage, URL) DOIVENT être validées à l'exécution (Zod) avant d'être typées.
+  - Exception : les appels d'authentification passent par le SDK client de Better Auth (BE-006), qui gère lui-même ses requêtes. Seules les données que l'app consomme sont validées : la session par un schéma Zod, et seuls `status` et `code` sont lus dans les erreurs. Les réponses des autres appels d'auth ne sont pas utilisées.
 - `type` par défaut ; `interface` seulement pour un contrat destiné à être étendu.
 - Pas d'`enum` TypeScript : utiliser des unions de littéraux ou des objets `as const`.
 - Exports nommés uniquement (sauf contrainte d'un outil, ex : `lazy()`).
