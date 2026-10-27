@@ -15,6 +15,7 @@ Comme Android (AND-004), l'app consomme l'API OpenAPI du backend (BE-004), gère
 
 - **URLSession** avec async/await.
 - Client et types générés depuis la spec OpenAPI avec **swift-openapi-generator** (plugin SPM), dans `Core/Networking`.
+- À la connexion, le token de session arrive dans l'en-tête de réponse `set-auth-token` ; il est aussitôt rangé dans le Keychain.
 - Un middleware ajoute le token de session en `Authorization: Bearer` (BE-006). Sur une réponse `401`, il efface le token et renvoie vers la connexion ; il n'y a pas de refresh token.
 - Les erreurs Problem Details sont converties en erreurs typées du domaine.
 - App Transport Security actif : HTTPS uniquement, aucune exception en production.
