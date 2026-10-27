@@ -7,7 +7,7 @@
 
 ## Contexte
 
-Comme Android (AND-004), l'app consomme l'API OpenAPI du backend (BE-004), gère les tokens (BE-006) et parfois le hors-ligne, sur un appareil qu'on ne contrôle pas.
+Comme Android (AND-004), l'app consomme l'API OpenAPI du backend (BE-004), gère le token de session (BE-006) et parfois le hors-ligne, sur un appareil qu'on ne contrôle pas.
 
 ## Décision
 
@@ -15,7 +15,7 @@ Comme Android (AND-004), l'app consomme l'API OpenAPI du backend (BE-004), gère
 
 - **URLSession** avec async/await.
 - Client et types générés depuis la spec OpenAPI avec **swift-openapi-generator** (plugin SPM), dans `Core/Networking`.
-- Un middleware ajoute l'access token et gère le renouvellement via le refresh token (un seul renouvellement simultané, protégé par un acteur).
+- Un middleware ajoute le token de session en `Authorization: Bearer` (BE-006). Sur une réponse `401`, il efface le token et renvoie vers la connexion ; il n'y a pas de refresh token.
 - Les erreurs Problem Details sont converties en erreurs typées du domaine.
 - App Transport Security actif : HTTPS uniquement, aucune exception en production.
 

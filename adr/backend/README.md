@@ -21,7 +21,7 @@ S'applique en plus du [guide global](../global/README.md).
 
 **Sécurité**
 
-- Argon2id ; web = cookie `HttpOnly` + CSRF ; mobile = access token court + refresh rotatif ; routes protégées par défaut ; contrôle d'accès sur la ressource ; rate limiting ; pas de données sensibles dans les logs. → [BE-006](BE-006-authentification-et-securite.md)
+- Better Auth (Drizzle) ; Argon2id ; sessions opaques révocables, en cookie `HttpOnly` + CSRF sur le web, en `Bearer` stocké dans le Keychain/Keystore sur mobile, durée de vie absolue bornée ; routes protégées par défaut ; contrôle d'accès sur la ressource ; rate limiting ; pas de données sensibles dans les logs. → [BE-006](BE-006-authentification-et-securite.md)
 
 **Exploitation**
 
