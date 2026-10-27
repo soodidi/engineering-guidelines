@@ -27,7 +27,7 @@ Un ticket est terminé quand **toutes** ces conditions sont remplies :
 4. Les textes passent par les fichiers de traduction (GLB-007).
 5. Les erreurs sont remontées dans l'outil de suivi (Sentry ou équivalent, FE-009, BE-007).
 6. La documentation est à jour : README, `.env.example`, ADR si une décision a été prise.
-7. La fonctionnalité est déployée en **staging** et **validée** sur les critères d'acceptation par une autre personne que l'auteur (PO, QA ou un autre dev).
+7. La fonctionnalité est déployée en **staging** et **validée** sur les critères d'acceptation par une autre personne que l'auteur (PO, QA ou un autre dev). **Seul sur le projet** : l'auteur la valide lui-même en staging, critère par critère ; la validation par une autre personne s'applique à partir de deux personnes.
 8. Si la fonctionnalité est risquée : elle est derrière un feature flag, avec un plan de désactivation.
 
 ### Gestion des bugs
@@ -78,7 +78,7 @@ Les fonctionnalités importantes DEVRAIENT faire l'objet d'une session de test e
 
 - ✅ « Terminé » a le même sens pour tout le monde.
 - ✅ Les bugs sont priorisés de façon cohérente, les releases ont des critères d'arrêt clairs.
-- ⚠️ La validation par une autre personne ajoute un délai : à anticiper dans la planification.
+- ⚠️ À partir de deux personnes, la validation par une autre personne ajoute un délai : à anticiper dans la planification.
 
 ## Mise en application
 
