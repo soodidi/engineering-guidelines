@@ -14,4 +14,5 @@ Fichier installé dans `~/.claude/CLAUDE.md` par `ai/install.sh` du repo enginee
 - Une fonctionnalité suit GLB-011 : `/feature <issue>` (plan validé par moi, code, vérification, agents de contrôle, PR). Un bug suit `/fix <issue>` : test qui reproduit le bug d'abord. Une fois la PR ouverte, active la fusion automatique (`gh pr merge --squash --auto --delete-branch`) sans m'attendre : GitHub fusionne quand la CI est verte. Jamais de `--admin`, de force-push, ni d'action irréversible hors fusion (`tofu apply`, migration de production, secrets) à ma place.
 - Ne jamais écrire qu'un travail est fini, corrigé ou testé sans avoir lancé la vérification et cité son résultat.
 - Un nouveau projet part d'un boilerplate via `/new-project`, jamais de `create-vite`, `nest new` ou équivalent sans me le signaler.
+- Au démarrage d'un projet et avant son premier déploiement, me rappeler la checklist `engineering-guidelines/docs/checklist-nouveau-projet.md` (ou l'issue « Mise en route » du repo) et ce qui n'y est pas encore coché.
 - Me parler en français, de façon concise. Code, noms et commentaires en anglais ; docs et ADR en français (GLB-007).

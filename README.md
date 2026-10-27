@@ -21,6 +21,10 @@ Ce repo sert de référence commune, pour les humains comme pour les assistants 
 | `boilerplates` | Points de départ des nouveaux projets, qui appliquent déjà ces ADR ([GLB-010](adr/global/GLB-010-boilerplates-et-libs-partagees.md)) |
 | `shared-libs` | Configurations et libs communes (`@soodidi/*`), preset Renovate, workflows GitHub réutilisables |
 
+## Démarrer un projet
+
+`/new-project` crée les repos à partir des boilerplates ([GLB-010](adr/global/GLB-010-boilerplates-et-libs-partagees.md)). Les comptes et secrets à configurer à la main sont dans la [checklist « nouveau projet »](docs/checklist-nouveau-projet.md).
+
 ## Organisation
 
 ```
@@ -32,6 +36,7 @@ adr/
 ├── devops/              # OPS-xxx
 ├── android/             # AND-xxx
 └── ios/                 # IOS-xxx
+docs/                    # guides pratiques (checklist nouveau projet…)
 ```
 
 Chaque dossier contient un `README.md` qui sert de **guide du domaine** : la liste des règles en vigueur, en version courte, avec un lien vers l'ADR qui justifie chacune. Pour coder, on lit le guide. Pour comprendre ou contester une règle, on lit l'ADR.

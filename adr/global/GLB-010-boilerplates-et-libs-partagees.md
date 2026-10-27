@@ -26,6 +26,7 @@ Les ADR décrivent des règles, mais une règle qu'il faut reconfigurer à la ma
 
 - Un boilerplate se copie (`npx degit soodidi/boilerplates/<nom> <projet>`) : le nouveau projet ne reste **pas** lié au boilerplate. Il démarre son propre historique Git.
 - Chaque boilerplate DOIT fonctionner seul : installation, lint, tests et build passent sans autre étape que celles de son README.
+- Les comptes, secrets et réglages qu'aucun boilerplate ne peut porter (Sentry, Scaleway, domaine, stores, pages légales) sont listés dans la [checklist « nouveau projet »](../../docs/checklist-nouveau-projet.md). `/new-project` l'affiche à la fin et ouvre dans chaque repo une issue « Mise en route » avec ce qui reste à faire.
 - Chaque boilerplate contient : configuration des outils de qualité, hooks Git, CI GitHub Actions, templates de PR et d'issue (GLB-003, GLB-009), `.env.example`, un exemple de feature minimal qui montre l'architecture, et un README de démarrage.
 - Quand un ADR change une règle outillée, le boilerplate concerné DOIT être mis à jour dans la foulée.
 - Un projet Next.js (exception FE-001) part de `create-next-app` puis reprend la configuration de `web-react-vite`. Pas de boilerplate dédié tant qu'il n'y a pas eu au moins deux projets Next.js.
