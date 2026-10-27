@@ -48,8 +48,9 @@ Le compte Scaleway existe ; chaque projet a son **projet Scaleway** pour isoler 
 
 - [ ] Projet Scaleway `<nom>` créé ; noter son ID et celui de l'organisation.
 - [ ] **Alerte budget** sur le projet (Console → Billing → Budget alerts), avec un seuil bas au départ.
-- [ ] Clé API dédiée à la CI, **limitée au projet** (OPS-006). Idéalement une clé en lecture seule pour les `plan` des PR.
-- [ ] Bucket d'état OpenTofu créé à la main (privé, versioning activé), nom reporté à la place de `CHANGE-ME-tfstate` dans les trois `main.tf` de l'infra.
+- [ ] Bucket d'état OpenTofu créé à la main (privé, versioning activé), nom reporté à la place de `CHANGE-ME-tfstate` dans les `main.tf` de l'infra.
+- [ ] **Passphrase de chiffrement du state** (16 caractères au moins) rangée dans le gestionnaire de mots de passe et dans le secret `TF_STATE_PASSPHRASE` des quatre environnements du repo infra (OPS-006).
+- [ ] `envs/iam` appliqué **à la main** avec ta clé personnelle (droits IAM) : il crée la clé de la CI, **limitée au projet** et sans droit IAM, et les clés SMTP. Récupérer la clé de la CI avec `tofu -chdir=envs/iam output -raw ci_access_key` et `ci_secret_key` (OPS-006).
 - [ ] Environnements GitHub `staging` et `production` dans chaque repo qui déploie, **reviewers obligatoires sur `production`** :
 
   ```bash
@@ -65,6 +66,7 @@ Le compte Scaleway existe ; chaque projet a son **projet Scaleway** pour isoler 
   gh secret set SCW_SECRET_KEY -R soodidi/<nom>-infra --env <env>
   gh variable set SCW_DEFAULT_PROJECT_ID -R soodidi/<nom>-infra --env <env> --body <id-projet>
   gh variable set SCW_DEFAULT_ORGANIZATION_ID -R soodidi/<nom>-infra --env <env> --body <id-organisation>
+  gh secret set TF_STATE_PASSPHRASE -R soodidi/<nom>-infra --env <env>
   ```
 
 - [ ] Repo API, niveau repo (push de l'image dans le registre) :
@@ -98,8 +100,7 @@ Le compte Scaleway existe ; chaque projet a son **projet Scaleway** pour isoler 
 - [ ] Nom de domaine acheté (registrar en UE de préférence), au nom de l'éditeur.
 - [ ] DNS : l'app (`app.<domaine>`, `staging.app.<domaine>`) vers Edge Services, l'API vers son conteneur ; `web_domain` et `web_origin` reportés dans les tfvars.
 - [ ] E-mails d'envoi (BE-009) : sous-domaine d'envoi (`mail.<domaine>`) déclaré dans Scaleway TEM ; enregistrements **SPF**, **DKIM** et **DMARC** (`p=none` au départ) publiés et vérifiés.
-- [ ] Clé API Scaleway limitée à l'envoi TEM ; secret `SMTP_URL` (`smtp://<ID du projet>:<clé secrète>@smtp.tem.scaleway.com:587`) et variable `MAIL_FROM` dans Secret Manager, pour staging et production.
-- [ ] Staging : `MAIL_ALLOWED_RECIPIENTS` contient tes propres adresses.
+- [ ] Tfvars de staging et production : `mail_from` (adresse du sous-domaine d'envoi) ; en staging, `mail_allowed_recipients` avec tes propres adresses. `SMTP_URL` est généré par OpenTofu (`envs/iam`) : rien à saisir.
 
 ## Mobile (Android, iOS)
 
