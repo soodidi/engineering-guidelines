@@ -14,6 +14,7 @@ Comme Android (AND-004), l'app consomme l'API OpenAPI du backend (BE-004), gère
 **Réseau**
 
 - **URLSession** avec async/await.
+- La session URLSession est configurée sans cookies (`httpShouldSetCookies = false`, `httpCookieStorage = nil`) : l'auth passe uniquement par le token `Bearer` (BE-006). Un cookie renvoyé automatiquement ferait passer la requête pour une requête web.
 - Client et types générés depuis la spec OpenAPI avec **swift-openapi-generator** (plugin SPM), dans `Core/Networking`.
 - À la connexion, le token de session arrive dans l'en-tête de réponse `set-auth-token` ; il est aussitôt rangé dans le Keychain.
 - Un middleware ajoute le token de session en `Authorization: Bearer` (BE-006). Sur une réponse `401`, il efface le token et renvoie vers la connexion ; il n'y a pas de refresh token.
