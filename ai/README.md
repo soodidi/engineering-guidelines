@@ -2,6 +2,8 @@
 
 Ce dossier contient la configuration Claude Code commune à **tous** les projets (GLB-011). La configuration propre à un projet (agents, `/feature`, `/fix`, `/review`, hooks, permissions) vit dans le `.claude/` de chaque boilerplate.
 
+**Aide-mémoire de toutes les commandes et agents : [COMMANDES.md](COMMANDES.md).**
+
 | Fichier | Installé dans | Rôle |
 |---------|---------------|------|
 | `CLAUDE.global.md` | `~/.claude/CLAUDE.md` | Où trouver les guidelines, façon de travailler |
