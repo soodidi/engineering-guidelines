@@ -20,6 +20,10 @@ Ce fichier s'adresse aux assistants de code (Claude, Copilot, Cursor…) qui tra
 
 Un nouveau projet part toujours du boilerplate correspondant dans le repo `boilerplates` (GLB-010). Ne pas générer un projet avec un autre outil (`create-vite`, `nest new`…) sans le signaler.
 
+## Cycle de travail
+
+Une fonctionnalité suit le cycle de [GLB-011](adr/global/GLB-011-developpement-avec-l-ia.md) : issue, plan validé par un humain, code, vérification, contrôles par les agents spécialisés, PR. L'IA ne fusionne jamais une PR.
+
 ## Quand une décision manque
 
 Si une question d'architecture revient et qu'aucun ADR ne la couvre, proposer un brouillon d'ADR à partir de `adr/template.md` au lieu de trancher seul.
