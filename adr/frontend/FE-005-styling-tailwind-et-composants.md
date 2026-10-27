@@ -4,6 +4,7 @@
 - **Date** : 2026-10-25
 - **Périmètre** : frontend
 - **Auteurs** : Mo, Claude
+- **Liens** : GLB-012
 
 ## Contexte
 
@@ -14,7 +15,7 @@ Il faut une méthode de style cohérente, rapide à écrire et sans coût d'exé
 **Style**
 
 - **Tailwind CSS** est la seule méthode de style. Pas de CSS-in-JS à l'exécution, pas de fichiers CSS par composant (sauf cas exceptionnel justifié).
-- Les tokens (couleurs, espacements, rayons, typographie) sont définis **une seule fois** dans la config Tailwind / variables CSS. Pas de valeurs arbitraires (`w-[437px]`, `#3a7bd5`) hors cas ponctuel justifié.
+- Les tokens (couleurs, rayons, police) viennent du thème choisi dans `@soodidi/design-tokens` (GLB-012), copié dans `src/theme/`. Pas de valeurs arbitraires (`w-[437px]`, `#3a7bd5`) hors cas ponctuel justifié.
 - Les couleurs sont **sémantiques** (`bg-primary`, `text-muted-foreground`), jamais des couleurs brutes dans les composants. Le mode sombre passe par les variables.
 - Fusion de classes conditionnelles avec un utilitaire `cn()` (`clsx` + `tailwind-merge`).
 - Variantes de composants avec `cva` (class-variance-authority) plutôt que des ternaires imbriqués.

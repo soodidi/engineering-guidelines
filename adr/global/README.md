@@ -23,6 +23,10 @@ Règles transverses, applicables à tous les domaines.
 - Lockfiles commités, versions d'outils épinglées, npm (`npm ci` en CI), Renovate hebdo ; dépendance structurante = ADR. → [GLB-008](GLB-008-gestion-des-dependances.md)
 - Tout nouveau projet part du repo `boilerplates` ; le code et les configs communs vivent dans `shared-libs` (packages `@soodidi/*`). → [GLB-010](GLB-010-boilerplates-et-libs-partagees.md)
 
+**Design**
+
+- Thème issu de `@soodidi/design-tokens` : épuré, chaleureux ou coloré, toujours en clair et en sombre, contrastes WCAG AA testés. Composants : rôles de couleur uniquement (`bg-primary`, `AppColor.primary`), jamais de couleur brute. → [GLB-012](GLB-012-socle-de-design-commun.md)
+
 **Travail avec l'IA**
 
 - Cycle `/feature` : issue avec critères d'acceptation → plan validé par un humain → code + `verify` → contrôles par agents spécialisés (`reviewer`, `qa`, `security`, `devops`) → PR. Bugs : `/fix` (test qui reproduit d'abord). L'IA ne fusionne jamais ; actions irréversibles interdites par la config `.claude/`. → [GLB-011](GLB-011-developpement-avec-l-ia.md)
@@ -42,3 +46,4 @@ Règles transverses, applicables à tous les domaines.
 | [GLB-009](GLB-009-qa-et-definition-of-done.md) | QA, Definition of Done et gestion des bugs | Proposé |
 | [GLB-010](GLB-010-boilerplates-et-libs-partagees.md) | Boilerplates et libs partagées | Proposé |
 | [GLB-011](GLB-011-developpement-avec-l-ia.md) | Développement avec l'IA et agents spécialisés | Proposé |
+| [GLB-012](GLB-012-socle-de-design-commun.md) | Socle de design commun | Proposé |
