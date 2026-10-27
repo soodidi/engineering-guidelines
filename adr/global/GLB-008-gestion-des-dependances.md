@@ -26,7 +26,7 @@ Chaque dépendance est du code qu'on ne maîtrise pas : surface d'attaque (attaq
 **Mises à jour**
 
 - Mises à jour automatisées via **Renovate**, regroupées par écosystème, à fréquence hebdomadaire.
-- Correctifs et mineurs : fusion automatique si la CI est verte (hors frameworks principaux).
+- Toutes les mises à jour, majeures comprises, sont fusionnées automatiquement si la CI est verte (règle temporaire de GLB-011). Les majeures gardent une PR par paquet et le label `major`.
 - Majeures : PR dédiée, relue manuellement, notes de version lues.
 - Vulnérabilités critiques : traitées dans la semaine.
 
