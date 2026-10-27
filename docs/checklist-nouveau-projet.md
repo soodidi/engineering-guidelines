@@ -97,7 +97,9 @@ Le compte Scaleway existe ; chaque projet a son **projet Scaleway** pour isoler 
 
 - [ ] Nom de domaine acheté (registrar en UE de préférence), au nom de l'éditeur.
 - [ ] DNS : l'app (`app.<domaine>`, `staging.app.<domaine>`) vers Edge Services, l'API vers son conteneur ; `web_domain` et `web_origin` reportés dans les tfvars.
-- [ ] E-mails d'envoi, si la brique e-mail est utilisée : enregistrements **SPF**, **DKIM** et **DMARC** publiés et vérifiés chez le fournisseur.
+- [ ] E-mails d'envoi (BE-009) : sous-domaine d'envoi (`mail.<domaine>`) déclaré dans Scaleway TEM ; enregistrements **SPF**, **DKIM** et **DMARC** (`p=none` au départ) publiés et vérifiés.
+- [ ] Clé API Scaleway limitée à l'envoi TEM ; secret `SMTP_URL` (`smtp://<ID du projet>:<clé secrète>@smtp.tem.scaleway.com:587`) et variable `MAIL_FROM` dans Secret Manager, pour staging et production.
+- [ ] Staging : `MAIL_ALLOWED_RECIPIENTS` contient tes propres adresses.
 
 ## Mobile (Android, iOS)
 
