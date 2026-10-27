@@ -23,6 +23,10 @@ S'applique en plus du [guide global](../global/README.md).
 
 - Better Auth (Drizzle) ; Argon2id ; sessions opaques révocables, en cookie `HttpOnly` + CSRF sur le web, en `Bearer` stocké dans le Keychain/Keystore sur mobile, durée de vie absolue bornée ; routes protégées par défaut ; contrôle d'accès sur la ressource ; rate limiting ; pas de données sensibles dans les logs. → [BE-006](BE-006-authentification-et-securite.md)
 
+**E-mails**
+
+- Scaleway TEM en SMTP (`nodemailer`) derrière l'interface `Mailer` ; Mailpit en développement, liste blanche de destinataires en staging ; envoi hors requête avec reprises ; jamais d'adresse ni de lien dans les logs ; SPF/DKIM/DMARC sur un sous-domaine d'envoi. → [BE-009](BE-009-envoi-d-e-mails.md)
+
 **Exploitation**
 
 - Logs JSON pino avec `traceId`, OpenTelemetry, `/health/live` + `/health/ready`, arrêt propre sur `SIGTERM`, pas de `console.log`. → [BE-007](BE-007-observabilite.md)
@@ -53,3 +57,4 @@ S'applique en plus du [guide global](../global/README.md).
 | [BE-006](BE-006-authentification-et-securite.md) | Authentification et sécurité | Proposé |
 | [BE-007](BE-007-observabilite.md) | Logs, traces, santé | Proposé |
 | [BE-008](BE-008-tests-backend.md) | Tests backend | Proposé |
+| [BE-009](BE-009-envoi-d-e-mails.md) | Envoi d'e-mails transactionnels | Proposé |
