@@ -52,7 +52,7 @@ Récapitule ensuite le plan (repos créés, renommages) et attends un « ok ».
 ## 6. Protéger main
 
 - Attends la fin du premier run CI : `gh run watch`. Récupère les noms des jobs : `gh run view --json jobs -q '.jobs[].name'`.
-- Crée la protection de `main` avec `gh api -X PUT repos/soodidi/<repo>/branches/main/protection` : PR obligatoire (0 approbation requise, car Mo travaille seul), statuts requis = les jobs CI, branche à jour requise, force-push et suppression interdits.
+- Crée la protection de `main` avec `gh api -X PUT repos/soodidi/<repo>/branches/main/protection` : PR obligatoire (0 approbation requise, car Mo travaille seul), statuts requis = les jobs CI, branche à jour requise, force-push et suppression interdits, **règles appliquées aussi aux admins** (`enforce_admins: true`) : l'IA fusionne avec `--auto` (GLB-011), et `--admin` ne doit pas pouvoir contourner la CI.
 - Si l'API renvoie 403 : sur un compte GitHub gratuit, la protection de branche n'est pas disponible pour un repo privé. Ne contourne pas : explique les options (passer le repo en public, GitHub Pro, ou s'en passer pour l'instant) et laisse l'humain choisir.
 
 ## 7. Terminer
