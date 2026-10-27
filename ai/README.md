@@ -8,6 +8,7 @@ Ce dossier contient la configuration Claude Code commune à **tous** les projets
 |---------|---------------|------|
 | `CLAUDE.global.md` | `~/.claude/CLAUDE.md` | Où trouver les guidelines, façon de travailler |
 | `skills/new-project/` | `~/.claude/skills/new-project` | Commande `/new-project` : crée un projet depuis un boilerplate |
+| `skills/upstream/` | `~/.claude/skills/upstream` | Commande `/upstream` : remonte dans les boilerplates les améliorations génériques d'une app (GLB-010) |
 | `skills/adr/` | `~/.claude/skills/adr` | Commande `/adr <sujet>` : brouillon d'ADR et PR dans ce repo quand une décision manque (GLB-001) |
 
 ## Installation
