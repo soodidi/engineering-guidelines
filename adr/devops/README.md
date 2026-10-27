@@ -12,13 +12,13 @@ S'applique en plus du [guide global](../global/README.md).
 
 **Infrastructure**
 
-- Tout en OpenTofu (`infra/modules` + `infra/envs`), state distant verrouillé, `plan` en PR, `apply` par la CI ; pas de click-ops. → [OPS-003](OPS-003-infrastructure-as-code.md)
+- Tout en OpenTofu (`infra/modules` + `infra/envs`), state distant verrouillé et chiffré par OpenTofu, `plan` en PR, `apply` par la CI ; pas de click-ops. → [OPS-003](OPS-003-infrastructure-as-code.md)
 - Scaleway `fr-par` : Serverless Containers + PostgreSQL managé en réseau privé + Object Storage/CDN pour le front ; Kubernetes (Kapsule) seulement sur ADR. → [OPS-005](OPS-005-hebergement-scaleway.md)
 
 **Livraison**
 
 - local → (preview) → staging automatique → production sur release + approbation ; même artefact partout ; migration avant déploiement ; rollback = image précédente ; pas de données de prod hors prod sans anonymisation. → [OPS-004](OPS-004-environnements-et-deploiement.md)
-- Secrets dans Secret Manager, injectés en variables d'environnement ; clés dédiées par app/pipeline ; rotation annuelle. → [OPS-006](OPS-006-gestion-des-secrets-en-production.md)
+- Secrets saisis à la main dans Secret Manager ; secrets générés par OpenTofu en variables secrètes du conteneur, state chiffré ; clés IAM créées par `envs/iam` appliqué à la main, jamais par la CI ; clés dédiées par app/pipeline ; rotation annuelle. → [OPS-006](OPS-006-gestion-des-secrets-en-production.md)
 
 **Exploitation**
 

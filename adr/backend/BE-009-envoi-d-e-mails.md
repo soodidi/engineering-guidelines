@@ -38,7 +38,7 @@ L'authentification (BE-006) exige la vérification d'e-mail et le mot de passe o
 
 - Les e-mails partent d'un **sous-domaine dédié** (par exemple `mail.example.com`), pour protéger la réputation du domaine principal.
 - Ce domaine DOIT avoir **SPF**, **DKIM** et **DMARC** publiés et vérifiés dans TEM avant le premier envoi. DMARC commence en `p=none`, puis passe en `p=quarantine` une fois les rapports propres.
-- Identifiants SMTP : l'utilisateur est l'ID du projet Scaleway, et le mot de passe est la clé secrète d'une clé API limitée à l'envoi TEM. Ils DOIVENT être stockés dans Scaleway Secret Manager (OPS-006).
+- Identifiants SMTP : l'utilisateur est l'ID du projet Scaleway, et le mot de passe est la clé secrète d'une clé API limitée à l'envoi TEM, une par environnement. Cette clé est générée par OpenTofu (`envs/iam`) et injectée comme variable secrète du conteneur (OPS-006).
 - La connexion SMTP DOIT être chiffrée (port 587 avec STARTTLS obligatoire, ou port 465).
 - L'expéditeur est une adresse `noreply@` ; un `Reply-To` vers une boîte lue PEUT être ajouté.
 
@@ -64,5 +64,5 @@ L'authentification (BE-006) exige la vérification d'e-mail et le mot de passe o
 
 - `npm run arch` : seul le module `mail` importe `nodemailer`.
 - Tests unitaires des gabarits (texte, HTML échappé) et de la liste blanche de staging ; test d'intégration de l'adaptateur SMTP contre Mailpit.
-- Checklist « nouveau projet » : sous-domaine d'envoi, SPF/DKIM/DMARC, clé API TEM, secrets `SMTP_URL` et `MAIL_FROM`.
+- Checklist « nouveau projet » : sous-domaine d'envoi, SPF/DKIM/DMARC, `mail_from` et `mail_allowed_recipients` dans les tfvars.
 - Revue de code : aucune adresse, aucun lien ni aucun contenu d'e-mail dans les logs.

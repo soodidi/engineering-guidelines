@@ -13,7 +13,7 @@ Une infrastructure créée à la main dans la console (*click-ops*) ne peut êtr
 
 - Toute ressource cloud durable (réseau, bases, registres, conteneurs, DNS, buckets, secrets — hors valeurs) DOIT être décrite en code avec **OpenTofu** (compatible Terraform), via les providers **Scaleway** et **OVH**.
 - La console cloud sert à **observer**, pas à modifier. Une modification manuelle d'urgence DOIT être reportée dans le code le jour même.
-- **State distant** dans un bucket Object Storage (backend compatible S3), chiffré, versionné, avec verrouillage du state activé. Un state par environnement.
+- **State distant** dans un bucket Object Storage (backend compatible S3), chiffré, versionné, avec verrouillage du state activé. Un state par environnement. Le state est en plus chiffré par OpenTofu, car il contient des secrets générés (OPS-006).
 - Structure :
 
 ```
