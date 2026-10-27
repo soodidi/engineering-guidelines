@@ -37,6 +37,17 @@ Récapitule ensuite le plan (repos créés, renommages) et attends un « ok ».
 - Remplace le titre et l'introduction du README par le nom et la description du projet. Garde les sections techniques.
 - Si l'humain a choisi de supprimer `notes` : retire la feature, ses routes, tests, mocks et migrations, et garde un écran ou endpoint minimal pour que l'app démarre.
 - Copie `.env.example` en `.env` pour le développement local quand il existe.
+- Écris `.boilerplate.json` à la racine (commité) pour que `/upstream` puisse comparer l'app à son origine (GLB-010) :
+
+  ```json
+  {
+    "boilerplate": "<boilerplate>",
+    "commit": "<git -C ~/Documents/projects/boilerplates rev-parse HEAD>",
+    "createdAt": "<AAAA-MM-JJ>",
+    "theme": "<clean|warm|vivid>",
+    "renames": { "<boilerplate>": "<repo>", "com.example.app": "<identifiant d'app>" }
+  }
+  ```
 
 ## 4. Vérifier
 

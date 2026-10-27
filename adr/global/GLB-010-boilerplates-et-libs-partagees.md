@@ -30,6 +30,13 @@ Les ADR décrivent des règles, mais une règle qu'il faut reconfigurer à la ma
 - Quand un ADR change une règle outillée, le boilerplate concerné DOIT être mis à jour dans la foulée.
 - Un projet Next.js (exception FE-001) part de `create-next-app` puis reprend la configuration de `web-react-vite`. Pas de boilerplate dédié tant qu'il n'y a pas eu au moins deux projets Next.js.
 
+### Faire remonter les améliorations des apps
+
+- Chaque app créée par `/new-project` contient un `.boilerplate.json` : boilerplate d'origine, commit du repo `boilerplates` au moment de la copie, renommages appliqués.
+- Quand une app améliore son **socle générique** (outillage, CI, kit IA, client HTTP, gestion d'erreurs, design system, setup de tests), l'amélioration DEVRAIT remonter dans le boilerplate pour profiter aux apps suivantes. La commande `/upstream`, lancée depuis l'app, compare l'app à son origine, trie les divergences (à remonter, propre à l'app, dérive) et ouvre une PR par sujet sur `boilerplates`.
+- `/upstream` DEVRAIT être lancé au moins une fois par mois sur chaque app active, et après toute fonctionnalité qui a touché l'outillage ou le socle.
+- Une **dérive** (règle désactivée, test supprimé, ADR contourné sans commentaire `Dérogation`) n'est jamais remontée : elle est corrigée dans l'app.
+
 ### Libs partagées
 
 - Le repo **`shared-libs`** est un monorepo (npm workspaces) qui contient ce qui est commun à plusieurs projets :

@@ -21,7 +21,7 @@ Règles transverses, applicables à tous les domaines.
 - Aucun secret dans Git ; config par variables d'environnement validées au démarrage ; `.env.example` obligatoire ; rien de secret dans un bundle front ou mobile. → [GLB-005](GLB-005-secrets-et-configuration.md)
 - SemVer + tags `vX.Y.Z`, changelog généré par release-please. → [GLB-006](GLB-006-versioning-et-releases.md)
 - Lockfiles commités, versions d'outils épinglées, npm (`npm ci` en CI), Renovate hebdo ; dépendance structurante = ADR. → [GLB-008](GLB-008-gestion-des-dependances.md)
-- Tout nouveau projet part du repo `boilerplates` ; le code et les configs communs vivent dans `shared-libs` (packages `@soodidi/*`). → [GLB-010](GLB-010-boilerplates-et-libs-partagees.md)
+- Tout nouveau projet part du repo `boilerplates` ; le code et les configs communs vivent dans `shared-libs` (packages `@soodidi/*`) ; les améliorations génériques des apps remontent dans les boilerplates avec `/upstream`. → [GLB-010](GLB-010-boilerplates-et-libs-partagees.md)
 
 **Design**
 

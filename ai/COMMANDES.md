@@ -11,6 +11,7 @@ Aide-mémoire de tout ce que Claude Code sait faire dans nos projets (GLB-011). 
 | `/fix` | Corriger un bug | `/fix 34` | Dans un projet |
 | `/review` | Faire relire une branche ou une PR, sans rien modifier | `/review` ou `/review 42` | Dans un projet |
 | `/adr` | Une décision d'architecture n'est couverte par aucun ADR | `/adr file de messages` | Partout |
+| `/upstream` | Faire profiter les boilerplates des améliorations d'une app | `/upstream` (depuis l'app) | Partout |
 
 - **Partout** : commandes globales, installées dans `~/.claude/skills/` par `ai/install.sh`.
 - **Dans un projet** : commandes livrées dans le `.claude/` de chaque boilerplate, donc présentes dans toute app créée avec `/new-project`. Lancer Claude Code depuis le dossier du projet.
@@ -41,6 +42,19 @@ Rédige un brouillon d'ADR quand une décision manque (GLB-001).
 C'est toi qui passes l'ADR de **Proposé** à **Accepté**.
 
 Source : [`ai/skills/adr/SKILL.md`](skills/adr/SKILL.md)
+
+### `/upstream`
+
+Fait remonter dans les boilerplates ce qu'une app a amélioré dans son socle (GLB-010). À lancer depuis le dossier de l'app, au moins une fois par mois par app active.
+
+1. Retrouve l'origine de l'app dans `.boilerplate.json` (boilerplate, commit de départ, renommages), écrit par `/new-project`.
+2. Compare l'app au boilerplate tel qu'il était lors de la copie, et tel qu'il est aujourd'hui. Il ne regarde que le socle générique (outillage, CI, kit IA, client HTTP, erreurs, design system, tests), jamais les features métier.
+3. Trie : **à remonter** (amélioration démontrable et générique), **propre à l'app** (ignoré), **dérive** (règle désactivée, test supprimé… à corriger dans l'app). **Tu choisis** ce qui remonte.
+4. Ouvre une PR par sujet sur boilerplates, généralisée et vérifiée, avec fusion automatique.
+
+Il ne modifie jamais l'app : les dérives se corrigent ensuite avec `/fix` dans l'app.
+
+Source : [`ai/skills/upstream/SKILL.md`](skills/upstream/SKILL.md)
 
 ## Commandes de projet
 
@@ -105,13 +119,14 @@ Lancés par `/feature`, `/fix` et `/review`, jamais directement par toi. Ils cit
 - Quelque chose ne marche pas → `/fix <n>`, ou `/fix <description>` sans issue.
 - Une PR ouverte à la main, ou un doute sur une branche → `/review`.
 - « Comment fait-on X ici ? » et aucun ADR ne répond → `/adr <X>`.
+- Une app a amélioré son outillage ou son socle, ou c'est le point mensuel → `/upstream` depuis l'app.
 - Une typo, un renommage local → demande-le directement, sans commande.
 
 ## Où modifier quoi
 
 | Élément | Où le modifier | Puis |
 |---------|----------------|------|
-| `/new-project`, `/adr`, `CLAUDE.global.md` | `engineering-guidelines/ai/` | `git pull` suffit (liens symboliques). Pour une nouvelle commande : `ai/install.sh` |
+| `/new-project`, `/adr`, `/upstream`, `CLAUDE.global.md` | `engineering-guidelines/ai/` | `git pull` suffit (liens symboliques). Pour une nouvelle commande : `ai/install.sh` |
 | `/feature`, `/fix`, `/review`, agents, hook | `boilerplates/_shared/claude/` | `scripts/sync-shared.sh`, puis reporter à la main dans les apps existantes |
 | Permissions | `boilerplates/<stack>/.claude/settings.json` | Reporter dans les apps existantes |
 | Règles d'un domaine | `boilerplates/<stack>/AGENTS.md` et l'ADR du domaine | — |
