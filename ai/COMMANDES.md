@@ -26,7 +26,7 @@ Crée une nouvelle app à partir des boilerplates (GLB-010).
 2. Copie chaque boilerplate, renomme tout (packages, identifiants, README) et applique le thème choisi.
 3. Lance les vérifications du projet.
 4. Crée le repo GitHub, avec squash merge et fusion automatique, puis protège `main` (PR obligatoire, CI requise, règles appliquées aussi aux admins).
-5. Termine par la liste de ce qui reste à faire à la main : secrets GitHub (il donne les commandes, sans jamais te demander les valeurs), comptes Sentry et Scaleway, ajout du repo dans Renovate.
+5. Adapte la [checklist « nouveau projet »](../docs/checklist-nouveau-projet.md) aux briques choisies, coche ce qu'il a fait et ouvre dans chaque repo une issue « Mise en route » avec le reste : secrets GitHub (il donne les commandes, sans jamais te demander les valeurs), comptes Sentry, Scaleway et stores, domaine, pages légales.
 
 Source : [`ai/skills/new-project/SKILL.md`](skills/new-project/SKILL.md)
 

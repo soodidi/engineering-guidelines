@@ -66,12 +66,27 @@ Récapitule ensuite le plan (repos créés, renommages) et attends un « ok ».
 - Crée la protection de `main` avec `gh api -X PUT repos/soodidi/<repo>/branches/main/protection` : PR obligatoire (0 approbation requise, car Mo travaille seul), statuts requis = les jobs CI, branche à jour requise, force-push et suppression interdits, **règles appliquées aussi aux admins** (`enforce_admins: true`) : l'IA fusionne avec `--auto` (GLB-011), et `--admin` ne doit pas pouvoir contourner la CI.
 - Si l'API renvoie 403 : sur un compte GitHub gratuit, la protection de branche n'est pas disponible pour un repo privé. Ne contourne pas : explique les options (passer le repo en public, GitHub Pro, ou s'en passer pour l'instant) et laisse l'humain choisir.
 
-## 7. Terminer
+## 7. Checklist « Mise en route »
+
+Lis `~/Documents/projects/engineering-guidelines/docs/checklist-nouveau-projet.md` et adapte-la au projet :
+
+- Garde la section **Tous les projets** et seulement les sections des briques choisies : Sentry (web, api), Scaleway (infra, ou web/api qui déploient), Domaine (web ou api déployés), Mobile (android, ios), Légal (dès qu'une app est publique).
+- Remplace `<nom>`, `<repo>` et les noms des repos par les vrais. Vérifie que les secrets et variables listés correspondent bien à ceux des workflows copiés (`grep -rhoE '(secrets|vars)\.[A-Za-z0-9_]+' .github/workflows | sort -u`, hors `GITHUB_TOKEN`) et ajoute ceux qui manqueraient.
+- **Coche** ce que tu as fait toi-même (repo, réglages, labels, protection de `main` si elle a réussi). Laisse décoché tout le reste.
+
+Puis, pour chaque repo créé, ouvre une issue avec la partie qui le concerne :
+
+```bash
+gh issue create -R soodidi/<repo> --title "Mise en route" --body-file <fichier>
+```
+
+Le corps commence par une phrase qui renvoie à la checklist de référence. Les sections communes à plusieurs repos (comptes Sentry, Scaleway, domaine, stores) vont dans l'issue du repo infra s'il existe, sinon dans celle du premier repo ; les autres issues y renvoient.
+
+## 8. Terminer
 
 Présente un récapitulatif court :
 
-- Liens des repos créés et résultat de la vérification.
-- **Secrets et variables à créer** par l'humain : liste-les en cherchant `secrets.` et `vars.` dans `.github/workflows/` et les variables de `.env.example`. Donne la commande `gh secret set <NOM> -R soodidi/<repo>` mais **ne demande jamais la valeur d'un secret** dans la conversation.
-- Comptes externes éventuels : projet Sentry (DSN), projet Scaleway et bucket d'état OpenTofu pour l'infra.
-- Rappel : ajouter le repo dans Renovate (developer.mend.io) si l'installation est limitée à certains repos.
+- Liens des repos créés, résultat de la vérification et liens des issues « Mise en route ».
+- La checklist adaptée, avec ce qui est déjà coché. Pour les secrets, donne la commande `gh secret set` mais **ne demande jamais la valeur d'un secret** dans la conversation.
+- Ce qui est à lancer tôt parce que c'est long : comptes Apple Developer et Google Play (validation en plusieurs jours), achat du domaine.
 - Prochaine étape : créer une première issue « Fonctionnalité » puis `/feature <numéro>`.
