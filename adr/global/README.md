@@ -8,12 +8,12 @@ Règles transverses, applicables à tous les domaines.
 
 - Toute décision structurante passe par un ADR, rangé par domaine. → [GLB-001](GLB-001-documenter-les-decisions-en-adr.md)
 - `main` toujours déployable, branches courtes `type/sujet`, Conventional Commits en anglais, squash merge. → [GLB-002](GLB-002-git-trunk-based-et-conventional-commits.md)
-- PR < 400 lignes, un seul sujet, 1 approbation (2 pour migrations, auth, infra prod), CI verte. Préfixes `bloquant:` / `suggestion:` / `question:` / `nit:`. → [GLB-003](GLB-003-revue-de-code.md)
+- PR < 400 lignes, un seul sujet, CI verte ; à partir de deux personnes, 1 approbation (2 pour migrations, auth, infra prod), seul : relecture par les agents IA et fusion automatique. Préfixes `bloquant:` / `suggestion:` / `question:` / `nit:`. → [GLB-003](GLB-003-revue-de-code.md)
 
 **Qualité**
 
 - On teste le comportement ; tout bug corrigé a son test ; E2E réservés aux parcours critiques. → [GLB-004](GLB-004-strategie-de-tests.md)
-- Definition of Done commune (revue, tests, a11y, Sentry, docs, validation en staging par une autre personne) ; bugs classés S1 à S4 ; critères de mise en production web et mobile. → [GLB-009](GLB-009-qa-et-definition-of-done.md)
+- Definition of Done commune (revue, tests, a11y, Sentry, docs, validation en staging par une autre personne à partir de deux, par soi-même quand on est seul) ; bugs classés S1 à S4 ; critères de mise en production web et mobile. → [GLB-009](GLB-009-qa-et-definition-of-done.md)
 - Code, commits et commentaires en anglais ; docs et ADR en français ; un concept métier = un seul nom (glossaire). → [GLB-007](GLB-007-langue-et-nommage.md)
 
 **Sécurité et livraison**

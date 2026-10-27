@@ -19,9 +19,9 @@ Les grosses PR sont mal relues : au-delà de quelques centaines de lignes, la qu
 
 **Validation**
 
-- Au moins **1 approbation** d'une autre personne. 2 approbations pour : migrations de base de données, changements d'auth/sécurité, infrastructure de production.
 - La CI DOIT être verte avant fusion.
-- L'auteur fusionne sa propre PR une fois approuvée.
+- **À partir de deux personnes sur le projet** : au moins **1 approbation** d'une autre personne, 2 pour les migrations de base de données, les changements d'auth/sécurité et l'infrastructure de production. L'auteur fusionne sa propre PR une fois approuvée.
+- **Seul sur le projet** : aucune approbation n'est requise, personne d'autre ne pouvant approuver. La relecture est assurée par les agents de contrôle de GLB-011, et la PR est fusionnée automatiquement une fois la CI verte. Les règles ci-dessus s'appliquent dès qu'une deuxième personne rejoint le projet.
 
 **Commentaires**
 
@@ -35,7 +35,7 @@ Les grosses PR sont mal relues : au-delà de quelques centaines de lignes, la qu
 
 **Code généré par IA**
 
-- Le code produit avec un assistant IA est relu exactement comme le reste. L'auteur de la PR en est responsable et DOIT pouvoir l'expliquer.
+- Le code produit avec un assistant IA est relu exactement comme le reste (seul sur le projet : par les agents de contrôle). L'auteur de la PR en est responsable et DOIT pouvoir l'expliquer.
 
 ## Alternatives envisagées
 
@@ -50,5 +50,5 @@ Les grosses PR sont mal relues : au-delà de quelques centaines de lignes, la qu
 ## Mise en application
 
 - `.github/pull_request_template.md` dans chaque repo.
-- Protection de branche : approbations requises, `CODEOWNERS` pour les zones sensibles (migrations, infra, auth).
+- Protection de branche : checks CI requis ; approbations requises et `CODEOWNERS` pour les zones sensibles (migrations, infra, auth) à partir de deux personnes, 0 approbation tant qu'on est seul.
 - Action de labellisation de taille de PR (avertissement au-delà de 400 lignes, non bloquant).
