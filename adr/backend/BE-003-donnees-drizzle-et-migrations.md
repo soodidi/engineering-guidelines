@@ -1,7 +1,7 @@
 # BE-003 : Accès aux données avec Drizzle et conventions SQL
 
 - **Statut** : Proposé
-- **Date** : 2026-10-25
+- **Date** : 2026-10-28
 - **Périmètre** : backend
 - **Auteurs** : Mo, Claude
 
@@ -15,7 +15,9 @@ L'ORM conditionne la performance, la lisibilité des requêtes et la sécurité 
 
 - **Drizzle ORM** : schéma déclaré en TypeScript, requêtes proches du SQL et typées.
 - Migrations générées par `drizzle-kit generate`, **relues** puis commitées. `drizzle-kit push` est interdit hors environnement local jetable.
-- Les migrations sont appliquées par un **job dédié avant le déploiement** (OPS-004), jamais au démarrage de chaque instance.
+- Les migrations sont appliquées **au démarrage de l'API, avant qu'elle n'accepte du trafic**, sous un verrou PostgreSQL (`pg_advisory_lock`) : une seule instance migre, les autres attendent puis constatent qu'il n'y a plus rien à faire. Une migration qui échoue empêche l'instance de démarrer : `/health/ready` ne répond pas et la nouvelle version n'est pas mise en service.
+- Raison : la base n'a pas d'accès public (OPS-005), et Scaleway Serverless Jobs ne peut pas joindre un réseau privé. Un job lancé depuis un runner GitHub ne joint donc pas la base. L'API est déjà dans le réseau privé, avec la même image.
+- `npm run db:migrate` reste disponible pour le développement local et une intervention manuelle.
 
 **Conventions de schéma**
 
@@ -43,6 +45,9 @@ L'ORM conditionne la performance, la lisibilité des requêtes et la sécurité 
 
 - **Prisma** : très populaire et confortable, mais plus éloigné du SQL, avec un moteur de requêtes propre et un contrôle moindre sur le SQL généré.
 - **TypeORM** (historique de NestJS) : typage plus faible, nombreux pièges connus.
+- **Job de migration avant le déploiement** (règle précédente) : impossible sans exposer la base ou ajouter une machine dans le réseau privé.
+- **Conteneur de migration dédié, déclenché par la CI** : un point d'entrée HTTP à écrire et à sécuriser, et une ressource de plus.
+- **Runner GitHub auto-hébergé dans le VPC** : un serveur à patcher et à surveiller, disproportionné pour un développeur seul.
 - **Kysely** : excellent query builder typé ; Drizzle apporte en plus la gestion du schéma et des migrations.
 
 ## Conséquences
@@ -52,6 +57,7 @@ L'ORM conditionne la performance, la lisibilité des requêtes et la sécurité 
 
 ## Mise en application
 
-- CI : `drizzle-kit check` et application des migrations sur une base de test vierge.
+- CI : `drizzle-kit check` et application des migrations sur une base de test vierge ; `npm run stack:smoke` vérifie que l'image démarre en appliquant ses migrations.
+- Test d'intégration : deux exécutions concurrentes des migrations ne se gênent pas (verrou).
 - `CODEOWNERS` : 2 approbations pour tout fichier de migration (GLB-003).
 - `squawk` (linter de migrations PostgreSQL) en CI pour détecter les opérations bloquantes.

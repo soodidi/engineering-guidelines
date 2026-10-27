@@ -12,7 +12,7 @@ S'applique en plus du [guide global](../global/README.md).
 
 **Données**
 
-- Drizzle ; migrations générées, relues, appliquées par un job avant déploiement ; tables `snake_case` au pluriel ; UUID v7 ; `timestamptz` en UTC ; montants en centimes ; migrations *expand/contract* ; pas de N+1 ; transactions multi-tables. → [BE-003](BE-003-donnees-drizzle-et-migrations.md)
+- Drizzle ; migrations générées, relues, appliquées au démarrage de l'API sous verrou PostgreSQL ; tables `snake_case` au pluriel ; UUID v7 ; `timestamptz` en UTC ; montants en centimes ; migrations *expand/contract* ; pas de N+1 ; transactions multi-tables. → [BE-003](BE-003-donnees-drizzle-et-migrations.md)
 
 **API**
 

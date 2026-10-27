@@ -17,7 +17,7 @@ S'applique en plus du [guide global](../global/README.md).
 
 **Livraison**
 
-- local → (preview) → staging automatique → production sur release + approbation ; même artefact partout ; migration avant déploiement ; rollback = image précédente ; pas de données de prod hors prod sans anonymisation. → [OPS-004](OPS-004-environnements-et-deploiement.md)
+- local → (preview) → staging automatique → production sur release + approbation ; même artefact partout ; migrations au démarrage de l'API, sous verrou, avant `/health/ready` ; rollback = image précédente ; pas de données de prod hors prod sans anonymisation. → [OPS-004](OPS-004-environnements-et-deploiement.md)
 - Secrets saisis à la main dans Secret Manager ; secrets générés par OpenTofu en variables secrètes du conteneur, state chiffré ; clés IAM créées par `envs/iam` appliqué à la main, jamais par la CI ; clés dédiées par app/pipeline ; rotation annuelle. → [OPS-006](OPS-006-gestion-des-secrets-en-production.md)
 
 **Exploitation**

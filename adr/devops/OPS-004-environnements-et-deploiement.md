@@ -1,7 +1,7 @@
 # OPS-004 : Environnements et stratégie de déploiement
 
 - **Statut** : Proposé
-- **Date** : 2026-10-25
+- **Date** : 2026-10-28
 - **Périmètre** : devops
 - **Auteurs** : Mo, Claude
 
@@ -26,7 +26,7 @@ On veut déployer souvent et sans stress. Cela suppose que ce qui arrive en prod
 **Déploiement**
 
 - **Build once, deploy many** : l'artefact (image, bundle) testé en staging est exactement celui promu en production.
-- Ordre : (1) job de **migration** de base (BE-003, compatible avec la version en cours) → (2) déploiement progressif des nouvelles instances → (3) bascule quand `/health/ready` répond.
+- Ordre : (1) déploiement progressif des nouvelles instances, qui appliquent les **migrations au démarrage**, sous verrou (BE-003, compatibles avec la version en cours) → (2) bascule quand `/health/ready` répond. Une migration qui échoue bloque la mise en service : l'ancienne version continue de tourner.
 - **Rollback** : redéployer l'image précédente, en une commande ou un clic. Grâce aux migrations *expand/contract*, le schéma reste compatible avec la version N-1.
 - Fonctionnalités risquées : **feature flags** (GLB-002), activées progressivement.
 - Pas de déploiement de production le vendredi après-midi ni la veille d'un jour férié, sauf correctif urgent.
@@ -39,7 +39,7 @@ On veut déployer souvent et sans stress. Cela suppose que ce qui arrive en prod
 ## Alternatives envisagées
 
 - **Reconstruire l'image par environnement** : ce qui part en production n'est plus ce qui a été testé.
-- **Migrations au démarrage de l'app** : course entre instances, démarrages lents et risqués.
+- **Job de migration lancé par la CI avant le déploiement** : la base n'a pas d'accès public et Serverless Jobs ne joint pas le réseau privé (BE-003). La course entre instances au démarrage est évitée par un verrou PostgreSQL. Le démarrage plus lent est accepté : il ne dure que le temps des migrations en attente.
 
 ## Conséquences
 
