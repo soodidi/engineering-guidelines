@@ -26,7 +26,7 @@ Une fonctionnalité suit le cycle de [GLB-011](adr/global/GLB-011-developpement-
 
 ## Quand une décision manque
 
-Si une question d'architecture revient et qu'aucun ADR ne la couvre, proposer un brouillon d'ADR à partir de `adr/template.md` au lieu de trancher seul.
+Si une question d'architecture revient et qu'aucun ADR ne la couvre, proposer un brouillon d'ADR à partir de `adr/template.md` au lieu de trancher seul (commande `/adr`, voir [ai/README.md](ai/README.md)).
 
 ## Référence rapide
 
