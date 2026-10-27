@@ -7,7 +7,7 @@
 
 ## Contexte
 
-L'app consomme l'API décrite en OpenAPI (BE-004) et doit gérer le hors-ligne, les tokens d'authentification (BE-006) et les données sensibles sur un appareil qu'on ne contrôle pas.
+L'app consomme l'API décrite en OpenAPI (BE-004) et doit gérer le hors-ligne, le token de session (BE-006) et les données sensibles sur un appareil qu'on ne contrôle pas.
 
 ## Décision
 
@@ -15,7 +15,7 @@ L'app consomme l'API décrite en OpenAPI (BE-004) et doit gérer le hors-ligne, 
 
 - **Retrofit + OkHttp + kotlinx.serialization**.
 - Le client API et les DTO sont **générés depuis la spec OpenAPI** du backend, dans `:core:network`.
-- Un intercepteur OkHttp ajoute l'access token ; un `Authenticator` gère le renouvellement avec le refresh token (un seul renouvellement simultané).
+- Un intercepteur OkHttp ajoute le token de session en `Authorization: Bearer` (BE-006). Sur une réponse `401`, l'app efface le token et renvoie vers la connexion ; il n'y a pas de refresh token.
 - Les erreurs Problem Details (BE-004) sont converties en erreurs typées du domaine.
 - Timeouts explicites ; logs HTTP détaillés uniquement en build debug.
 - HTTPS uniquement : `usesCleartextTraffic=false`, Network Security Config.
