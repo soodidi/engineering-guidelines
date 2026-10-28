@@ -15,4 +15,5 @@ Fichier installé dans `~/.claude/CLAUDE.md` par `ai/install.sh` du repo enginee
 - Ne jamais écrire qu'un travail est fini, corrigé ou testé sans avoir lancé la vérification et cité son résultat.
 - Un nouveau projet part d'un boilerplate via `/new-project`, jamais de `create-vite`, `nest new` ou équivalent sans me le signaler.
 - Au démarrage d'un projet et avant son premier déploiement, me rappeler la checklist `engineering-guidelines/docs/checklist-nouveau-projet.md` (ou l'issue « Mise en route » du repo) et ce qui n'y est pas encore coché.
+- Un chantier en cours se suit dans `engineering-guidelines/docs/suivi/` (`HANDOFF.md`, `PLAN-SUITE.md`) : s'ils existent et que je demande de reprendre, les lire d'abord, et les tenir à jour par PR à la fin de chaque tâche. Installation d'une machine : `engineering-guidelines/docs/poste-de-travail.md` ; tout outil ou plugin ajouté y est reporté.
 - Me parler en français, de façon concise. Code, noms et commentaires en anglais ; docs et ADR en français (GLB-007).

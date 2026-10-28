@@ -25,6 +25,8 @@ Ce repo sert de référence commune, pour les humains comme pour les assistants 
 
 `/new-project` crée les repos à partir des boilerplates ([GLB-010](adr/global/GLB-010-boilerplates-et-libs-partagees.md)). Les comptes et secrets à configurer à la main sont dans la [checklist « nouveau projet »](docs/checklist-nouveau-projet.md).
 
+Nouvelle machine : outils, versions et plugins Claude dans [docs/poste-de-travail.md](docs/poste-de-travail.md). Un chantier en cours se suit dans [docs/suivi/](docs/suivi/) (documents temporaires).
+
 ## Organisation
 
 ```
@@ -36,7 +38,7 @@ adr/
 ├── devops/              # OPS-xxx
 ├── android/             # AND-xxx
 └── ios/                 # IOS-xxx
-docs/                    # guides pratiques (checklist nouveau projet…)
+docs/                    # guides pratiques (checklist nouveau projet, poste de travail, suivi du chantier)
 ```
 
 Chaque dossier contient un `README.md` qui sert de **guide du domaine** : la liste des règles en vigueur, en version courte, avec un lien vers l'ADR qui justifie chacune. Pour coder, on lit le guide. Pour comprendre ou contester une règle, on lit l'ADR.
