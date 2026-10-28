@@ -26,6 +26,7 @@ Règles transverses, applicables à tous les domaines.
 **Design**
 
 - Thème issu de `@soodidi/design-tokens` : épuré, chaleureux ou coloré, toujours en clair et en sombre, contrastes WCAG AA testés. Composants : rôles de couleur uniquement (`bg-primary`, `AppColor.primary`), jamais de couleur brute. → [GLB-012](GLB-012-socle-de-design-commun.md)
+- Données personnelles minimales, aucune dans les logs ; pas de traceur sans consentement (donc pas de bandeau cookies sans analytics) ; export JSON et suppression immédiate du compte, après ressaisie du mot de passe, sur le web et dans les apps ; chaque module avec des données d'utilisateur enregistre un `UserDataContributor` (export et effacement dans une transaction) ; pages légales modèles. → [GLB-013](GLB-013-donnees-personnelles-et-rgpd.md)
 
 **Travail avec l'IA**
 
@@ -47,3 +48,4 @@ Règles transverses, applicables à tous les domaines.
 | [GLB-010](GLB-010-boilerplates-et-libs-partagees.md) | Boilerplates et libs partagées | Proposé |
 | [GLB-011](GLB-011-developpement-avec-l-ia.md) | Développement avec l'IA et agents spécialisés | Proposé |
 | [GLB-012](GLB-012-socle-de-design-commun.md) | Socle de design commun | Proposé |
+| [GLB-013](GLB-013-donnees-personnelles-et-rgpd.md) | Données personnelles, RGPD et suppression du compte | Proposé |
