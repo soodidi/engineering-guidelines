@@ -94,7 +94,8 @@ But : des recettes prêtes à appliquer **quand une app en a besoin**, sans les 
 3. ~~Tâche F — Chaîne de déploiement prête~~ ✅ (boilerplates #17, engineering-guidelines #19, #20)
 4. ~~B1 mobile~~ ✅ : Android (boilerplates #18, #19), iOS (boilerplates #22, #23).
 5. ~~Tâche G — front full responsive~~ ✅, puis B3 — RGPD : ~~ADR~~ ✅, ~~API~~ ✅, web (~~pages légales~~ ✅, « Mon compte »), Android, iOS.
-6. Tâche C, puis tâche D (app jetable de bout en bout).
+6. Tâche I — rôles, permissions et écrans d'erreur (BE-010), après B3 mobile.
+7. Tâche C, puis tâche D (app jetable de bout en bout).
 
 ## Tâche G — Front full responsive (demande du 2026-10-28)
 
@@ -105,6 +106,15 @@ But : toutes les apps web s'utilisent confortablement du téléphone (320 px) au
 1. Compléter FE-008 (ou un ADR dédié via `/adr`) : mobile first ; aucun défilement horizontal de 320 px à 1920 px ; cibles tactiles d'au moins 24 × 24 px (WCAG 2.2, 2.5.8) ; navigation repliable sur petit écran ; tableaux en cartes ou défilement interne ; formulaires sur une colonne.
 2. `web-react-vite` : test E2E (Playwright) qui ouvre chaque route à 320, 768 et 1280 px et échoue si `document.documentElement.scrollWidth > clientWidth` ; corriger l'en-tête et ce que le test trouve.
 3. Agent `reviewer` (`_shared/claude/agents/reviewer.md`) : vérifier le responsive dans les revues front.
+
+## Tâche I — Rôles, permissions et écrans d'erreur (demande du 2026-10-29)
+
+> Décision de l'utilisateur : plugin `admin` de Better Auth + access control (pas CASL, `organization` en module optionnel) ; écrans d'erreur dans le même chantier. ADR : **BE-010**.
+
+1. **API** : plugin `admin` (migration `role`, `banned`…), `src/modules/auth/access-control.ts` (rôles `user`, `admin`), `@UserHasPermission` / `@Roles`, 403 Problem Details, 404 sur la ressource d'un autre ; commande `npm run user:promote -- <email>` ; usurpation désactivée ; `role` ajouté à l'export du compte (GLB-013) ; tests (403, accès admin, 404 IDOR). Exemple : une route d'administration minimale (liste des utilisateurs) ou une permission sur `notes`.
+2. **Web** : `requirePermission` (`beforeLoad`), `useCan`, écrans 403, 404 ressource (`notFound()` sur une 404 de l'API), erreur serveur et hors ligne ; tests et E2E.
+3. **Android**, puis **iOS** : écrans 403, 404, hors ligne ; rôle lu dans la session.
+4. Agent `security` : vérifier qu'une route réservée a son décorateur et son test de refus.
 
 ## Tâche H — Schémas d'architecture
 
