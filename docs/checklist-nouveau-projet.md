@@ -73,7 +73,8 @@ Le compte Scaleway existe ; chaque projet a son **projet Scaleway** pour isoler 
 
   | Repo | Clé | Commande |
   |---|---|---|
-  | infra | CI infra (tous les produits du projet) | `tofu -chdir=envs/iam output -raw ci_access_key` / `ci_secret_key` |
+  | infra, environnements `staging` et `production` (apply) | CI infra (tous les produits du projet) | `tofu -chdir=envs/iam output -raw ci_access_key` / `ci_secret_key` |
+  | infra, environnements `staging-plan` et `production-plan` (plans des PR) | `ci-plan` (lecture seule) | `tofu -chdir=envs/iam output -raw ci_plan_access_key` / `ci_plan_secret_key` |
   | API | `deploy-api` (registre et conteneurs) | `tofu -chdir=envs/iam output -json deploy_access_keys` / `deploy_secret_keys`, entrée `api` |
   | web | `deploy-web` (Object Storage) | mêmes sorties, entrée `web` |
 
@@ -89,10 +90,11 @@ Le compte Scaleway existe ; chaque projet a son **projet Scaleway** pour isoler 
   ```bash
   gh secret set SCW_ACCESS_KEY -R soodidi/<nom>-api --env <env>
   gh secret set SCW_SECRET_KEY -R soodidi/<nom>-api --env <env>
-  tofu -chdir=envs/<env> output -raw database_url | gh secret set DATABASE_URL -R soodidi/<nom>-api --env <env>
   gh variable set SCW_DEFAULT_PROJECT_ID -R soodidi/<nom>-api --env <env> --body <id-projet>
-  gh variable set CONTAINER_ID -R soodidi/<nom>-api --env <env> --body <id-conteneur>
+  gh variable set CONTAINER_ID -R soodidi/<nom>-api --env <env> --body "$(tofu -chdir=envs/<env> output -raw api_container_id)"
   ```
+
+  Pas de `DATABASE_URL` dans GitHub : l'API applique ses migrations au démarrage, dans le réseau privé (BE-003).
 
 - [ ] Repo web, par environnement, après le premier `tofu apply` (clé `deploy-web`) :
 
@@ -107,7 +109,8 @@ Le compte Scaleway existe ; chaque projet a son **projet Scaleway** pour isoler 
 
 - [ ] Nom de domaine acheté (registrar en UE de préférence), au nom de l'éditeur.
 - [ ] Le domaine est **obligatoire dès le staging** dès qu'il y a de l'auth web (BE-006) : l'API DOIT être sur le même domaine que le front (`api.app.<domaine>` et `app.<domaine>`, `api.staging.app.<domaine>` et `staging.app.<domaine>`). Sur l'URL par défaut du conteneur Scaleway (`*.scw.cloud`), le navigateur n'envoie pas le cookie de session et la connexion web ne marche pas.
-- [ ] DNS : l'app (`app.<domaine>`, `staging.app.<domaine>`) vers Edge Services, l'API (`api.…`) vers son conteneur ; `web_domain`, `web_origin` et `api_url` reportés dans les tfvars.
+- [ ] **Edge Services** activé sur le projet Scaleway (CDN et HTTPS du front), avant le premier apply de staging.
+- [ ] DNS : l'app (`app.<domaine>`, `staging.app.<domaine>`) vers Edge Services ; l'API (`api.…`) en CNAME vers `tofu -chdir=envs/<env> output api_dns_target`, obtenu par un premier apply ciblé (`-target=module.api.scaleway_container.this`, voir le README de l'infra) ; `web_domain`, `web_origin` et `api_url` reportés dans les tfvars.
 - [ ] E-mails d'envoi (BE-009) : sous-domaine d'envoi (`mail.<domaine>`) déclaré dans Scaleway TEM ; enregistrements **SPF**, **DKIM** et **DMARC** (`p=none` au départ) publiés et vérifiés.
 - [ ] Tfvars de staging et production : `mail_from` (adresse du sous-domaine d'envoi) ; en staging, `mail_allowed_recipients` avec tes propres adresses. `SMTP_URL` est généré par OpenTofu (`envs/iam`) : rien à saisir.
 
