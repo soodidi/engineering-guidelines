@@ -42,9 +42,9 @@ Les données d'un utilisateur sont réparties entre plusieurs modules de l'API (
 
 **Registre des données d'utilisateur (API)**
 
-- Chaque module qui garde des données liées à un utilisateur DOIT enregistrer un `UserDataContributor`, avec une clé, `export(userId)` et `erase(userId, tx)`. C'est la seule manière pour le module auth d'atteindre ces données (BE-002).
-- Le hook `beforeDelete` de Better Auth DOIT appeler `erase` de tous les contributeurs **dans une seule transaction**. Si elle échoue, le compte n'est pas supprimé et l'utilisateur peut réessayer.
-- L'export DOIT être construit par le même registre : une donnée effacée est une donnée exportée, et inversement.
+- Chaque module qui garde des données liées à un utilisateur DOIT enregistrer un `UserDataContributor`, avec une clé, ses tables qui ont une colonne `user_id`, un schéma de sortie (BE-005), `export(userId)` et `erase(userId, tx)`. C'est la seule manière pour le module auth d'atteindre ces données (BE-002).
+- Le hook `beforeDelete` de Better Auth DOIT appeler `erase` de tous les contributeurs **dans une seule transaction**. Si elle échoue, le compte n'est pas supprimé et l'utilisateur peut réessayer. `afterDelete` refait la même passe, pour ce qu'une requête concurrente aurait écrit entre-temps.
+- L'export DOIT être construit par le même registre : une donnée effacée est une donnée exportée, et inversement. Le module auth y contribue le compte, ses sessions (sans token) et ses moyens de connexion (sans hachage) ; leur effacement reste fait par Better Auth.
 - On NE DOIT PAS utiliser de clé étrangère entre modules ni un événement asynchrone pour effacer les données d'un utilisateur.
 
 **Pages légales**
