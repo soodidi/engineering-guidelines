@@ -1,4 +1,4 @@
-# FE-008 : Accessibilité et performance minimales
+# FE-008 : Accessibilité, responsive et performance minimales
 
 - **Statut** : Proposé
 - **Date** : 2026-10-25
@@ -7,7 +7,7 @@
 
 ## Contexte
 
-L'accessibilité et la performance sont coûteuses à rattraper après coup. En France, le RGAA s'impose à certaines organisations, et l'European Accessibility Act élargit les obligations à de nombreux services numériques privés. Il faut un socle non négociable sur chaque écran.
+L'accessibilité, l'adaptation aux tailles d'écran et la performance sont coûteuses à rattraper après coup. Une bonne part des visites se fait sur téléphone. En France, le RGAA s'impose à certaines organisations, et l'European Accessibility Act élargit les obligations à de nombreux services numériques privés. Il faut un socle non négociable sur chaque écran.
 
 ## Décision
 
@@ -20,6 +20,17 @@ L'accessibilité et la performance sont coûteuses à rattraper après coup. En 
 - Ne jamais transmettre une information **uniquement** par la couleur.
 - Respect de `prefers-reduced-motion` pour les animations.
 - À chaque changement de route, le titre de la page change et le focus est géré.
+
+**Responsive (mobile first)**
+
+- Chaque écran DOIT être utilisable de **320 px** de large (petit téléphone, ou zoom à 400 % d'un écran de 1280 px, WCAG 1.4.10) jusqu'au grand écran, en portrait comme en paysage.
+- Aucun défilement horizontal de la page, quelle que soit la largeur : le contenu se réorganise (WCAG 1.4.10). Seuls un tableau, un bloc de code ou une carte PEUVENT défiler dans leur propre zone.
+- Styles écrits **mobile first** : classes de base pour le petit écran, puis préfixes `sm:`, `md:`, `lg:` pour élargir. Pas de largeur fixe en pixels sur un conteneur ; `max-w-*` et `w-full`.
+- Navigation : sur petit écran, elle se replie (menu) ou passe à la ligne sans déborder.
+- Cibles tactiles d'au moins **24 × 24 px** avec leur espacement (WCAG 2.5.8), 44 × 44 px visés pour les actions principales.
+- Formulaires sur une colonne en petit écran ; type de champ adapté (`type="email"`, `inputmode`, `autocomplete`) pour le bon clavier mobile.
+- Tableaux : en cartes sur petit écran, ou défilement interne avec la première colonne lisible.
+- Texte : taille de base d'au moins 16 px sur les champs (sinon iOS zoome à la saisie) ; le zoom du navigateur n'est jamais bloqué (`user-scalable` interdit).
 
 **Performance**
 
@@ -39,10 +50,13 @@ L'accessibilité et la performance sont coûteuses à rattraper après coup. En 
 
 - ✅ Socle accessible et rapide sans effort supplémentaire par écran.
 - ⚠️ Vérification manuelle au clavier nécessaire sur les écrans nouveaux.
+- ⚠️ Un écran pensé d'abord pour le bureau doit être repris : le responsive se conçoit dès la maquette.
 
 ## Mise en application
 
 - `eslint-plugin-jsx-a11y-x` (voir FE-002).
 - `@axe-core/playwright` dans les tests E2E.
+- Test E2E de débordement : chaque route ouverte à 320, 768 et 1280 px échoue si la page défile horizontalement ; les parcours critiques tournent aussi sur un profil mobile.
+- Agent `reviewer` : le responsive fait partie de la revue d'un écran (classes `sm:`/`md:`, largeurs fixes, cibles tactiles).
 - `size-limit` ou équivalent en CI pour le budget de bundle.
 - Lighthouse CI sur les pages publiques.
