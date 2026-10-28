@@ -61,7 +61,7 @@ BE-006 fixe les règles (Argon2id, cookie `HttpOnly` sur le web, access token co
 
 ### B3. RGPD et pages légales
 
-> État : ADR ✅ (**GLB-013**, engineering-guidelines #28 : registre `UserDataContributor`, effacement immédiat, mot de passe exigé). API ✅ (boilerplates #24). Reste : web, puis Android, puis iOS (détail dans `HANDOFF.md`).
+> État : ADR ✅ (**GLB-013**, engineering-guidelines #28). API ✅ (boilerplates #24, minimisation #25). Web : pages légales ✅ (boilerplates #27) ; reste l'écran « Mon compte ». Puis Android, iOS (détail dans `HANDOFF.md`). Checklist Légal ✅.
 
 1. ADR (ex. GLB-013) : données collectées minimales, durées de conservation, pas de traceur sans consentement (donc pas de bandeau cookies tant qu'il n'y a ni analytics ni pub), droit d'accès (export JSON) et d'effacement, sous-traitants listés (Scaleway, Sentry, e-mail), Sentry sans données personnelles.
 2. **web-react-vite** : pages modèles « Mentions légales », « Politique de confidentialité », « CGU » avec des champs à remplir clairement marqués (`[NOM DE L'ÉDITEUR]`…), liées dans le pied de page ; écran « Mon compte » avec **exporter mes données** et **supprimer mon compte** (confirmation).
@@ -93,8 +93,20 @@ But : des recettes prêtes à appliquer **quand une app en a besoin**, sans les 
 2. ~~Tâche E — Parité Docker et `.env` prêts à l'init~~ ✅ (boilerplates #16, engineering-guidelines #18)
 3. ~~Tâche F — Chaîne de déploiement prête~~ ✅ (boilerplates #17, engineering-guidelines #19, #20)
 4. ~~B1 mobile~~ ✅ : Android (boilerplates #18, #19), iOS (boilerplates #22, #23).
-5. B3 — RGPD et pages légales : ~~ADR~~ ✅ (GLB-013), ~~API~~ ✅ (boilerplates #24), puis web, Android, iOS.
+5. Tâche G — front full responsive (ajoutée le 2026-10-28), puis B3 — RGPD : ~~ADR~~ ✅, ~~API~~ ✅, web (~~pages légales~~ ✅, « Mon compte »), Android, iOS.
 6. Tâche C, puis tâche D (app jetable de bout en bout).
+
+## Tâche G — Front full responsive (demande du 2026-10-28)
+
+But : toutes les apps web s'utilisent confortablement du téléphone (320 px) au grand écran.
+
+1. Compléter FE-008 (ou un ADR dédié via `/adr`) : mobile first ; aucun défilement horizontal de 320 px à 1920 px ; cibles tactiles d'au moins 24 × 24 px (WCAG 2.2, 2.5.8) ; navigation repliable sur petit écran ; tableaux en cartes ou défilement interne ; formulaires sur une colonne.
+2. `web-react-vite` : test E2E (Playwright) qui ouvre chaque route à 320, 768 et 1280 px et échoue si `document.documentElement.scrollWidth > clientWidth` ; corriger l'en-tête et ce que le test trouve.
+3. Agent `reviewer` (`_shared/claude/agents/reviewer.md`) : vérifier le responsive dans les revues front.
+
+## Tâche H — Schémas d'architecture
+
+> ✅ Fait : `docs/architecture.md` (engineering-guidelines #31), à tenir à jour dans la même PR que tout changement d'architecture.
 
 ## Tâche E — Parité Docker et démarrage en une commande
 

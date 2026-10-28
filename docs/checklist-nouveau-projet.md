@@ -136,8 +136,11 @@ Le compte Scaleway existe ; chaque projet a son **projet Scaleway** pour isoler 
 
 ## Légal (RGPD)
 
-- [ ] Mentions légales, politique de confidentialité et CGU remplies (plus aucun champ entre crochets comme `[NOM DE L'ÉDITEUR]`) et publiées.
-- [ ] Liste des sous-traitants à jour dans la politique de confidentialité (Scaleway, Sentry, fournisseur d'e-mail…).
+- [ ] `web/src/features/legal/legal-info.ts` rempli : plus aucun champ entre crochets (`[NOM DE L'ÉDITEUR]`, `[AAAA-MM-JJ]`…). Un particulier qui publie à titre non professionnel peut rester anonyme (voir le commentaire du fichier).
+- [ ] Textes de `web/src/features/legal/content/` relus : données collectées, sous-traitants, durées. Toute donnée ou tout service ajouté par l'app y figure (GLB-013).
+- [ ] Durées vérifiées et reportées dans `legal-info.ts` : rétention des logs dans Cockpit (console Scaleway, 7 jours par défaut), rétention des événements Sentry selon l'offre (30 jours en gratuit), sauvegardes (`backup_retention_days` de `infra/envs/production`).
+- [ ] Organisation Sentry en région UE (sinon, corriger la politique de confidentialité).
+- [ ] Production avec `min_scale >= 1` pour l'API : la purge quotidienne des sessions et jetons expirés en dépend.
 
 ## Avant le premier déploiement
 
