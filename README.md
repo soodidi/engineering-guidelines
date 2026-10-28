@@ -25,7 +25,7 @@ Ce repo sert de référence commune, pour les humains comme pour les assistants 
 
 `/new-project` crée les repos à partir des boilerplates ([GLB-010](adr/global/GLB-010-boilerplates-et-libs-partagees.md)). Les comptes et secrets à configurer à la main sont dans la [checklist « nouveau projet »](docs/checklist-nouveau-projet.md).
 
-Nouvelle machine : outils, versions et plugins Claude dans [docs/poste-de-travail.md](docs/poste-de-travail.md). Un chantier en cours se suit dans [docs/suivi/](docs/suivi/) (documents temporaires).
+Nouvelle machine : outils, versions et plugins Claude dans [docs/poste-de-travail.md](docs/poste-de-travail.md). Un chantier en cours se suit dans [docs/suivi/](docs/suivi/) : ces documents temporaires fluidifient le travail entre les postes et entre les instances d'IA.
 
 ## Organisation
 
