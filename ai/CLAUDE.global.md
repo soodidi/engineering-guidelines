@@ -9,6 +9,7 @@ Fichier relié en `<racine>/CLAUDE.md` par `ai/install.sh` du repo engineering-g
 - Dans un projet, lire d'abord son `AGENTS.md`, puis `adr/global/README.md` et le README du domaine dans engineering-guidelines. Ouvrir l'ADR détaillé seulement si besoin.
 - ADR **Accepté** : appliquer sans demander. **Proposé** : suivre, mais signaler ce qui pose problème. Une décision non couverte : proposer un brouillon d'ADR avec `/adr` plutôt que trancher seul.
 - Gestionnaire de paquets : **npm** (jamais pnpm ni yarn). Commits en Conventional Commits, en anglais.
+- **Aucune ligne d'attribution** : ni `Co-Authored-By: Claude` dans les commits, ni « Generated with Claude Code » dans les PR (réglage `attribution` des `.claude/settings.json`). Un commit d'une branche qui en porte une se retrouve dans le commit de fusion : partir d'une branche propre.
 
 ## Façon de travailler
 

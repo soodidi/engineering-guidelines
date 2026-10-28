@@ -1,4 +1,4 @@
-# Passation : suite du chantier boilerplates (2026-10-28, soir)
+# Passation : suite du chantier boilerplates (2026-10-28, nuit)
 
 Ce document résume l'état d'une session précédente. Lis-le en entier avant d'agir. La feuille de route détaillée est dans `PLAN-SUITE.md`, dans ce même dossier : ce document la complète, il ne la remplace pas.
 
@@ -43,6 +43,10 @@ Ces deux fichiers vivent dans `engineering-guidelines/docs/suivi/`. Ce sont des 
 | B3, décision : ADR GLB-013 (registre `UserDataContributor`, effacement immédiat, mot de passe exigé, pas de traceur sans consentement, pages légales modèles) ; exception ajoutée à BE-002 | `adr/global/GLB-013-donnees-personnelles-et-rgpd.md` | engineering-guidelines #28 |
 | Auth iOS, PR 2 sur 2 : `AuthFeature` (repository Better Auth sur `postRaw`, trois écrans natifs, textes d'Android), bascule de l'app sur `SessionStore.states()`, déconnexion qui révoque avant d'effacer, XCUITest avec doublures Debug (`-ui-testing`), essai de bout en bout contre `npm run stack` | `ios-swiftui/Packages/Sources/AuthFeature`, `App/`, `AppUITests/` | boilerplates #23 |
 | Auth iOS, PR 1 sur 2 : `CoreAuth` (`SessionStore`, Keychain `AfterFirstUnlockThisDeviceOnly`), client sans cookies ni redirections, `Bearer` vers l'API seulement, `401` → session effacée, `postRaw` ; tests Keychain dans `iOSAppTests` (hébergée par l'app), CI sur simulateur via `scripts/test-simulator.sh` | `ios-swiftui/Packages/Sources/{CoreAuth,CoreNetworking}`, `AppTests/` | boilerplates #22 |
+| B3 web, PR 1 sur 2 : pages légales modèles (`/legal/notice`, `/legal/privacy`, `/legal/terms`), pied de page, CGU présentées à l'inscription, champs à remplir dans `legal-info.ts`, textes fr/en dans la feature (lazy), politique alignée sur le code | `web-react-vite/src/features/legal/` | boilerplates #27 (remplace #26) |
+| Minimisation des données (API) : purge au démarrage puis toutes les 24 h des sessions et jetons expirés et des compteurs de rate limiting ; logs réduits à id, méthode, URL masquée, statut ; erreurs SQL sans valeurs ; Sentry sans en-têtes, navigateur ni jeton | `api-nestjs/src/common/{redact-url,scrub-error,sentry-redaction}.ts`, `src/modules/auth/expired-auth-data.purge.ts` | boilerplates #25 |
+| Pas d'attribution Claude dans les commits et les PR (réglage `attribution`) | `.claude/settings.json` de chaque boilerplate et de `<racine>` | boilerplates #28 |
+| Schémas d'architecture (10 diagrammes Mermaid) | `docs/architecture.md` | engineering-guidelines #31 |
 | B3 API : registre `UserDataContributor` (`@ContributesUserData()`, `key`, `tables`, `schema`, `export`, `erase`), `notes` et `account` (compte, sessions, moyens de connexion) contributeurs ; `GET /v1/account/export` ; `POST /v1/auth/delete-user` avec mot de passe exigé, effacement transactionnel (`beforeDelete`) puis seconde passe (`afterDelete`) ; test d'architecture sur les tables `user_id` | `api-nestjs/src/common/user-data/`, `src/modules/account/`, `src/modules/auth/auth.user-data.ts` | boilerplates #24 |
 | Tâche F : migrations au démarrage sous `pg_advisory_lock` (décision de l'utilisateur), chaîne de déploiement prête | BE-003, OPS-004, `infra-scaleway/` | boilerplates #17 ; engineering-guidelines #19, #20 |
 
@@ -64,7 +68,7 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
 
 **Isolation perso / pro** (2026-10-28) : la configuration Claude vit dans `<racine>` (`CLAUDE.md`, `.claude/skills`, `.claude/settings.json`), rien dans `~/.claude` ; l'identité Git perso passe par `includeIf` vers `~/.gitconfig-perso`. Les chemins `~/Documents/projects` codés en dur sont remplacés par `<racine>` (engineering-guidelines et boilerplates, PR « workspace-relative paths »). Ne pas cloner dans `~/Documents/projects` : c'est le dossier pro de ce Mac.
 
-**État au moment de la passation** : boilerplates #24 (B3 API) en fusion automatique ; vérifier qu'elle est fusionnée (`gh pr view 24 --repo soodidi/boilerplates`). La stack locale de l'API est arrêtée.
+**État au moment de la passation** : boilerplates #27 (pages légales) et #28 (attribution), engineering-guidelines #31 (schémas) et la PR de cette passation sont en fusion automatique ; vérifier qu'elles sont fusionnées (`gh pr list --state open` dans chaque repo). La stack locale de l'API est arrêtée.
 
 ## Ce qui reste, dans l'ordre convenu
 
@@ -73,21 +77,29 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
    1. ~~**API**~~ ✅ (boilerplates #24). Contrat pour les clients :
       - export : `GET /v1/account/export` (session requise, 5 par minute) → `{ exportedAt, data: { account: { user, sessions, signInMethods }, notes: [...] } }`, avec `Content-Disposition: attachment; filename="account-export.json"` ;
       - suppression : `POST /v1/auth/delete-user` avec `{ "password": "…" }` (SDK web : `authClient.deleteUser({ password })`). Réponses : 200 `{ success: true }` ; 400 si mot de passe absent, vide ou faux (code `INVALID_PASSWORD` pour un mauvais mot de passe) ; 429 après 5 essais par minute. Après 200, la session est révoquée.
-   2. **Web** (`web-react-vite`), la prochaine étape : pages modèles « Mentions légales », « Politique de confidentialité », « Conditions d'utilisation », avec des champs `[NOM DE L'ÉDITEUR]`…, des sous-traitants (Scaleway, Sentry, Apple et Google) et la rétention des sauvegardes (OPS-007 : 14 jours en production avec l'infra par défaut), liées dans le pied de page ; écran « Mon compte » avec « Exporter mes données » (téléchargement JSON) et « Supprimer mon compte » (mot de passe et confirmation, puis retour à l'accueil, cache vidé avec `resetUserCache()`). Tests et E2E.
+   2. **Web** (`web-react-vite`) : ~~pages légales~~ ✅ (boilerplates #27). Reste la PR 2 : écran « Mon compte » avec « Exporter mes données » (téléchargement JSON) et « Supprimer mon compte » (mot de passe et confirmation, puis retour à l'accueil, cache vidé avec `resetUserCache()`). Tests et E2E.
    3. **Android**, puis **iOS** (deux PR) : écran « Mon compte » natif (lien depuis les notes), « Supprimer mon compte » avec mot de passe, lien vers la politique de confidentialité du web (`WEB_BASE_URL`), export par le web. Même découpage et mêmes textes sur les deux plateformes.
-   4. Checklist « nouveau projet », section Légal : pages remplies, sous-traitants, rétention des sauvegardes.
-3. **Tâche C** : catalogue de modules optionnels.
-4. **Tâche D** : app jetable de bout en bout, déployée en staging. C'est là que se vérifie tout ce qui ne se teste pas sans compte Scaleway :
+   4. ~~Checklist « nouveau projet », section Légal~~ ✅ (PR de cette passation).
+3. **Tâche G, front full responsive** (demande de l'utilisateur, 2026-10-28), **la prochaine étape**, avant la PR 2 de B3 web :
+   - compléter FE-008 : mobile first, de 320 px au grand écran, jamais de défilement horizontal, cibles tactiles d'au moins 24 px, tableaux et formulaires adaptés ;
+   - `web-react-vite` : un test E2E qui parcourt toutes les pages à 320, 768 et 1280 px et échoue en cas de débordement horizontal ; corriger ce qu'il trouve (l'en-tête à 320 px est suspect).
+4. **Tâche C** : catalogue de modules optionnels.
+5. **Tâche D** : app jetable de bout en bout, déployée en staging. C'est là que se vérifie tout ce qui ne se teste pas sans compte Scaleway :
    - la chaîne `X-Forwarded-For` (`TRUST_PROXY_HOPS`, **prioritaire**) ;
    - la commande et les champs de la CLI `scw` ;
    - les CNAME, Edge Services, le cookie entre sous-domaines ;
-   - les quotas TEM et les droits PostgreSQL.
+   - les quotas TEM et les droits PostgreSQL ;
+   - la rétention réelle des logs Cockpit (7 jours par défaut ?) et de Sentry, puis la fixer dans l'infra par un ADR (OPS-007) ;
+   - le statut 404 et le cache Edge Services d'un accès direct à `/legal/*` (index.html servi en `error_document`) ;
+   - une ligne de log sans IP ni navigateur, un événement Sentry sans user-agent, le log « Expired auth data purged » au démarrage.
 
 Pistes non bloquantes :
 
 - cache de build GHA pour le job `stack` ;
 - `verify-ca` pour PostgreSQL, avec le certificat de l'instance ;
 - documenter dans un ADR que l'app tourne aussi dans compose (profil `app`).
+- les routes `/v1/auth/*` (Better Auth) ne passent pas par pino-http : elles ne sont pas journalisées (BE-007).
+- la config `dataCollection` de Sentry (API) n'a pas de test automatisé ; `document.title` ne change pas par page (FE-008).
 - l'utilisateur a demandé si tout tourne « en une commande, avec Traefik ». Réponse donnée : `npm run setup && npm run stack` côté API, plus `npm run dev:api` côté web, sans Traefik. Améliorations proposées, **à lui faire valider** : une commande unique `npm run up` (setup + stack), ajouter le front à la même stack compose. Traefik seulement en cas de choix d'auto-hébergement sur un VPS, ce qui demande un ADR, car c'est un autre modèle qu'OPS-005.
 
 ## Pièges déjà rencontrés (à ne pas redécouvrir)
@@ -111,6 +123,9 @@ Pistes non bloquantes :
 - **Better Auth `listSessions`** exige une session de moins d'un jour (`freshSessionMiddleware`) : inutilisable pour l'export. Le module auth lit ses propres tables (`auth.repository.ts`), colonne par colonne.
 - **Better Auth `/delete-user`** : `if (ctx.body.password)` traite une chaîne vide comme absente. Le hook `before` refuse donc aussi `""`. Le chemin `token` du corps appelle `deleteUserCallback` en direct (sans passer par `disabledPaths`), mais exige une ligne `delete-account-<token>` que seul `sendDeleteAccountVerification` crée.
 - **Throttler NestJS en test e2e** : les compteurs vivent en mémoire pour toute l'app de test ; un test qui appelle beaucoup une route limitée (export, 5 par minute) passe un `x-forwarded-for` dédié, ou vérifie l'état par une autre route.
+- **Commit de fusion GitHub** : en squash, GitHub ajoute les `Co-authored-by` trouvés dans les commits de la branche, même avec un message de fusion explicite (`gh pr merge --body`). Une branche qui en contient doit être recréée propre (`git merge --squash` sur une nouvelle branche, nouvelle PR), sans force-push.
+- **Sentry v11, spans** : l'instrumentation HTTP ajoute `user_agent.original`, `network.peer.address`, `client.address` à chaque span serveur, quel que soit `dataCollection.httpHeaders` : `beforeSendSpan` (`redactSpan`) les retire. La liste `allow` des en-têtes compare par sous-chaîne (`accept` laisse passer `accept-language`).
+- **pino-http** : `serializers.req` / `res` / `err` reçoivent l'objet déjà passé par le sérialiseur standard ; le `res` standard journalise `location` (jeton de réinitialisation). `DrizzleQueryError` met les paramètres SQL dans son message.
 - **SwiftUI réécrit la même valeur dans un binding en fin d'édition** (par exemple quand le focus passe à nil) : un `didSet` qui efface des erreurs doit comparer à `oldValue`, sinon le message d'erreur disparaît aussitôt (trouvé par XCUITest).
 - **Runners macOS GitHub** : un job peut être annulé faute de runner (« not acquired by Runner… capacity constraints », 0 étape). Ce n'est pas un échec du code : `gh run rerun <id> --failed`.
 - **PostgreSQL pro sur le port 5432** (conteneur `sqool-postgresql-1`) : `npm run stack` ne peut pas publier ce port. Ne pas toucher aux conteneurs pro ; lancer la stack avec une surcharge hors du repo qui retire le port de `postgres` (`ports: !reset []`), l'API le joint par le réseau Docker.
