@@ -1,10 +1,10 @@
 # Instructions communes (tous les projets)
 
-Fichier relié en `CLAUDE.md` à la racine du dossier de travail par `ai/install.sh` du repo engineering-guidelines. Le modifier dans ce repo, pas à travers le lien.
+Fichier relié en `CLAUDE.md` à la racine du dossier racine par `ai/install.sh` du repo engineering-guidelines. Le modifier dans ce repo, pas à travers le lien.
 
 ## Guidelines
 
-- **Dossier de travail** : le dossier qui contient ce `CLAUDE.md`. Les repos `engineering-guidelines`, `boilerplates` et `shared-libs` y sont clonés côte à côte, et `/new-project` y crée les nouveaux projets. Dans les skills et les agents, `<racine>` désigne ce dossier. Aucun chemin absolu n'est codé en dur : chaque poste choisit le sien.
+- **Dossier racine** : le dossier qui contient ce `CLAUDE.md`. Les repos `engineering-guidelines`, `boilerplates` et `shared-libs` y sont clonés côte à côte, et `/new-project` y crée les nouveaux projets. Dans les skills et les agents, `<racine>` désigne ce dossier. Aucun chemin absolu n'est codé en dur : chaque poste choisit le sien. Ce fichier vaut pour toute session lancée dans `<racine>` ou en dessous ; les skills communs (`/new-project`, `/upstream`, `/adr`) ne sont chargés que dans une session lancée dans `<racine>` même.
 - Les règles de code sont les ADR du repo **engineering-guidelines**, dans `<racine>/engineering-guidelines` (<https://github.com/soodidi/engineering-guidelines>).
 - Dans un projet, lire d'abord son `AGENTS.md`, puis `adr/global/README.md` et le README du domaine dans engineering-guidelines. Ouvrir l'ADR détaillé seulement si besoin.
 - ADR **Accepté** : appliquer sans demander. **Proposé** : suivre, mais signaler ce qui pose problème. Une décision non couverte : proposer un brouillon d'ADR avec `/adr` plutôt que trancher seul.

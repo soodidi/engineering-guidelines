@@ -6,17 +6,17 @@ Aide-mémoire de tout ce que Claude Code sait faire dans nos projets (GLB-011). 
 
 | Commande | Quand l'utiliser | Exemple | Disponible |
 |----------|------------------|---------|------------|
-| `/new-project` | Démarrer une nouvelle app | `/new-project` | Partout |
+| `/new-project` | Démarrer une nouvelle app | `/new-project` | Depuis `<racine>` |
 | `/feature` | Développer une fonctionnalité | `/feature 12` | Dans un projet |
 | `/fix` | Corriger un bug | `/fix 34` | Dans un projet |
 | `/review` | Faire relire une branche ou une PR, sans rien modifier | `/review` ou `/review 42` | Dans un projet |
-| `/adr` | Une décision d'architecture n'est couverte par aucun ADR | `/adr file de messages` | Partout |
-| `/upstream` | Faire profiter les boilerplates des améliorations d'une app | `/upstream` (depuis l'app) | Partout |
+| `/adr` | Une décision d'architecture n'est couverte par aucun ADR | `/adr file de messages` | Depuis `<racine>` |
+| `/upstream` | Faire profiter les boilerplates des améliorations d'une app | `/upstream monapp-web` | Depuis `<racine>` |
 
-- **Partout** : commandes globales, installées dans `<racine>/.claude/skills/` (le dossier de travail) par `ai/install.sh`.
+- **Depuis `<racine>`** : commandes communes, installées dans `<racine>/.claude/skills/` par `ai/install.sh`. Claude Code ne les charge que dans une session lancée dans le dossier racine lui-même, pas dans un projet en dessous.
 - **Dans un projet** : commandes livrées dans le `.claude/` de chaque boilerplate, donc présentes dans toute app créée avec `/new-project`. Lancer Claude Code depuis le dossier du projet.
 
-## Commandes globales
+## Commandes communes
 
 ### `/new-project [nom]`
 

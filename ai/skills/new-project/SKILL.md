@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 Création d'un projet : $ARGUMENTS
 
-`<racine>` est le dossier de travail (défini dans le `CLAUDE.md` commun). Les boilerplates sont dans `<racine>/boilerplates`, les nouveaux projets vont dans `<racine>/<nom>`. Suis les étapes dans l'ordre et ne saute pas les confirmations.
+`<racine>` est le dossier racine (défini dans le `CLAUDE.md` commun). Les boilerplates sont dans `<racine>/boilerplates`, les nouveaux projets vont dans `<racine>/<nom>`. Suis les étapes dans l'ordre et ne saute pas les confirmations.
 
 ## 1. Cadrer
 

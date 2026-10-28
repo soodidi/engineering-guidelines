@@ -47,14 +47,14 @@ Toute fonctionnalité suit le même cycle, lancé par la commande `/feature` :
 
 ### Cadrage de l'IA
 
-- Chaque projet contient un `AGENTS.md` (règles du domaine à appliquer sans demander) et un `CLAUDE.md` qui l'importe. Le `CLAUDE.md` commun, relié à la racine du dossier de travail par `ai/install.sh`, indique où trouver les guidelines en local.
+- Chaque projet contient un `AGENTS.md` (règles du domaine à appliquer sans demander) et un `CLAUDE.md` qui l'importe. Le `CLAUDE.md` commun, relié à la racine du dossier racine par `ai/install.sh`, indique où trouver les guidelines en local.
 - Chaque projet contient une configuration Claude Code versionnée (`.claude/`) issue du boilerplate (GLB-010) :
   - **hooks** : formatage et lint de chaque fichier modifié par l'IA, les erreurs lui sont renvoyées immédiatement ;
   - **permissions** : commandes de vérification, de branche, de commit, d'ouverture et de fusion automatique de PR autorisées sans confirmation ; actions irréversibles **interdites** (force-push, push direct sur `main`, fusion avec `--admin`, `drizzle-kit push`, `tofu apply` / `destroy`, lecture des fichiers `.env`) ;
   - **agents** et **commandes** (`/feature`, `/fix`, `/review`) communs à tous les projets.
 - L'IA **NE DOIT PAS** contourner un hook ou une règle de lint (`--no-verify`, `eslint-disable` sans justification). Une dérogation suit `AGENTS.md` : commentaire `// Dérogation <ADR> : <raison>`.
 - Un bug suit un cycle allégé, `/fix` : test de non-régression qui échoue d'abord (GLB-004), correction, contrôle par `reviewer` (et `security` / `devops` si concernés), PR. Le plan repasse par l'humain si la correction s'étend (plus de trois fichiers de production, migration, authentification, contrat d'API).
-- Quand une décision d'architecture manque, l'IA propose un brouillon d'ADR au lieu de trancher seule (GLB-001), avec la commande globale `/adr`.
+- Quand une décision d'architecture manque, l'IA propose un brouillon d'ADR au lieu de trancher seule (GLB-001), avec la commande commune `/adr`.
 
 ### Discipline
 
