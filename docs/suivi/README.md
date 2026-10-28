@@ -6,10 +6,11 @@ Ils servent uniquement à fluidifier le travail entre les postes et entre les in
 
 - [`HANDOFF.md`](HANDOFF.md) : état du chantier, décisions, préférences, pièges déjà rencontrés.
 - [`PLAN-SUITE.md`](PLAN-SUITE.md) : feuille de route et ordre des tâches.
+- [`A-VERIFIER.md`](A-VERIFIER.md) : tout ce que l'utilisateur vérifiera à la main (appareil, staging, mise en ligne), rempli au fil des tâches.
 
 Règles :
 
-- Chaque tâche terminée les met à jour par PR.
+- Chaque tâche terminée les met à jour par PR, et ajoute à `A-VERIFIER.md` ce qui ne se teste pas automatiquement.
 - On en ajoute selon les besoins (changement de poste, nouvelle instance d'IA, nouveau chantier).
 - Rien de durable ici : une règle qui doit rester va dans un ADR, un guide de `docs/` ou un `AGENTS.md`.
 - Chantier terminé : on supprime les fichiers (PR).
