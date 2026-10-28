@@ -1,4 +1,4 @@
-# Passation : suite du chantier boilerplates (2026-10-28, fin de journée)
+# Passation : suite du chantier boilerplates (2026-10-28, soir)
 
 Ce document résume l'état d'une session précédente. Lis-le en entier avant d'agir. La feuille de route détaillée est dans `PLAN-SUITE.md`, dans ce même dossier : ce document la complète, il ne la remplace pas.
 
@@ -43,6 +43,7 @@ Ces deux fichiers vivent dans `engineering-guidelines/docs/suivi/`. Ce sont des 
 | B3, décision : ADR GLB-013 (registre `UserDataContributor`, effacement immédiat, mot de passe exigé, pas de traceur sans consentement, pages légales modèles) ; exception ajoutée à BE-002 | `adr/global/GLB-013-donnees-personnelles-et-rgpd.md` | engineering-guidelines #28 |
 | Auth iOS, PR 2 sur 2 : `AuthFeature` (repository Better Auth sur `postRaw`, trois écrans natifs, textes d'Android), bascule de l'app sur `SessionStore.states()`, déconnexion qui révoque avant d'effacer, XCUITest avec doublures Debug (`-ui-testing`), essai de bout en bout contre `npm run stack` | `ios-swiftui/Packages/Sources/AuthFeature`, `App/`, `AppUITests/` | boilerplates #23 |
 | Auth iOS, PR 1 sur 2 : `CoreAuth` (`SessionStore`, Keychain `AfterFirstUnlockThisDeviceOnly`), client sans cookies ni redirections, `Bearer` vers l'API seulement, `401` → session effacée, `postRaw` ; tests Keychain dans `iOSAppTests` (hébergée par l'app), CI sur simulateur via `scripts/test-simulator.sh` | `ios-swiftui/Packages/Sources/{CoreAuth,CoreNetworking}`, `AppTests/` | boilerplates #22 |
+| B3 API : registre `UserDataContributor` (`@ContributesUserData()`, `key`, `tables`, `schema`, `export`, `erase`), `notes` et `account` (compte, sessions, moyens de connexion) contributeurs ; `GET /v1/account/export` ; `POST /v1/auth/delete-user` avec mot de passe exigé, effacement transactionnel (`beforeDelete`) puis seconde passe (`afterDelete`) ; test d'architecture sur les tables `user_id` | `api-nestjs/src/common/user-data/`, `src/modules/account/`, `src/modules/auth/auth.user-data.ts` | boilerplates #24 |
 | Tâche F : migrations au démarrage sous `pg_advisory_lock` (décision de l'utilisateur), chaîne de déploiement prête | BE-003, OPS-004, `infra-scaleway/` | boilerplates #17 ; engineering-guidelines #19, #20 |
 
 ## Tâche F : terminée
@@ -63,19 +64,16 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
 
 **Isolation perso / pro** (2026-10-28) : la configuration Claude vit dans `<racine>` (`CLAUDE.md`, `.claude/skills`, `.claude/settings.json`), rien dans `~/.claude` ; l'identité Git perso passe par `includeIf` vers `~/.gitconfig-perso`. Les chemins `~/Documents/projects` codés en dur sont remplacés par `<racine>` (engineering-guidelines et boilerplates, PR « workspace-relative paths »). Ne pas cloner dans `~/Documents/projects` : c'est le dossier pro de ce Mac.
 
-**État au moment de la passation** : aucune PR ni branche ouverte, tous les repos sont sur `main`. La stack locale de l'API est arrêtée.
+**État au moment de la passation** : boilerplates #24 (B3 API) en fusion automatique ; vérifier qu'elle est fusionnée (`gh pr view 24 --repo soodidi/boilerplates`). La stack locale de l'API est arrêtée.
 
 ## Ce qui reste, dans l'ordre convenu
 
 1. ~~**B1 iOS**~~ ✅ (boilerplates #22, #23). B1 est terminé sur les quatre briques. Reste à faire par un humain : essai sur appareil avec VoiceOver et en grande police (iOS et Android).
 2. **B3, RGPD et pages légales** : décision prise et écrite (**GLB-013**, à lire avant de coder). Choix de l'utilisateur (2026-10-28) : **registre explicite** `UserDataContributor` (pas d'événement `user.deleted`, pas de cascade SQL), **effacement immédiat** (pas de délai de grâce), **ressaisie du mot de passe** (pas de lien par e-mail). Reste à coder, **une PR par brique**, dans cet ordre :
-   1. **API** (`api-nestjs`), la prochaine étape :
-      - registre : interface `UserDataContributor { key; export(userId); erase(userId, tx) }`, enregistrée par chaque module via un jeton d'injection multi-fournisseurs, par exemple dans `src/common/user-data/`. `notes` devient le premier contributeur ;
-      - Better Auth (`auth.config.ts`) : `user.deleteUser.enabled`, `beforeDelete` qui appelle `erase` de tous les contributeurs **dans une transaction Drizzle**, et un hook `before` qui **refuse `/delete-user` sans `password`** (voir le piège ci-dessous) ;
-      - `GET /v1/account/export` : JSON du compte (nom, e-mail, dates) et de chaque contributeur. Le module qui le porte (par exemple `account`) ne lit pas les tables des autres (BE-002) ;
-      - tests : test d'architecture (toute table Drizzle avec `user_id` a un contributeur), intégration Testcontainers (l'export contient les notes ; après suppression, plus aucune ligne ; mauvais mot de passe ou absence de mot de passe : rien n'est supprimé), et un e2e de la route ;
-      - OpenAPI à jour (`npm run openapi`).
-   2. **Web** (`web-react-vite`) : pages modèles « Mentions légales », « Politique de confidentialité », « Conditions d'utilisation », avec des champs `[NOM DE L'ÉDITEUR]`…, des sous-traitants (Scaleway, Sentry, Apple et Google) et la rétention des sauvegardes (OPS-007), liées dans le pied de page ; écran « Mon compte » avec « Exporter mes données » (téléchargement JSON) et « Supprimer mon compte » (mot de passe et confirmation, puis retour à l'accueil, cache vidé avec `resetUserCache()`). Tests et E2E.
+   1. ~~**API**~~ ✅ (boilerplates #24). Contrat pour les clients :
+      - export : `GET /v1/account/export` (session requise, 5 par minute) → `{ exportedAt, data: { account: { user, sessions, signInMethods }, notes: [...] } }`, avec `Content-Disposition: attachment; filename="account-export.json"` ;
+      - suppression : `POST /v1/auth/delete-user` avec `{ "password": "…" }` (SDK web : `authClient.deleteUser({ password })`). Réponses : 200 `{ success: true }` ; 400 si mot de passe absent, vide ou faux (code `INVALID_PASSWORD` pour un mauvais mot de passe) ; 429 après 5 essais par minute. Après 200, la session est révoquée.
+   2. **Web** (`web-react-vite`), la prochaine étape : pages modèles « Mentions légales », « Politique de confidentialité », « Conditions d'utilisation », avec des champs `[NOM DE L'ÉDITEUR]`…, des sous-traitants (Scaleway, Sentry, Apple et Google) et la rétention des sauvegardes (OPS-007 : 14 jours en production avec l'infra par défaut), liées dans le pied de page ; écran « Mon compte » avec « Exporter mes données » (téléchargement JSON) et « Supprimer mon compte » (mot de passe et confirmation, puis retour à l'accueil, cache vidé avec `resetUserCache()`). Tests et E2E.
    3. **Android**, puis **iOS** (deux PR) : écran « Mon compte » natif (lien depuis les notes), « Supprimer mon compte » avec mot de passe, lien vers la politique de confidentialité du web (`WEB_BASE_URL`), export par le web. Même découpage et mêmes textes sur les deux plateformes.
    4. Checklist « nouveau projet », section Légal : pages remplies, sous-traitants, rétention des sauvegardes.
 3. **Tâche C** : catalogue de modules optionnels.
@@ -110,6 +108,9 @@ Pistes non bloquantes :
 - **Keychain en test iOS** : un bundle de tests de package (sans app hôte) reçoit `-34018`. Les tests Keychain vivent dans `iOSAppTests`, hébergée par l'app, signée en ad hoc (`CODE_SIGN_IDENTITY=-`), jamais avec `CODE_SIGNING_ALLOWED=NO`.
 - **`xcodebuild -quiet`** n'affiche pas les tests passés : lire le résultat avec `xcrun xcresulttool get test-results summary --path <dernier .xcresult>`.
 - **Better Auth `/delete-user`** (1.7) : le `password` est **facultatif**. Sans lui, une session de moins d'un jour (`freshAge`, 1 jour par défaut) suffit à supprimer le compte, et `freshAge: 0` désactive même ce contrôle. Vu dans `node_modules/better-auth/dist/api/routes/update-user.mjs`. Ordre réel : vérification du mot de passe, puis `beforeDelete`, puis suppression du user, puis des sessions, puis `afterDelete`.
+- **Better Auth `listSessions`** exige une session de moins d'un jour (`freshSessionMiddleware`) : inutilisable pour l'export. Le module auth lit ses propres tables (`auth.repository.ts`), colonne par colonne.
+- **Better Auth `/delete-user`** : `if (ctx.body.password)` traite une chaîne vide comme absente. Le hook `before` refuse donc aussi `""`. Le chemin `token` du corps appelle `deleteUserCallback` en direct (sans passer par `disabledPaths`), mais exige une ligne `delete-account-<token>` que seul `sendDeleteAccountVerification` crée.
+- **Throttler NestJS en test e2e** : les compteurs vivent en mémoire pour toute l'app de test ; un test qui appelle beaucoup une route limitée (export, 5 par minute) passe un `x-forwarded-for` dédié, ou vérifie l'état par une autre route.
 - **SwiftUI réécrit la même valeur dans un binding en fin d'édition** (par exemple quand le focus passe à nil) : un `didSet` qui efface des erreurs doit comparer à `oldValue`, sinon le message d'erreur disparaît aussitôt (trouvé par XCUITest).
 - **Runners macOS GitHub** : un job peut être annulé faute de runner (« not acquired by Runner… capacity constraints », 0 étape). Ce n'est pas un échec du code : `gh run rerun <id> --failed`.
 - **PostgreSQL pro sur le port 5432** (conteneur `sqool-postgresql-1`) : `npm run stack` ne peut pas publier ce port. Ne pas toucher aux conteneurs pro ; lancer la stack avec une surcharge hors du repo qui retire le port de `postgres` (`ports: !reset []`), l'API le joint par le réseau Docker.

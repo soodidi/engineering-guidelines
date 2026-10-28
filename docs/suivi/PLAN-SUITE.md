@@ -61,7 +61,7 @@ BE-006 fixe les règles (Argon2id, cookie `HttpOnly` sur le web, access token co
 
 ### B3. RGPD et pages légales
 
-> État : ADR ✅ (**GLB-013**, engineering-guidelines #28 : registre `UserDataContributor`, effacement immédiat, mot de passe exigé). Reste : API, puis web, puis Android, puis iOS (détail dans `HANDOFF.md`).
+> État : ADR ✅ (**GLB-013**, engineering-guidelines #28 : registre `UserDataContributor`, effacement immédiat, mot de passe exigé). API ✅ (boilerplates #24). Reste : web, puis Android, puis iOS (détail dans `HANDOFF.md`).
 
 1. ADR (ex. GLB-013) : données collectées minimales, durées de conservation, pas de traceur sans consentement (donc pas de bandeau cookies tant qu'il n'y a ni analytics ni pub), droit d'accès (export JSON) et d'effacement, sous-traitants listés (Scaleway, Sentry, e-mail), Sentry sans données personnelles.
 2. **web-react-vite** : pages modèles « Mentions légales », « Politique de confidentialité », « CGU » avec des champs à remplir clairement marqués (`[NOM DE L'ÉDITEUR]`…), liées dans le pied de page ; écran « Mon compte » avec **exporter mes données** et **supprimer mon compte** (confirmation).
@@ -93,7 +93,7 @@ But : des recettes prêtes à appliquer **quand une app en a besoin**, sans les 
 2. ~~Tâche E — Parité Docker et `.env` prêts à l'init~~ ✅ (boilerplates #16, engineering-guidelines #18)
 3. ~~Tâche F — Chaîne de déploiement prête~~ ✅ (boilerplates #17, engineering-guidelines #19, #20)
 4. ~~B1 mobile~~ ✅ : Android (boilerplates #18, #19), iOS (boilerplates #22, #23).
-5. B3 — RGPD et pages légales : ~~ADR~~ ✅ (GLB-013), puis API, web, Android, iOS (registre `UserDataContributor`, pas d'événement).
+5. B3 — RGPD et pages légales : ~~ADR~~ ✅ (GLB-013), ~~API~~ ✅ (boilerplates #24), puis web, Android, iOS.
 6. Tâche C, puis tâche D (app jetable de bout en bout).
 
 ## Tâche E — Parité Docker et démarrage en une commande
