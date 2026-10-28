@@ -90,7 +90,7 @@ But : des recettes prêtes à appliquer **quand une app en a besoin**, sans les 
 1. ~~B1 web (auth dans `web-react-vite`)~~ ✅
 2. ~~Tâche E — Parité Docker et `.env` prêts à l'init~~ ✅ (boilerplates #16, engineering-guidelines #18)
 3. ~~Tâche F — Chaîne de déploiement prête~~ ✅ (boilerplates #17, engineering-guidelines #19, #20)
-4. B1 mobile : ~~Android~~ ✅ (boilerplates #18), iOS à faire.
+4. B1 mobile : ~~Android~~ ✅ (boilerplates #18), iOS : PR 1 ✅ (boilerplates #22), PR 2 à faire.
 5. B3 — RGPD et pages légales (avec l'événement `user.deleted`).
 6. Tâche C, puis tâche D (app jetable de bout en bout).
 

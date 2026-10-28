@@ -40,6 +40,7 @@ Ces deux fichiers vivent dans `engineering-guidelines/docs/suivi/`. Ce sont des 
 | Renovate : pas de fusion automatique pour les librairies d'auth | `shared-libs/default.json` | shared-libs #7 |
 | Tâche E : `npm run setup`, `npm run stack` (image de production), test de fumée en CI, `npm run dev:api` côté web, `/new-project` minimal | `api-nestjs/scripts/`, `compose.yaml` | boilerplates #16 ; engineering-guidelines #18 |
 | Auth Android : écrans natifs (connexion, inscription, mot de passe oublié), token signé chiffré (Tink + Keystore), 401 → connexion, liens des e-mails vers le web (`WEB_BASE_URL`), sans deep links (choix de l'utilisateur) | `android-compose/app/src/main/java/com/example/app/{core/auth,feature/auth,navigation}` | boilerplates #18, #19 ; engineering-guidelines #21 |
+| Auth iOS, PR 1 sur 2 : `CoreAuth` (`SessionStore`, Keychain `AfterFirstUnlockThisDeviceOnly`), client sans cookies ni redirections, `Bearer` vers l'API seulement, `401` → session effacée, `postRaw` ; tests Keychain dans `iOSAppTests` (hébergée par l'app), CI sur simulateur via `scripts/test-simulator.sh` | `ios-swiftui/Packages/Sources/{CoreAuth,CoreNetworking}`, `AppTests/` | boilerplates #22 |
 | Tâche F : migrations au démarrage sous `pg_advisory_lock` (décision de l'utilisateur), chaîne de déploiement prête | BE-003, OPS-004, `infra-scaleway/` | boilerplates #17 ; engineering-guidelines #19, #20 |
 
 ## Tâche F : terminée
@@ -62,7 +63,7 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
 
 ## Ce qui reste, dans l'ordre convenu
 
-1. **B1 iOS** (Android fait, boilerplates #18 : reprendre le même découpage, les mêmes textes et les mêmes tests). Décisions de l'utilisateur (2026-10-28) : **deux PR** (1 : `CoreAuth` avec Keychain + client sans cookies, `Bearer` et `401` ; 2 : `AuthFeature`, écrans, bascule de l'app, XCUITest) et un **job CI `xcodebuild test` sur simulateur** à chaque PR (Keychain et XCUITest) :
+1. **B1 iOS, PR 2** (PR 1 fusionnée : boilerplates #22). Reste : `AuthFeature` (repository avec `postRaw`, token **de l'en-tête** `set-auth-token`, erreurs `{code}` → messages génériques, `callbackURL` et `redirectTo` vers `WEB_BASE_URL`), les trois écrans et leurs ViewModels, la bascule de l'app sur `SessionStore.states()`, la déconnexion (révoquer côté serveur **avant** d'effacer localement), XCUITest du parcours de connexion. Reprendre les textes et les tests d'Android (boilerplates #18). Décisions de l'utilisateur (2026-10-28) : **deux PR** (1 : `CoreAuth` avec Keychain + client sans cookies, `Bearer` et `401` ; 2 : `AuthFeature`, écrans, bascule de l'app, XCUITest) et un **job CI `xcodebuild test` sur simulateur** à chaque PR (Keychain et XCUITest) :
    - écran de connexion ;
    - token signé reçu dans l'en-tête `set-auth-token`, envoyé en `Authorization: Bearer` ;
    - stockage : Keystore avec Tink sur Android, Keychain sur iOS ;
@@ -98,6 +99,9 @@ Pistes non bloquantes :
 - **`queryClient.clear()`** : il détache les observateurs, et l'en-tête ne suit plus la session. Utiliser `resetUserCache()`.
 - **Image de production** : elle a besoin de `@fastify/static` dès que Swagger est actif.
 - **`SMTP_INSECURE`** : il n'est accepté que vers un Mailpit local.
+- **Keychain en test iOS** : un bundle de tests de package (sans app hôte) reçoit `-34018`. Les tests Keychain vivent dans `iOSAppTests`, hébergée par l'app, signée en ad hoc (`CODE_SIGN_IDENTITY=-`), jamais avec `CODE_SIGNING_ALLOWED=NO`.
+- **`xcodebuild -quiet`** n'affiche pas les tests passés : lire le résultat avec `xcrun xcresulttool get test-results summary --path <dernier .xcresult>`.
+- **Plugins Claude** : un plugin n'est actif dans un projet que s'il y est installé (`claude plugin install <p> --scope project`), même s'il est dans `enabledPlugins`. Ne jamais l'installer en `--scope user` sur ce Mac (portée par défaut).
 
 ## État des boilerplates en une phrase
 
