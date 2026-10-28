@@ -14,10 +14,10 @@ Ce document évolue avec les besoins : un outil ajouté à un boilerplate ou à 
 | Python 3 | utilisé par les hooks Claude (`.claude/hooks/after-edit.sh`) | `brew install python` | `python3 --version` (3.12 ou plus) |
 | gitleaks | hook de pré-commit (secrets) | `brew install gitleaks` | `gitleaks version` |
 
-Cloner les trois repos dans `~/Documents/projects` : les chemins des docs et de `CLAUDE.global.md` l'attendent.
+Cloner les trois repos côte à côte dans un **dossier de travail**, au choix (par exemple `~/Documents/perso/projects`). Les docs, les skills et les agents le désignent par `<racine>` : aucun chemin absolu n'est codé en dur.
 
 ```bash
-mkdir -p ~/Documents/projects && cd ~/Documents/projects
+mkdir -p <racine> && cd <racine>
 gh repo clone soodidi/engineering-guidelines
 gh repo clone soodidi/boilerplates
 gh repo clone soodidi/shared-libs
@@ -76,8 +76,16 @@ Les secrets (clés Scaleway, `TF_STATE_PASSPHRASE`) viennent du **gestionnaire d
 ## 6. Claude Code
 
 1. Installer Claude Code (<https://docs.claude.com/claude-code>) et l'extension VS Code si besoin. Se connecter avec le **même compte claude.ai**.
-2. Installer la configuration globale : `~/Documents/projects/engineering-guidelines/ai/install.sh`. Le script relie `~/.claude/CLAUDE.md` et les skills `/new-project`, `/upstream` et `/adr`.
-3. **Plugins** : ceux-ci sont synchronisés avec le compte claude.ai et suivent automatiquement. Sinon, les installer avec `/plugin` depuis la marketplace `claude-plugins-official` (`anthropics/claude-plugins-official`) :
+2. Installer la configuration commune, depuis `<racine>` : `engineering-guidelines/ai/install.sh`. Le script relie `<racine>/CLAUDE.md` et les skills `/new-project`, `/upstream` et `/adr` dans `<racine>/.claude/skills`. Il n'écrit rien dans `~/.claude` : sur un poste partagé avec d'autres projets (poste pro, par exemple), cette configuration ne s'applique qu'aux sessions lancées dans `<racine>`.
+   - **Identité Git** : si le poste a une autre identité globale, la limiter au dossier de travail dans `~/.gitconfig` :
+
+     ```ini
+     [includeIf "gitdir:<racine>/"]
+         path = ~/.gitconfig-perso
+     ```
+
+     avec `name` et `email` (`20190991+soodidi@users.noreply.github.com`) dans `~/.gitconfig-perso`. Vérifier avec `git -C <racine>/boilerplates config user.email`.
+3. **Plugins** : ceux-ci sont synchronisés avec le compte claude.ai et suivent automatiquement. Sinon, les installer avec `/plugin` depuis la marketplace `claude-plugins-official` (`anthropics/claude-plugins-official`). Pour les garder dans le dossier de travail, les activer dans `<racine>/.claude/settings.json` (`enabledPlugins`) plutôt qu'au niveau utilisateur :
 
    | Plugin | Usage | Prérequis sur la machine |
    |--------|-------|--------------------------|

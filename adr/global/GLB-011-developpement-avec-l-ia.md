@@ -47,7 +47,7 @@ Toute fonctionnalité suit le même cycle, lancé par la commande `/feature` :
 
 ### Cadrage de l'IA
 
-- Chaque projet contient un `AGENTS.md` (règles du domaine à appliquer sans demander) et un `CLAUDE.md` qui l'importe. Le `~/.claude/CLAUDE.md` global indique où trouver les guidelines en local.
+- Chaque projet contient un `AGENTS.md` (règles du domaine à appliquer sans demander) et un `CLAUDE.md` qui l'importe. Le `CLAUDE.md` commun, relié à la racine du dossier de travail par `ai/install.sh`, indique où trouver les guidelines en local.
 - Chaque projet contient une configuration Claude Code versionnée (`.claude/`) issue du boilerplate (GLB-010) :
   - **hooks** : formatage et lint de chaque fichier modifié par l'IA, les erreurs lui sont renvoyées immédiatement ;
   - **permissions** : commandes de vérification, de branche, de commit, d'ouverture et de fusion automatique de PR autorisées sans confirmation ; actions irréversibles **interdites** (force-push, push direct sur `main`, fusion avec `--admin`, `drizzle-kit push`, `tofu apply` / `destroy`, lecture des fichiers `.env`) ;

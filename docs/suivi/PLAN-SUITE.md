@@ -1,6 +1,6 @@
 # Plan de la suite — à exécuter par Claude Code
 
-Lancé depuis `~/Documents/projects`. Trois repos : `engineering-guidelines`, `shared-libs`, `boilerplates`. Ce fichier et `HANDOFF.md` vivent dans `engineering-guidelines/docs/suivi/` (documents temporaires, à effacer à la fin du chantier ; voir `README.md` du dossier).
+Lancé depuis le dossier de travail `<racine>` (voir `ai/README.md`). Trois repos : `engineering-guidelines`, `shared-libs`, `boilerplates`. Ce fichier et `HANDOFF.md` vivent dans `engineering-guidelines/docs/suivi/` (documents temporaires, à effacer à la fin du chantier ; voir `README.md` du dossier).
 
 ## Règles pour toute la suite
 

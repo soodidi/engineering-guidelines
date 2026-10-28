@@ -13,7 +13,7 @@ Aide-mémoire de tout ce que Claude Code sait faire dans nos projets (GLB-011). 
 | `/adr` | Une décision d'architecture n'est couverte par aucun ADR | `/adr file de messages` | Partout |
 | `/upstream` | Faire profiter les boilerplates des améliorations d'une app | `/upstream` (depuis l'app) | Partout |
 
-- **Partout** : commandes globales, installées dans `~/.claude/skills/` par `ai/install.sh`.
+- **Partout** : commandes globales, installées dans `<racine>/.claude/skills/` (le dossier de travail) par `ai/install.sh`.
 - **Dans un projet** : commandes livrées dans le `.claude/` de chaque boilerplate, donc présentes dans toute app créée avec `/new-project`. Lancer Claude Code depuis le dossier du projet.
 
 ## Commandes globales
@@ -110,7 +110,7 @@ Lancés par `/feature`, `/fix` et `/review`, jamais directement par toi. Ils cit
 | Permissions `.claude/settings.json` | Autorisés sans confirmation : vérifications, branches, commits, PR, fusion automatique. Interdits : push sur `main`, force-push, `--no-verify`, `gh pr merge --admin`, `tofu apply`, lecture des `.env` |
 | Fusion automatique | `gh pr merge --squash --auto` : GitHub fusionne quand la CI requise est verte (règle temporaire de GLB-011) |
 | Renovate | Mises à jour de dépendances proposées chaque lundi matin (failles de sécurité : à tout moment), fusionnées automatiquement si la CI est verte. Les majeures portent le label `major` |
-| `~/.claude/CLAUDE.md` | Règles valables dans tous les projets : où sont les ADR, npm, Conventional Commits, réponses en français, vérifier avant d'annoncer |
+| `<racine>/CLAUDE.md` | Règles valables dans tous les projets : où sont les ADR, npm, Conventional Commits, réponses en français, vérifier avant d'annoncer |
 
 ## Quelle commande choisir ?
 
