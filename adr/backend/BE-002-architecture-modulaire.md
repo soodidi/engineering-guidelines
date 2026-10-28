@@ -42,6 +42,7 @@ src/
 - Un module n'accède **jamais** aux tables ou au repository d'un autre module. Il passe par le service exporté par ce module.
 - Pas de dépendance circulaire entre modules.
 - Pour réagir à un événement d'un autre module sans couplage fort : événements internes (`@nestjs/event-emitter`), puis file de messages si besoin d'asynchrone fiable.
+- Exception, les données d'un utilisateur : leur export et leur effacement passent par le registre `UserDataContributor` (GLB-013), synchrone et transactionnel, pas par un événement.
 
 ## Alternatives envisagées
 
