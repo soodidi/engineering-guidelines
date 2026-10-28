@@ -1,4 +1,4 @@
-# Passation : suite du chantier boilerplates (2026-10-28, nuit)
+# Passation : suite du chantier boilerplates (2026-10-29)
 
 Ce document résume l'état d'une session précédente. Lis-le en entier avant d'agir. La feuille de route détaillée est dans `PLAN-SUITE.md`, dans ce même dossier : ce document la complète, il ne la remplace pas.
 
@@ -43,6 +43,8 @@ Ces deux fichiers vivent dans `engineering-guidelines/docs/suivi/`. Ce sont des 
 | B3, décision : ADR GLB-013 (registre `UserDataContributor`, effacement immédiat, mot de passe exigé, pas de traceur sans consentement, pages légales modèles) ; exception ajoutée à BE-002 | `adr/global/GLB-013-donnees-personnelles-et-rgpd.md` | engineering-guidelines #28 |
 | Auth iOS, PR 2 sur 2 : `AuthFeature` (repository Better Auth sur `postRaw`, trois écrans natifs, textes d'Android), bascule de l'app sur `SessionStore.states()`, déconnexion qui révoque avant d'effacer, XCUITest avec doublures Debug (`-ui-testing`), essai de bout en bout contre `npm run stack` | `ios-swiftui/Packages/Sources/AuthFeature`, `App/`, `AppUITests/` | boilerplates #23 |
 | Auth iOS, PR 1 sur 2 : `CoreAuth` (`SessionStore`, Keychain `AfterFirstUnlockThisDeviceOnly`), client sans cookies ni redirections, `Bearer` vers l'API seulement, `401` → session effacée, `postRaw` ; tests Keychain dans `iOSAppTests` (hébergée par l'app), CI sur simulateur via `scripts/test-simulator.sh` | `ios-swiftui/Packages/Sources/{CoreAuth,CoreNetworking}`, `AppTests/` | boilerplates #22 |
+| B3 web, PR 2 sur 2 : page privée `/account` (« Mon compte » dans l'en-tête), export JSON téléchargé, suppression avec mot de passe + case de confirmation (`useDeleteAccount`, variante de bouton `destructive`), message de retour par l'état d'historique (pas l'URL), mocks MSW au contrat de l'API | `web-react-vite/src/features/account/` | boilerplates #32 |
+| Décision rôles et permissions : plugin `admin` de Better Auth + access control, écrans 403 / 404 ressource / hors ligne (tâche I, pas encore codée) | `adr/backend/BE-010-roles-et-permissions.md` | PR de cette passation |
 | Front responsive (tâche G) : FE-008 complété (mobile first, 320 px, pas de défilement horizontal, cibles ≥ 24 px) ; test E2E de débordement à 320/768/1280 px sur chaque route (liste vérifiée contre le router), contenus longs, champs à 16 px sur mobile ; `overflow-wrap: anywhere` sur `body` | `web-react-vite/e2e/responsive.spec.ts`, `e2e/pages.ts`, `src/styles.css` | boilerplates #30, #31 ; engineering-guidelines #33 |
 | CI des boilerplates filtrée par chemins (OPS-002) : job `changes` + `scripts/ci-changes.sh` ; jobs non touchés sautés, tout tourne si `_shared/`, `.github/`, `scripts/` ou la racine changent, et sur `main` | `.github/workflows/boilerplates.yml` | boilerplates #29 |
 | B3 web, PR 1 sur 2 : pages légales modèles (`/legal/notice`, `/legal/privacy`, `/legal/terms`), pied de page, CGU présentées à l'inscription, champs à remplir dans `legal-info.ts`, textes fr/en dans la feature (lazy), politique alignée sur le code | `web-react-vite/src/features/legal/` | boilerplates #27 (remplace #26) |
@@ -70,7 +72,7 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
 
 **Isolation perso / pro** (2026-10-28) : la configuration Claude vit dans `<racine>` (`CLAUDE.md`, `.claude/skills`, `.claude/settings.json`), rien dans `~/.claude` ; l'identité Git perso passe par `includeIf` vers `~/.gitconfig-perso`. Les chemins `~/Documents/projects` codés en dur sont remplacés par `<racine>` (engineering-guidelines et boilerplates, PR « workspace-relative paths »). Ne pas cloner dans `~/Documents/projects` : c'est le dossier pro de ce Mac.
 
-**État au moment de la passation** : aucune PR ouverte hors celle de cette passation ; tous les repos sont sur `main`. La stack locale de l'API est arrêtée.
+**État au moment de la passation** (2026-10-29) : aucune PR ouverte hors celle de cette passation (BE-010) ; tous les repos sont sur `main`. Prochaine étape : **B3 Android** (point 2.3 ci-dessous), puis iOS, puis la tâche I. La stack locale de l'API est arrêtée.
 
 ## Ce qui reste, dans l'ordre convenu
 
@@ -79,18 +81,20 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
    1. ~~**API**~~ ✅ (boilerplates #24). Contrat pour les clients :
       - export : `GET /v1/account/export` (session requise, 5 par minute) → `{ exportedAt, data: { account: { user, sessions, signInMethods }, notes: [...] } }`, avec `Content-Disposition: attachment; filename="account-export.json"` ;
       - suppression : `POST /v1/auth/delete-user` avec `{ "password": "…" }` (SDK web : `authClient.deleteUser({ password })`). Réponses : 200 `{ success: true }` ; 400 si mot de passe absent, vide ou faux (code `INVALID_PASSWORD` pour un mauvais mot de passe) ; 429 après 5 essais par minute. Après 200, la session est révoquée.
-   2. **Web** (`web-react-vite`) : ~~pages légales~~ ✅ (boilerplates #27). Reste la PR 2 : écran « Mon compte » avec « Exporter mes données » (téléchargement JSON) et « Supprimer mon compte » (mot de passe et confirmation, puis retour à l'accueil, cache vidé avec `resetUserCache()`). Tests et E2E.
-   3. **Android**, puis **iOS** (deux PR) : écran « Mon compte » natif (lien depuis les notes), « Supprimer mon compte » avec mot de passe, lien vers la politique de confidentialité du web (`WEB_BASE_URL`), export par le web. Même découpage et mêmes textes sur les deux plateformes.
+   2. **Web** (`web-react-vite`) : ~~pages légales~~ ✅ (boilerplates #27), ~~« Mon compte »~~ ✅ (boilerplates #32). Fait : écran « Mon compte » avec « Exporter mes données » (téléchargement JSON) et « Supprimer mon compte » (mot de passe et confirmation, puis retour à l'accueil, cache vidé avec `resetUserCache()`). Tests et E2E.
+   3. **Android**, puis **iOS** (deux PR), **la prochaine étape** : écran « Mon compte » natif (lien depuis les notes), « Supprimer mon compte » avec mot de passe, lien vers la politique de confidentialité du web (`WEB_BASE_URL`), export par le web. Même découpage et mêmes textes sur les deux plateformes.
    4. ~~Checklist « nouveau projet », section Légal~~ ✅ (PR de cette passation).
-3. ~~**Tâche G, front full responsive**~~ ✅ (FE-008 : engineering-guidelines #33 ; web : boilerplates #31 ; agent `reviewer` : boilerplates #30). Prochaine étape : **B3 web, PR 2 « Mon compte »** (voir le point 2 ci-dessus).
-4. **Tâche C** : catalogue de modules optionnels.
-5. **Tâche D** : app jetable de bout en bout, déployée en staging. C'est là que se vérifie tout ce qui ne se teste pas sans compte Scaleway :
+3. ~~**Tâche G, front full responsive**~~ ✅ (FE-008 : engineering-guidelines #33 ; web : boilerplates #31 ; agent `reviewer` : boilerplates #30). Fait.
+4. **Tâche I, rôles, permissions et écrans d'erreur** (décision du 2026-10-29, **BE-010**) : plugin `admin` de Better Auth + access control ; écrans 403, 404 ressource, hors ligne sur web et mobile. Après B3 mobile. Détail dans `PLAN-SUITE.md`.
+5. **Tâche C** : catalogue de modules optionnels.
+6. **Tâche D** : app jetable de bout en bout, déployée en staging. C'est là que se vérifie tout ce qui ne se teste pas sans compte Scaleway :
    - la chaîne `X-Forwarded-For` (`TRUST_PROXY_HOPS`, **prioritaire**) ;
    - la commande et les champs de la CLI `scw` ;
    - les CNAME, Edge Services, le cookie entre sous-domaines ;
    - les quotas TEM et les droits PostgreSQL ;
    - la rétention réelle des logs Cockpit (7 jours par défaut ?) et de Sentry, puis la fixer dans l'infra par un ADR (OPS-007) ;
-   - le statut 404 et le cache Edge Services d'un accès direct à `/legal/*` (index.html servi en `error_document`) ;
+   - le statut 404 et le cache Edge Services d'un accès direct à une route de la SPA (`/legal/*`, `/account` : index.html servi en `error_document`) ;
+   - un onglet resté ouvert pendant un déploiement : `aws s3 sync --delete` retire les anciens chunks, garder une version de plus ;
    - une ligne de log sans IP ni navigateur, un événement Sentry sans user-agent, le log « Expired auth data purged » au démarrage.
 
 Pistes non bloquantes :

@@ -26,6 +26,7 @@ S'applique en plus du [guide global](../global/README.md).
 **E-mails**
 
 - Scaleway TEM en SMTP (`nodemailer`) derrière l'interface `Mailer` ; Mailpit en développement, liste blanche de destinataires en staging ; envoi hors requête avec reprises ; jamais d'adresse ni de lien dans les logs ; SPF/DKIM/DMARC sur un sous-domaine d'envoi. → [BE-009](BE-009-envoi-d-e-mails.md)
+- Rôles et permissions : plugin `admin` de Better Auth et son access control, déclarés une fois dans `access-control.ts` ; `@UserHasPermission` / `@Roles` sur les routes réservées ; 403 si la permission manque, 404 sur la ressource d'un autre ; les clients n'utilisent le rôle que pour l'affichage. → [BE-010](BE-010-roles-et-permissions.md)
 
 **Exploitation**
 
@@ -58,3 +59,4 @@ S'applique en plus du [guide global](../global/README.md).
 | [BE-007](BE-007-observabilite.md) | Logs, traces, santé | Proposé |
 | [BE-008](BE-008-tests-backend.md) | Tests backend | Proposé |
 | [BE-009](BE-009-envoi-d-e-mails.md) | Envoi d'e-mails transactionnels | Proposé |
+| [BE-010](BE-010-roles-et-permissions.md) | Rôles et permissions | Proposé |

@@ -37,7 +37,7 @@ L'API sert des navigateurs (où les cookies sont le mécanisme le plus sûr) et 
 
 - Toute route est **protégée par défaut** (guard global du module) ; les routes publiques sont marquées explicitement (`@Public()` / `@AllowAnonymous()`).
 - Vérification des droits dans le service **sur la ressource** (ex : la facture appartient-elle à l'organisation de l'utilisateur ?), pas seulement sur le rôle. C'est la première cause de fuite de données (IDOR), et aucune librairie d'auth ne la fait à notre place.
-- Modèle par défaut : rôles (RBAC, plugin `admin` ou `organization`) + vérification d'appartenance.
+- Modèle par défaut : rôles (RBAC, plugin `admin` ou `organization`) + vérification d'appartenance. Détail : [BE-010](BE-010-roles-et-permissions.md).
 
 **Sécurité HTTP**
 
