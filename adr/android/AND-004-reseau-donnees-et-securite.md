@@ -15,8 +15,10 @@ L'app consomme l'API décrite en OpenAPI (BE-004) et doit gérer le hors-ligne, 
 
 - **Retrofit + OkHttp + kotlinx.serialization**.
 - Le client API et les DTO sont **générés depuis la spec OpenAPI** du backend, dans `:core:network`.
-- À la connexion, le token de session arrive dans l'en-tête de réponse `set-auth-token` ; il est aussitôt chiffré et stocké (voir « Sécurité »).
-- Un intercepteur OkHttp ajoute le token de session en `Authorization: Bearer` (BE-006). Sur une réponse `401`, l'app efface le token et renvoie vers la connexion ; il n'y a pas de refresh token.
+- À la connexion, le token de session **signé** arrive dans l'en-tête de réponse `set-auth-token` ; il est aussitôt chiffré et stocké (voir « Sécurité »). Le token du corps de la réponse n'est pas signé : l'API le refuse (`requireSignature`).
+- Un intercepteur OkHttp ajoute le token de session en `Authorization: Bearer` (BE-006), uniquement vers l'origine de l'API. Sur une réponse `401`, l'app efface le token et renvoie vers la connexion ; il n'y a pas de refresh token.
+- Inscription et mot de passe oublié : formulaires dans l'app ; les liens des e-mails (vérification, nouveau mot de passe) ouvrent le front web (`WEB_BASE_URL`, présent dans `CORS_ORIGINS` de l'API), puis l'utilisateur revient se connecter. Pas de deep links tant qu'un projet n'en a pas besoin.
+- Les corps des routes d'auth ne sont jamais journalisés, même en debug.
 - Les erreurs Problem Details (BE-004) sont converties en erreurs typées du domaine.
 - Timeouts explicites ; logs HTTP détaillés uniquement en build debug.
 - HTTPS uniquement : `usesCleartextTraffic=false`, Network Security Config.
@@ -29,7 +31,7 @@ L'app consomme l'API décrite en OpenAPI (BE-004) et doit gérer le hors-ligne, 
 
 **Sécurité**
 
-- Tokens et données sensibles **chiffrés avec une clé de l'Android Keystore** (par exemple via Tink) avant d'être stockés dans DataStore. Pas d'`EncryptedSharedPreferences` (bibliothèque dépréciée).
+- Tokens et données sensibles **chiffrés avec une clé de l'Android Keystore** (par exemple via Tink) avant d'être stockés dans DataStore. Pas d'`EncryptedSharedPreferences` (bibliothèque dépréciée). Si le Keystore est inutilisable, Tink écrit son keyset en clair sans erreur : on le vérifie (`isUsingKeystore`) et, dans ce cas, le token reste en mémoire seulement.
 - Aucun secret embarqué dans l'APK/AAB (GLB-005) : il est extractible.
 - `android:allowBackup` configuré pour exclure les données sensibles des sauvegardes.
 - R8 (minification + obfuscation) activé en release.
