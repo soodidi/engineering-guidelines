@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 Décision à documenter : $ARGUMENTS
 
-Les ADR vivent dans le repo engineering-guidelines, cloné dans `~/Documents/projects/engineering-guidelines` (chemin à confirmer dans `~/.claude/CLAUDE.md`). Toutes les commandes de ce skill s'exécutent dans ce repo, même si tu es lancé depuis un projet.
+Les ADR vivent dans le repo engineering-guidelines, cloné dans `<racine>/engineering-guidelines` (`<racine>` : le dossier racine, défini dans le `CLAUDE.md` commun). Le skill se lance depuis `<racine>`. Toutes ses commandes s'exécutent dans `<racine>/engineering-guidelines`, même si la décision concerne un projet.
 
 ## 1. Vérifier qu'il manque vraiment un ADR
 

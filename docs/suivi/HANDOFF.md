@@ -6,11 +6,11 @@ Ces deux fichiers vivent dans `engineering-guidelines/docs/suivi/`. Ce sont des 
 
 ## Cadre de travail
 
-- **Trois repos** dans `~/Documents/projects` :
+- **Trois repos** côte à côte dans le dossier racine `<racine>` (sur le Mac actuel : `~/Documents/perso/projects`, isolé du travail pro, voir [`docs/poste-de-travail.md`](../poste-de-travail.md)) :
   - `engineering-guidelines` : ADR, checklist, skills IA ;
   - `boilerplates` : `api-nestjs`, `web-react-vite`, `infra-scaleway`, `android-compose`, `ios-swiftui`, plus `_shared` ;
   - `shared-libs` : packages partagés et preset Renovate.
-- **Règles** : `~/.claude/CLAUDE.md`, l'`AGENTS.md` de chaque repo et de chaque boilerplate, et les ADR (GLB-011 pour le cycle de travail).
+- **Règles** : `<racine>/CLAUDE.md` (lien vers `ai/CLAUDE.global.md`), l'`AGENTS.md` de chaque repo et de chaque boilerplate, et les ADR (GLB-011 pour le cycle de travail).
 - **Langue** : parler en français, de façon concise. Code et commits en anglais (Conventional Commits). Docs et ADR en français.
 - **Cycle d'une PR** :
   1. une branche par sujet ;
@@ -58,11 +58,11 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
 - les droits réels de l'utilisateur `app` ;
 - si le `dns_stage` Edge Services exige déjà le CNAME au moment de l'apply.
 
-**Aucune PR ni branche n'est ouverte.** Tous les repos sont sur `main`.
+**Isolation perso / pro** (2026-10-28) : la configuration Claude vit dans `<racine>` (`CLAUDE.md`, `.claude/skills`, `.claude/settings.json`), rien dans `~/.claude` ; l'identité Git perso passe par `includeIf` vers `~/.gitconfig-perso`. Les chemins `~/Documents/projects` codés en dur sont remplacés par `<racine>` (engineering-guidelines et boilerplates, PR « workspace-relative paths »). Ne pas cloner dans `~/Documents/projects` : c'est le dossier pro de ce Mac.
 
 ## Ce qui reste, dans l'ordre convenu
 
-1. **B1 iOS** (Android fait, boilerplates #18 : reprendre le même découpage, les mêmes textes et les mêmes tests) :
+1. **B1 iOS** (Android fait, boilerplates #18 : reprendre le même découpage, les mêmes textes et les mêmes tests). Décisions de l'utilisateur (2026-10-28) : **deux PR** (1 : `CoreAuth` avec Keychain + client sans cookies, `Bearer` et `401` ; 2 : `AuthFeature`, écrans, bascule de l'app, XCUITest) et un **job CI `xcodebuild test` sur simulateur** à chaque PR (Keychain et XCUITest) :
    - écran de connexion ;
    - token signé reçu dans l'en-tête `set-auth-token`, envoyé en `Authorization: Bearer` ;
    - stockage : Keystore avec Tink sur Android, Keychain sur iOS ;

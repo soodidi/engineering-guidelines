@@ -1,22 +1,22 @@
 ---
 name: upstream
-description: Compare une app à son boilerplate d'origine, repère les améliorations génériques apparues dans l'app (outillage, config, CI, kit IA, socle technique) et les remonte dans le repo boilerplates par PR (GLB-010). À lancer depuis le dossier d'une app, ex. /upstream.
-argument-hint: '[chemin de l''app, par défaut le dossier courant]'
+description: Compare une app à son boilerplate d'origine, repère les améliorations génériques apparues dans l'app (outillage, config, CI, kit IA, socle technique) et les remonte dans le repo boilerplates par PR (GLB-010). À lancer depuis le dossier racine avec le nom de l'app, ex. /upstream monapp-web.
+argument-hint: '<dossier de l''app sous la racine>'
 disable-model-invocation: true
 ---
 
-App à comparer : $ARGUMENTS (dossier courant si vide)
+App à comparer : `<racine>/$ARGUMENTS` (demande le nom si vide)
 
-Les boilerplates sont dans `~/Documents/projects/boilerplates`. Travaille dans `.claude/work/upstream/` de l'app (non versionné). Tu ne modifies **jamais** l'app elle-même dans ce skill.
+Les boilerplates sont dans `<racine>/boilerplates` (`<racine>` : le dossier racine, défini dans le `CLAUDE.md` commun). Le skill se lance depuis `<racine>` (les skills communs ne sont chargés que là) : exécute les commandes sur l'app dans son dossier (`git -C <racine>/<app>`, chemins préfixés). Travaille dans `.claude/work/upstream/` de l'app (non versionné). Tu ne modifies **jamais** l'app elle-même dans ce skill.
 
 ## 1. Retrouver l'origine
 
 - Lis `.boilerplate.json` à la racine de l'app : `boilerplate` (nom du dossier), `commit` (commit du repo boilerplates au moment de la copie), `renames` (remplacements faits à la création, ex. `"web-react-vite": "monapp-web"`).
-- S'il n'existe pas (app créée avant ce fichier) : déduis le boilerplate de la stack, prends comme base le dernier commit de boilerplates antérieur au premier commit de l'app (`git log --reverse --format=%cI | head -1`, puis `git -C ~/Documents/projects/boilerplates rev-list -1 --before=<date> main`) et signale à l'humain que la base est estimée.
-- `git -C ~/Documents/projects/boilerplates pull --ff-only`.
+- S'il n'existe pas (app créée avant ce fichier) : déduis le boilerplate de la stack, prends comme base le dernier commit de boilerplates antérieur au premier commit de l'app (`git log --reverse --format=%cI | head -1`, puis `git -C <racine>/boilerplates rev-list -1 --before=<date> main`) et signale à l'humain que la base est estimée.
+- `git -C <racine>/boilerplates pull --ff-only`.
 - Extrais le boilerplate à la base et à `main` :
-  - `git -C ~/Documents/projects/boilerplates archive <commit> <boilerplate> | tar -x -C .claude/work/upstream/base`
-  - `git -C ~/Documents/projects/boilerplates archive main <boilerplate> | tar -x -C .claude/work/upstream/head`
+  - `git -C <racine>/boilerplates archive <commit> <boilerplate> | tar -x -C .claude/work/upstream/base`
+  - `git -C <racine>/boilerplates archive main <boilerplate> | tar -x -C .claude/work/upstream/head`
 
 ## 2. Lister ce qui a divergé
 

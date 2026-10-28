@@ -1,10 +1,11 @@
-# Instructions globales (tous les projets)
+# Instructions communes (tous les projets)
 
-Fichier installé dans `~/.claude/CLAUDE.md` par `ai/install.sh` du repo engineering-guidelines. Le modifier dans ce repo, pas dans `~/.claude`.
+Fichier relié en `<racine>/CLAUDE.md` par `ai/install.sh` du repo engineering-guidelines. Le modifier dans ce repo, pas à travers le lien.
 
 ## Guidelines
 
-- Les règles de code sont les ADR du repo **engineering-guidelines**, cloné dans `~/Documents/projects/engineering-guidelines` (<https://github.com/soodidi/engineering-guidelines>).
+- **Dossier racine** : le dossier qui contient ce `CLAUDE.md`. Les repos `engineering-guidelines`, `boilerplates` et `shared-libs` y sont clonés côte à côte, et `/new-project` y crée les nouveaux projets. Dans les skills et les agents, `<racine>` désigne ce dossier. Aucun chemin absolu n'est codé en dur : chaque poste choisit le sien. Ce fichier vaut pour toute session lancée dans `<racine>` ou en dessous ; les skills communs (`/new-project`, `/upstream`, `/adr`) ne sont chargés que dans une session lancée dans `<racine>` même.
+- Les règles de code sont les ADR du repo **engineering-guidelines**, dans `<racine>/engineering-guidelines` (<https://github.com/soodidi/engineering-guidelines>).
 - Dans un projet, lire d'abord son `AGENTS.md`, puis `adr/global/README.md` et le README du domaine dans engineering-guidelines. Ouvrir l'ADR détaillé seulement si besoin.
 - ADR **Accepté** : appliquer sans demander. **Proposé** : suivre, mais signaler ce qui pose problème. Une décision non couverte : proposer un brouillon d'ADR avec `/adr` plutôt que trancher seul.
 - Gestionnaire de paquets : **npm** (jamais pnpm ni yarn). Commits en Conventional Commits, en anglais.
