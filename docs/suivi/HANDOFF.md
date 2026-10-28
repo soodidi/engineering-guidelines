@@ -45,6 +45,7 @@ Ces deux fichiers vivent dans `engineering-guidelines/docs/suivi/`. Mets-les à 
 ## Tâche F : terminée
 
 Fusionnée dans boilerplates #17 et engineering-guidelines #19 et #20. Elle couvre :
+
 - les migrations au démarrage de l'API sous verrou PostgreSQL ;
 - le TLS de la base, et l'URL de la base qui attend le privilège de l'utilisateur `app` ;
 - `CONTAINER_ID` en UUID seul, le domaine de l'API et sa cible CNAME, la cible CNAME du front ;
@@ -52,6 +53,7 @@ Fusionnée dans boilerplates #17 et engineering-guidelines #19 et #20. Elle couv
 - `envs/shared` dans la CI, une clé `ci_plan` en lecture seule, et la CLI `scw` et tflint épinglés.
 
 Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.md`. Tous les points sont traités. Restent à vérifier en conditions réelles, pendant la tâche D :
+
 - la chaîne `X-Forwarded-For` ;
 - les droits réels de l'utilisateur `app` ;
 - si le `dns_stage` Edge Services exige déjà le CNAME au moment de l'apply.
@@ -75,6 +77,7 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
    - les quotas TEM et les droits PostgreSQL.
 
 Pistes non bloquantes :
+
 - cache de build GHA pour le job `stack` ;
 - `verify-ca` pour PostgreSQL, avec le certificat de l'instance ;
 - documenter dans un ADR que l'app tourne aussi dans compose (profil `app`).
