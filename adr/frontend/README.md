@@ -19,7 +19,7 @@ S'applique en plus du [guide global](../global/README.md).
 
 - Tailwind uniquement, tokens sémantiques, pas de valeurs arbitraires ; `cn()` + `cva` ; composants shadcn/ui sur Radix. → [FE-005](FE-005-styling-tailwind-et-composants.md)
 - Formulaires : React Hook Form + Zod, type dérivé du schéma, erreurs API mappées sur les champs, labels et ARIA systématiques. → [FE-006](FE-006-formulaires-et-validation.md)
-- WCAG 2.2 AA, tout au clavier, HTML sémantique ; routes en lazy, bundle initial ≤ 200 Ko ; React Compiler activé, pas de `useMemo`/`useCallback` manuels. → [FE-008](FE-008-accessibilite-et-performance.md)
+- WCAG 2.2 AA, tout au clavier, HTML sémantique ; responsive mobile first de 320 px au grand écran, sans défilement horizontal, cibles tactiles ≥ 24 px ; routes en lazy, bundle initial ≤ 200 Ko ; React Compiler activé, pas de `useMemo`/`useCallback` manuels. → [FE-008](FE-008-accessibilite-et-performance.md)
 
 **Production**
 
@@ -49,5 +49,5 @@ S'applique en plus du [guide global](../global/README.md).
 | [FE-005](FE-005-styling-tailwind-et-composants.md) | Tailwind et composants accessibles | Proposé |
 | [FE-006](FE-006-formulaires-et-validation.md) | Formulaires et validation | Proposé |
 | [FE-007](FE-007-tests-frontend.md) | Tests frontend | Proposé |
-| [FE-008](FE-008-accessibilite-et-performance.md) | Accessibilité et performance | Proposé |
+| [FE-008](FE-008-accessibilite-et-performance.md) | Accessibilité, responsive et performance | Proposé |
 | [FE-009](FE-009-suivi-des-erreurs-sentry.md) | Suivi des erreurs en production (Sentry) | Proposé |
