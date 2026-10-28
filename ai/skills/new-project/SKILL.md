@@ -40,7 +40,8 @@ Récapitule ensuite le plan (repos créés, renommages, valeurs retenues) et att
 
 - `rsync -a --exclude node_modules --exclude dist --exclude build --exclude .gradle --exclude .terraform --exclude .build --exclude local.properties <racine>/boilerplates/<boilerplate>/ <racine>/<repo>/`
 - Remplace le nom du boilerplate par celui du repo : `grep -rIl "<boilerplate>" --exclude-dir=node_modules .` puis édite chaque occurrence (package.json, package-lock.json via `npm install`, README, workflows, noms d'image Docker, Sentry, infra).
-- Android : remplace `com.example.app` (namespace, `applicationId`, dossiers de packages). iOS : bundle identifier dans `project.yml`.
+- Android : remplace `com.example.app` (namespace, `applicationId`, dossiers de packages). iOS : dans `project.yml`, remplace toutes les occurrences de `com.example` (`bundleIdPrefix`, `com.example.app`, `com.example.app.tests`, `com.example.app.uitests`).
+- URL de production : si le domaine est connu, remplace `api.example.com` et `app.example.com` (Android : `app/build.gradle.kts` ; iOS : `project.yml`) ; sinon laisse-les et garde la case correspondante décochée dans la checklist.
 - Thème : si ce n'est pas `clean`, remplace les fichiers générés par ceux du thème choisi, pris dans `<racine>/shared-libs/packages/design-tokens/generated/` : `css/<thème>.css` → `src/theme/` (et l'import de `src/styles.css`) en web, `android/<thème>/ThemeTokens.kt` (adapter la ligne `package`) en Android, `ios/<thème>/ThemeTokens.swift` en iOS.
 - Remplace le titre et l'introduction du README par le nom et la description du projet. Garde les sections techniques.
 - Si l'humain a choisi de supprimer `notes` : retire la feature, ses routes, tests, mocks et migrations, et garde un écran ou endpoint minimal pour que l'app démarre.

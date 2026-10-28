@@ -129,7 +129,9 @@ Le compte Scaleway existe ; chaque projet a son **projet Scaleway** pour isoler 
 - [ ] Compte **Apple Developer** (99 €/an).
 - [ ] Compte **Google Play Console** (25 $, une fois).
 - [ ] Identifiant d'app réservé dans les deux consoles (le même que celui choisi dans `/new-project`).
-- [ ] URL de production dans les apps : `API_BASE_URL` et `WEB_BASE_URL` (Android : `app/build.gradle.kts`, buildType `release` ; iOS : `project.yml`). `WEB_BASE_URL` DOIT être exactement le `web_origin` de production, sinon l'inscription et le mot de passe oublié échouent (`INVALID_CALLBACK_URL`).
+- [ ] URL de production dans les apps : `API_BASE_URL` et `WEB_BASE_URL` (Android : `app/build.gradle.kts`, buildType `release` ; iOS : `project.yml`). `WEB_BASE_URL` DOIT être exactement le `web_origin` de production, sinon l'inscription et le mot de passe oublié échouent (`INVALID_CALLBACK_URL`). Il figure donc aussi dans `CORS_ORIGINS` de l'API.
+- [ ] iOS, facultatif : Associated Domains (`webcredentials:<domaine du front>`) et fichier `apple-app-site-association` servi par le front, pour que le trousseau relie les mots de passe de l'app et du site.
+- [ ] Essai sur appareil avant soumission : VoiceOver (TalkBack sur Android), grande taille de police, mode sombre, enregistrement du mot de passe par le trousseau.
 - [ ] Fiches store : nom, description, captures, icône, catégorie, contact, lien vers la politique de confidentialité, questionnaire de données (Data safety, App Privacy).
 
 ## Légal (RGPD)

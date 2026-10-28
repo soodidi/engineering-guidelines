@@ -39,7 +39,7 @@ Faire B1, puis B2, puis B3 (chacune : ADR + code + tests, une PR par repo touch�
 
 ### B1. Authentification (le plus important)
 
-> État : ADR (BE-006 avec Better Auth) ✅ ; API ✅ (boilerplates #12, #14) ; checklist B1.4 ✅ (engineering-guidelines #16). Web ✅ (boilerplates #15, exception FE-002 : engineering-guidelines #17). Android ✅ (boilerplates #18, #19 ; engineering-guidelines #21). Reste : **iOS** (URLSession sans cookies, IOS-004), sur le modèle d'Android.
+> État : ADR (BE-006 avec Better Auth) ✅ ; API ✅ (boilerplates #12, #14) ; checklist B1.4 ✅ (engineering-guidelines #16). Web ✅ (boilerplates #15, exception FE-002 : engineering-guidelines #17). Android ✅ (boilerplates #18, #19 ; engineering-guidelines #21). iOS ✅ (boilerplates #22, #23). **B1 terminé.**
 
 BE-006 fixe les règles (Argon2id, cookie `HttpOnly` sur le web, access token court + refresh token rotatif sur mobile stocké dans Keychain / Keystore, routes protégées par défaut avec `@Public()`, vérification d'appartenance contre l'IDOR, rate limiting sur login) mais **ne choisit pas d'outil**.
 
@@ -90,7 +90,7 @@ But : des recettes prêtes à appliquer **quand une app en a besoin**, sans les 
 1. ~~B1 web (auth dans `web-react-vite`)~~ ✅
 2. ~~Tâche E — Parité Docker et `.env` prêts à l'init~~ ✅ (boilerplates #16, engineering-guidelines #18)
 3. ~~Tâche F — Chaîne de déploiement prête~~ ✅ (boilerplates #17, engineering-guidelines #19, #20)
-4. B1 mobile : ~~Android~~ ✅ (boilerplates #18), iOS : PR 1 ✅ (boilerplates #22), PR 2 à faire.
+4. ~~B1 mobile~~ ✅ : Android (boilerplates #18, #19), iOS (boilerplates #22, #23).
 5. B3 — RGPD et pages légales (avec l'événement `user.deleted`).
 6. Tâche C, puis tâche D (app jetable de bout en bout).
 
