@@ -16,8 +16,9 @@ Comme Android (AND-004), l'app consomme l'API OpenAPI du backend (BE-004), gère
 - **URLSession** avec async/await.
 - La session URLSession est configurée sans cookies (`httpShouldSetCookies = false`, `httpCookieStorage = nil`) : l'auth passe uniquement par le token `Bearer` (BE-006). Un cookie renvoyé automatiquement ferait passer la requête pour une requête web.
 - Client et types générés depuis la spec OpenAPI avec **swift-openapi-generator** (plugin SPM), dans `Core/Networking`.
-- À la connexion, le token de session arrive dans l'en-tête de réponse `set-auth-token` ; il est aussitôt rangé dans le Keychain.
-- Un middleware ajoute le token de session en `Authorization: Bearer` (BE-006). Sur une réponse `401`, il efface le token et renvoie vers la connexion ; il n'y a pas de refresh token.
+- À la connexion, le token de session **signé** arrive dans l'en-tête de réponse `set-auth-token` ; il est aussitôt rangé dans le Keychain. Le token du corps de la réponse n'est pas signé : l'API le refuse (`requireSignature`).
+- Un middleware ajoute le token de session en `Authorization: Bearer` (BE-006), uniquement vers l'origine de l'API. Sur une réponse `401`, il efface le token et renvoie vers la connexion ; il n'y a pas de refresh token.
+- Inscription et mot de passe oublié : formulaires dans l'app ; les liens des e-mails (vérification, nouveau mot de passe) ouvrent le front web (`WEB_BASE_URL`, présent dans `CORS_ORIGINS` de l'API), puis l'utilisateur revient se connecter. Pas de Universal Links tant qu'un projet n'en a pas besoin.
 - Les erreurs Problem Details sont converties en erreurs typées du domaine.
 - App Transport Security actif : HTTPS uniquement, aucune exception en production.
 
