@@ -17,6 +17,7 @@ Ces deux fichiers vivent dans `engineering-guidelines/docs/suivi/`. Ce sont des 
   2. `npm run verify` (ou `tofu fmt` et `validate`), dont tu cites le résultat ;
   3. les agents de contrôle `reviewer`, `qa`, `security` et `devops` (`.claude/agents/*.md` de chaque boilerplate), à lancer en agents `general-purpose` qui lisent ce fichier. L'utilisateur veut qu'ils soient **tous** lancés, ou que tu dises explicitement lequel tu sautes et pourquoi ;
   4. la PR, puis `gh pr merge --squash --auto --delete-branch`. Jamais `--admin`, jamais de force-push, jamais de `tofu apply` ni d'action irréversible.
+  5. ce qui ne se vérifie qu'à la main (appareil, staging, mise en ligne) s'ajoute à [`A-VERIFIER.md`](A-VERIFIER.md).
 - **Décisions d'architecture** : présenter 2 ou 3 options avec une recommandation, puis **attendre le choix de l'utilisateur** avant d'écrire l'ADR.
 - **Environnement local** :
   - Outils et installation : [`docs/poste-de-travail.md`](../poste-de-travail.md). Machine actuelle : MacBook Pro M1 (Apple Silicon).
@@ -87,7 +88,7 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
 3. ~~**Tâche G, front full responsive**~~ ✅ (FE-008 : engineering-guidelines #33 ; web : boilerplates #31 ; agent `reviewer` : boilerplates #30). Fait.
 4. **Tâche I, rôles, permissions et écrans d'erreur** (décision du 2026-10-29, **BE-010**) : plugin `admin` de Better Auth + access control ; écrans 403, 404 ressource, hors ligne sur web et mobile. Après B3 mobile. Détail dans `PLAN-SUITE.md`.
 5. **Tâche C** : catalogue de modules optionnels.
-6. **Tâche D** : app jetable de bout en bout, déployée en staging. C'est là que se vérifie tout ce qui ne se teste pas sans compte Scaleway :
+6. **Tâche D** : app jetable de bout en bout, déployée en staging. L'utilisateur y déroule [`A-VERIFIER.md`](A-VERIFIER.md) d'un coup. C'est là que se vérifie tout ce qui ne se teste pas sans compte Scaleway :
    - la chaîne `X-Forwarded-For` (`TRUST_PROXY_HOPS`, **prioritaire**) ;
    - la commande et les champs de la CLI `scw` ;
    - les CNAME, Edge Services, le cookie entre sous-domaines ;
