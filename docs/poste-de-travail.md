@@ -95,4 +95,4 @@ Les secrets (clés Scaleway, `TF_STATE_PASSPHRASE`) viennent du **gestionnaire d
 
 Dire à Claude : « Lis `engineering-guidelines/docs/suivi/HANDOFF.md` puis `PLAN-SUITE.md`, et continue. »
 
-[`docs/suivi/`](suivi/) sert à **fluidifier le travail entre les postes et entre les instances d'IA**. L'état du chantier, les décisions prises, les préférences et les pièges déjà rencontrés y sont écrits, et non dans la mémoire d'une machine ou d'une session. Chaque tâche terminée les met à jour par PR. Ces documents sont temporaires : on les supprime quand le chantier est terminé, et on en ajoute d'autres selon les besoins.
+[`docs/suivi/`](suivi/) contient des **documents temporaires, à effacer** une fois le chantier terminé. Ils servent à fluidifier le travail entre les postes et entre les instances d'IA. L'état du chantier, les décisions prises, les préférences et les pièges déjà rencontrés y sont écrits, et non dans la mémoire d'une machine ou d'une session. Chaque tâche terminée les met à jour par PR. Ces documents sont temporaires : on les supprime quand le chantier est terminé, et on en ajoute d'autres selon les besoins.

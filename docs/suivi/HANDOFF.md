@@ -2,7 +2,7 @@
 
 Ce document résume l'état d'une session précédente. Lis-le en entier avant d'agir. La feuille de route détaillée est dans `PLAN-SUITE.md`, dans ce même dossier : ce document la complète, il ne la remplace pas.
 
-Ces deux fichiers vivent dans `engineering-guidelines/docs/suivi/`. Ils servent à **fluidifier le travail entre les postes et entre les instances d'IA** : n'importe quelle machine ou session de Claude reprend le chantier avec un `git pull`, sans dépendre d'une mémoire locale ni d'un historique de conversation. Mets-les à jour (PR) à la fin de chaque tâche, et supprime-les quand le chantier est terminé. Sur une nouvelle machine, installe d'abord le poste avec [`docs/poste-de-travail.md`](../poste-de-travail.md).
+Ces deux fichiers vivent dans `engineering-guidelines/docs/suivi/`. Ce sont des **documents temporaires, à effacer** une fois le chantier terminé. Ils servent à fluidifier le travail entre les postes et entre les instances d'IA : n'importe quelle machine ou session de Claude reprend le chantier avec un `git pull`, sans dépendre d'une mémoire locale ni d'un historique de conversation. Mets-les à jour (PR) à la fin de chaque tâche, et supprime-les quand le chantier est terminé. Sur une nouvelle machine, installe d'abord le poste avec [`docs/poste-de-travail.md`](../poste-de-travail.md).
 
 ## Cadre de travail
 
