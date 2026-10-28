@@ -63,6 +63,7 @@ Récapitule ensuite le plan (repos créés, renommages, valeurs retenues) et att
 - Installe (`npm install`, ou rien pour mobile et infra) puis lance la vérification indiquée dans l'`AGENTS.md` du projet. Elle **doit** passer avant la création du repo. Corrige ce que le renommage a cassé.
 - API : lance `npm run setup` (crée `.env`, démarre PostgreSQL et Mailpit, applique les migrations), puis `npm run stack` et `npm run stack:smoke` : l'API tourne dans l'image de production et une inscription envoie bien un e-mail dans Mailpit. Arrête avec `npm run stack:down`. Si Docker ne répond pas, demande à l'humain de démarrer Docker Desktop.
 - Web avec API : vérifie que `npm run dev:api` affiche l'app contre l'API locale.
+- Plugins Claude : pour chaque plugin listé dans `enabledPlugins` du `.claude/settings.json` du projet, lance `claude plugin install <plugin> --scope project` depuis le dossier du projet (une installation ne vaut que pour le projet où elle est faite). `claude plugin list` ne doit afficher aucun `failed to load`, et le `settings.json` ne doit pas changer de contenu.
 
 ## 5. Créer le repo GitHub
 
@@ -110,4 +111,5 @@ Présente un récapitulatif court :
 - **Ce qui reste à remplir**, en une liste courte et exacte (valeurs à saisir, comptes à créer), et rien d'autre : tout ce qui a une valeur par défaut ou est généré n'y figure pas.
 - La checklist adaptée, avec ce qui est déjà coché. Pour les secrets, donne la commande `gh secret set` mais **ne demande jamais la valeur d'un secret** dans la conversation.
 - Ce qui est à lancer tôt parce que c'est long : comptes Apple Developer et Google Play (validation en plusieurs jours), achat du domaine.
+- Avant la première session dans chaque repo : lancer `claude` en interactif depuis son dossier et accepter la confiance du dossier, sans quoi les permissions et les plugins du projet sont ignorés.
 - Prochaine étape : créer une première issue « Fonctionnalité » puis `/feature <numéro>`.

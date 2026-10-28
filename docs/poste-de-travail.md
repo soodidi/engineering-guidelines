@@ -89,7 +89,14 @@ Les secrets (clés Scaleway, `TF_STATE_PASSPHRASE`) viennent du **gestionnaire d
      ```
 
      avec `name` et `email` (`20190991+soodidi@users.noreply.github.com`) dans `~/.gitconfig-perso`. Vérifier avec `git -C <racine>/boilerplates config user.email`.
-3. **Plugins** : l'installation (le téléchargement) peut suivre le compte claude.ai ; sinon, les installer avec `/plugin` depuis la marketplace `claude-plugins-official` (`anthropics/claude-plugins-official`). L'**activation**, elle, se fait par projet : chaque boilerplate active ceux qui lui servent dans son `.claude/settings.json` versionné (`enabledPlugins`), et l'app créée en hérite : ne pas les activer au niveau utilisateur sur un poste partagé. Pour les sessions lancées depuis `<racine>`, les activer dans `<racine>/.claude/settings.json`, hors des repos :
+3. **Plugins** : chaque boilerplate déclare ceux qui lui servent dans son `.claude/settings.json` versionné (`enabledPlugins`), et l'app créée en hérite. Mais une installation ne vaut que pour le projet où elle est faite : dans **chaque** projet, installer chaque plugin listé, depuis son dossier :
+
+   ```bash
+   claude plugin install <plugin>@claude-plugins-official --scope project
+   claude plugin list   # aucun « failed to load »
+   ```
+
+   Sur un poste partagé, ne rien installer en `--scope user` (portée par défaut de `claude plugin install` et de `/plugin`) : le plugin apparaîtrait dans tous les projets, pro compris. Le `settings.json` ne change pas de contenu ; `claude plugin install` place `enabledPlugins` en fin de fichier, d'où cet ordre dans les boilerplates. Pour les sessions lancées depuis `<racine>`, même chose depuis `<racine>`. Plugins utilisés :
 
    | Plugin | Usage | Prérequis sur la machine |
    |--------|-------|--------------------------|
