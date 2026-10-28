@@ -1,6 +1,6 @@
 # Instructions communes (tous les projets)
 
-Fichier relié en `CLAUDE.md` à la racine du dossier racine par `ai/install.sh` du repo engineering-guidelines. Le modifier dans ce repo, pas à travers le lien.
+Fichier relié en `<racine>/CLAUDE.md` par `ai/install.sh` du repo engineering-guidelines. Le modifier dans ce repo, pas à travers le lien.
 
 ## Guidelines
 

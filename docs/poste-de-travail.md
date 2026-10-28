@@ -79,6 +79,7 @@ Les secrets (clés Scaleway, `TF_STATE_PASSPHRASE`) viennent du **gestionnaire d
 1. Installer Claude Code (<https://docs.claude.com/claude-code>) et l'extension VS Code si besoin. Se connecter avec le **même compte claude.ai**.
 2. Installer la configuration commune, depuis `<racine>` : `engineering-guidelines/ai/install.sh`. Le script relie `<racine>/CLAUDE.md` et les skills `/new-project`, `/upstream` et `/adr` dans `<racine>/.claude/skills`. Il n'écrit rien dans `~/.claude` : sur un poste partagé avec d'autres projets (poste pro, par exemple), cette configuration ne s'applique qu'aux sessions lancées dans `<racine>`.
    - Lancer Claude Code depuis le dossier du projet pour `/feature`, `/fix` et `/review`, et depuis `<racine>` pour `/new-project`, `/upstream <app>` et `/adr` : les skills de `<racine>/.claude/` ne sont pas chargés dans un projet en dessous.
+   - **Confiance** : lancer `claude` une fois en interactif dans chaque nouveau repo (boilerplates, app créée) et accepter la confiance du dossier. Sans elle, les permissions et les plugins du `.claude/settings.json` du projet sont ignorés.
    - **Ancien poste** (configuration installée dans `~/.claude`) : supprimer les liens `~/.claude/CLAUDE.md` et `~/.claude/skills/{adr,new-project,upstream}`, puis relancer `install.sh`.
    - **Identité Git** : si le poste a une autre identité globale, la limiter au dossier racine dans `~/.gitconfig`, **après** la section `[user]` (sinon l'identité globale l'emporte) :
 
@@ -88,7 +89,7 @@ Les secrets (clés Scaleway, `TF_STATE_PASSPHRASE`) viennent du **gestionnaire d
      ```
 
      avec `name` et `email` (`20190991+soodidi@users.noreply.github.com`) dans `~/.gitconfig-perso`. Vérifier avec `git -C <racine>/boilerplates config user.email`.
-3. **Plugins** : ceux-ci sont synchronisés avec le compte claude.ai et suivent automatiquement. Sinon, les installer avec `/plugin` depuis la marketplace `claude-plugins-official` (`anthropics/claude-plugins-official`). Chaque boilerplate active ceux qui lui servent dans son `.claude/settings.json` versionné (`enabledPlugins`), et l'app créée en hérite : ne pas les activer au niveau utilisateur sur un poste partagé. Pour les sessions lancées depuis `<racine>`, les activer dans `<racine>/.claude/settings.json`, hors des repos :
+3. **Plugins** : l'installation (le téléchargement) peut suivre le compte claude.ai ; sinon, les installer avec `/plugin` depuis la marketplace `claude-plugins-official` (`anthropics/claude-plugins-official`). L'**activation**, elle, se fait par projet : chaque boilerplate active ceux qui lui servent dans son `.claude/settings.json` versionné (`enabledPlugins`), et l'app créée en hérite : ne pas les activer au niveau utilisateur sur un poste partagé. Pour les sessions lancées depuis `<racine>`, les activer dans `<racine>/.claude/settings.json`, hors des repos :
 
    | Plugin | Usage | Prérequis sur la machine |
    |--------|-------|--------------------------|
