@@ -69,6 +69,6 @@ Les ADR décrivent des règles, mais une règle qu'il faut reconfigurer à la ma
 
 ## Mise en application
 
-- CI de chaque boilerplate : installation, lint, tests et build sur chaque PR du repo `boilerplates`.
+- CI de chaque boilerplate : installation, lint, tests et build sur chaque PR du repo `boilerplates` qui le touche (jobs filtrés par chemins, OPS-002), et sur chaque push sur `main`.
 - Renovate actif sur `boilerplates` et `shared-libs`.
 - Revue : tout nouveau repo d'app qui ne part pas d'un boilerplate doit le justifier.

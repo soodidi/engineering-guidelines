@@ -93,10 +93,12 @@ But : des recettes prêtes à appliquer **quand une app en a besoin**, sans les 
 2. ~~Tâche E — Parité Docker et `.env` prêts à l'init~~ ✅ (boilerplates #16, engineering-guidelines #18)
 3. ~~Tâche F — Chaîne de déploiement prête~~ ✅ (boilerplates #17, engineering-guidelines #19, #20)
 4. ~~B1 mobile~~ ✅ : Android (boilerplates #18, #19), iOS (boilerplates #22, #23).
-5. Tâche G — front full responsive (ajoutée le 2026-10-28), puis B3 — RGPD : ~~ADR~~ ✅, ~~API~~ ✅, web (~~pages légales~~ ✅, « Mon compte »), Android, iOS.
+5. ~~Tâche G — front full responsive~~ ✅, puis B3 — RGPD : ~~ADR~~ ✅, ~~API~~ ✅, web (~~pages légales~~ ✅, « Mon compte »), Android, iOS.
 6. Tâche C, puis tâche D (app jetable de bout en bout).
 
 ## Tâche G — Front full responsive (demande du 2026-10-28)
+
+> ✅ Fait : FE-008 (engineering-guidelines #33), web (boilerplates #31), agent `reviewer` (boilerplates #30).
 
 But : toutes les apps web s'utilisent confortablement du téléphone (320 px) au grand écran.
 
