@@ -27,6 +27,8 @@ Règles :
 | [ ] | iOS : pendant la suppression, échappement VoiceOver (Z à deux doigts) et ⌘[ sur iPad | On ne revient pas aux notes | boilerplates #34 |
 | [ ] | iOS : liens « Politique de confidentialité » et « Exporter depuis le site web » | Safari s'ouvre sur la bonne page ; l'écran est intact au retour | boilerplates #34 |
 | [ ] | Web, page « Administration » : au clavier, au lecteur d'écran, en mode sombre | Confirmation atteinte au clavier, focus rendu après « Confirmer » / « Annuler », « Modification enregistrée. » annoncé | BE-010, boilerplates #36 |
+| [ ] | iOS, détail d'une note : VoiceOver, plus grande police, puis mode avion | Le focus se pose sur « Connexion impossible » (en-tête), « Réessayer » recharge la note | BE-010, boilerplates #38 |
+| [ ] | iOS, build Release (archive ou TestFlight), en français puis en anglais, en mode avion sur le détail | Textes de l'écran d'erreur traduits, jamais une clé brute (`error.network.title`) : le bundle de DesignSystem est embarqué | boilerplates #38 |
 | [ ] | Web sur Safari (macOS ou iOS) : « Télécharger mes données » | Le fichier `export-AAAA-MM-JJ.json` est bien téléchargé | boilerplates #32 |
 
 ## 2. En staging : infra et déploiement
@@ -59,6 +61,7 @@ Règles :
 | [ ] | App Android : supprimer le compte avec un mauvais puis le bon mot de passe | « Mot de passe incorrect. », puis retour à la connexion avec « Votre compte et vos données ont été supprimés. » ; la reconnexion échoue | GLB-013, boilerplates #33 |
 | [ ] | Premier administrateur : inscription confirmée, puis `user:promote` (procédure de staging à décider, voir `HANDOFF.md`) | `GET /v1/admin/stats` répond 200 à l'admin, 403 à un compte ordinaire | BE-010, boilerplates #35 |
 | [ ] | Web déployé contre `api.` : sur `/admin`, suspendre, réactiver, changer un rôle | Aucune erreur CORS ni « Invalid origin » ; un compte ordinaire voit « Accès refusé » | BE-010, boilerplates #36 |
+| [ ] | App iOS contre le staging : note supprimée depuis le web, puis ouverte ; session révoquée pendant l'ouverture d'une note | « Note introuvable » puis « Toutes les notes » ; retour à la connexion sans écran d'erreur | BE-010, boilerplates #38 |
 | [ ] | App Android contre le staging : note supprimée depuis le web, puis ouverte ; session révoquée pendant l'ouverture d'une note | « Note introuvable » ; retour à la connexion sans écran d'erreur | BE-010, boilerplates #37 |
 | [ ] | Bannir un compte depuis l'admin, puis tenter de se connecter avec ce compte | Session coupée tout de suite ; connexion refusée (`BANNED_USER`) | BE-010, boilerplates #35 |
 | [ ] | Le web sur un téléphone (Android et iPhone) : toutes les pages | Aucun défilement horizontal, boutons faciles à toucher | FE-008, boilerplates #31 |
