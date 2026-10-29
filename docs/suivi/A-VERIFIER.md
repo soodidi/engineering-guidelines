@@ -18,7 +18,9 @@ Règles :
 | [ ] | Android : mêmes parcours avec **TalkBack** et en grande police | Idem | B1, boilerplates #18, #19 |
 | [ ] | Web, page « Mon compte » : au **clavier** seul puis au **lecteur d'écran** | Export et suppression utilisables sans souris, erreurs annoncées | GLB-013, boilerplates #32 |
 | [ ] | Web en **mode sombre** : pages légales, « Mon compte » (bouton de suppression) | Contrastes lisibles, bordure rouge visible | FE-005, boilerplates #27, #32 |
-| [ ] | Android : `./gradlew connectedDebugAndroidTest` sur émulateur ou appareil (jamais lancé : ni émulateur sur le poste, ni job en CI) | Tous les tests UI passent, dont `AccountScreenTest` | boilerplates #33 |
+| [ ] | Android : `./gradlew connectedDebugAndroidTest` sur émulateur ou appareil (jamais lancé : ni émulateur sur le poste, ni job en CI) | Tous les tests UI passent, dont `AccountScreenTest`, `NoteDetailScreenTest` et `NotesScreenTest` | boilerplates #33, #37 |
+| [ ] | Android, détail d'une note : TalkBack, grande police, puis mode avion | « Connexion impossible » annoncé, « Réessayer » recharge la note ; titre lu comme un en-tête | BE-010, boilerplates #37 |
+| [ ] | Android, build release (R8) installé : ouvrir une note, pivoter, puis « Ne pas conserver les activités » | Aucun plantage (« Serializer for class … not found ») ; la note se recharge | boilerplates #37 |
 | [ ] | Android, « Mon compte » avec **TalkBack** et en **grande police** | Case annoncée comme case à cocher, erreurs lues, rien de tronqué ; barre des notes lisible | GLB-013, boilerplates #33 |
 | [ ] | Android, « Mon compte » : liens « Politique de confidentialité » et « Exporter depuis le site web » (en debug : `adb reverse tcp:5173 tcp:5173`) | La page web s'ouvre dans le navigateur | boilerplates #33 |
 | [ ] | iOS, « Mon compte » avec **VoiceOver** et la plus grande police, sur iPhone SE | Interrupteur annoncé, erreurs lues ; le message « compte supprimé » est lu une fois à la connexion, sans être coupé | GLB-013, boilerplates #34 |
@@ -57,6 +59,7 @@ Règles :
 | [ ] | App Android : supprimer le compte avec un mauvais puis le bon mot de passe | « Mot de passe incorrect. », puis retour à la connexion avec « Votre compte et vos données ont été supprimés. » ; la reconnexion échoue | GLB-013, boilerplates #33 |
 | [ ] | Premier administrateur : inscription confirmée, puis `user:promote` (procédure de staging à décider, voir `HANDOFF.md`) | `GET /v1/admin/stats` répond 200 à l'admin, 403 à un compte ordinaire | BE-010, boilerplates #35 |
 | [ ] | Web déployé contre `api.` : sur `/admin`, suspendre, réactiver, changer un rôle | Aucune erreur CORS ni « Invalid origin » ; un compte ordinaire voit « Accès refusé » | BE-010, boilerplates #36 |
+| [ ] | App Android contre le staging : note supprimée depuis le web, puis ouverte ; session révoquée pendant l'ouverture d'une note | « Note introuvable » ; retour à la connexion sans écran d'erreur | BE-010, boilerplates #37 |
 | [ ] | Bannir un compte depuis l'admin, puis tenter de se connecter avec ce compte | Session coupée tout de suite ; connexion refusée (`BANNED_USER`) | BE-010, boilerplates #35 |
 | [ ] | Le web sur un téléphone (Android et iPhone) : toutes les pages | Aucun défilement horizontal, boutons faciles à toucher | FE-008, boilerplates #31 |
 
