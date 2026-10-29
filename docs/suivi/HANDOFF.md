@@ -44,6 +44,7 @@ Ces deux fichiers vivent dans `engineering-guidelines/docs/suivi/`. Ce sont des 
 | B3, décision : ADR GLB-013 (registre `UserDataContributor`, effacement immédiat, mot de passe exigé, pas de traceur sans consentement, pages légales modèles) ; exception ajoutée à BE-002 | `adr/global/GLB-013-donnees-personnelles-et-rgpd.md` | engineering-guidelines #28 |
 | Auth iOS, PR 2 sur 2 : `AuthFeature` (repository Better Auth sur `postRaw`, trois écrans natifs, textes d'Android), bascule de l'app sur `SessionStore.states()`, déconnexion qui révoque avant d'effacer, XCUITest avec doublures Debug (`-ui-testing`), essai de bout en bout contre `npm run stack` | `ios-swiftui/Packages/Sources/AuthFeature`, `App/`, `AppUITests/` | boilerplates #23 |
 | Auth iOS, PR 1 sur 2 : `CoreAuth` (`SessionStore`, Keychain `AfterFirstUnlockThisDeviceOnly`), client sans cookies ni redirections, `Bearer` vers l'API seulement, `401` → session effacée, `postRaw` ; tests Keychain dans `iOSAppTests` (hébergée par l'app), CI sur simulateur via `scripts/test-simulator.sh` | `ios-swiftui/Packages/Sources/{CoreAuth,CoreNetworking}`, `AppTests/` | boilerplates #22 |
+| B3 iOS : portage d'Android (mêmes textes) ; `Toggle` de confirmation ; le ViewModel prévient l'app dès la réponse de l'API (`onAccountDeleted`), sans dépendre du rendu ; écran verrouillé jusqu'au retour à la connexion ; focus VoiceOver sur le message de suppression ; durée des sauvegardes dans `App/LegalInfo.swift` | `ios-swiftui/Packages/Sources/AuthFeature/Account*`, `App/` | boilerplates #34 ; engineering-guidelines (PR de cette passation) |
 | B3 Android : écran « Mon compte » (seule action de la barre des notes, déconnexion déplacée dedans), politique de confidentialité et export ouverts sur le web, suppression avec mot de passe + case (écran verrouillé pendant l'envoi), message à la connexion posé par `SessionViewModel` avant l'effacement de la session ; durée des sauvegardes dans `res/values/legal.xml` ; CI qui compile `androidTest` | `android-compose/app/src/main/java/com/example/app/feature/auth/ui/Account*`, `navigation/` | boilerplates #33 ; engineering-guidelines (PR de cette passation) |
 | B3 web, PR 2 sur 2 : page privée `/account` (« Mon compte » dans l'en-tête), export JSON téléchargé, suppression avec mot de passe + case de confirmation (`useDeleteAccount`, variante de bouton `destructive`), message de retour par l'état d'historique (pas l'URL), mocks MSW au contrat de l'API | `web-react-vite/src/features/account/` | boilerplates #32 |
 | Décision rôles et permissions : plugin `admin` de Better Auth + access control, écrans 403 / 404 ressource / hors ligne (tâche I, pas encore codée) | `adr/backend/BE-010-roles-et-permissions.md` | PR de cette passation |
@@ -74,7 +75,7 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
 
 **Isolation perso / pro** (2026-10-28) : la configuration Claude vit dans `<racine>` (`CLAUDE.md`, `.claude/skills`, `.claude/settings.json`), rien dans `~/.claude` ; l'identité Git perso passe par `includeIf` vers `~/.gitconfig-perso`. Les chemins `~/Documents/projects` codés en dur sont remplacés par `<racine>` (engineering-guidelines et boilerplates, PR « workspace-relative paths »). Ne pas cloner dans `~/Documents/projects` : c'est le dossier pro de ce Mac.
 
-**État au moment de la passation** (2026-10-29) : B3 Android fait (boilerplates #33). Prochaine étape : **B3 iOS** (point 2.3 ci-dessous), puis la tâche I. La stack locale de l'API est arrêtée.
+**État au moment de la passation** (2026-10-29) : **B3 terminé** sur les quatre briques (iOS : boilerplates #34). Prochaine étape : **la tâche I** (BE-010, point 4 ci-dessous). La stack locale de l'API est arrêtée.
 
 ## Ce qui reste, dans l'ordre convenu
 
@@ -84,12 +85,13 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
       - export : `GET /v1/account/export` (session requise, 5 par minute) → `{ exportedAt, data: { account: { user, sessions, signInMethods }, notes: [...] } }`, avec `Content-Disposition: attachment; filename="account-export.json"` ;
       - suppression : `POST /v1/auth/delete-user` avec `{ "password": "…" }` (SDK web : `authClient.deleteUser({ password })`). Réponses : 200 `{ success: true }` ; 400 si mot de passe absent, vide ou faux (code `INVALID_PASSWORD` pour un mauvais mot de passe) ; 429 après 5 essais par minute. Après 200, la session est révoquée.
    2. **Web** (`web-react-vite`) : ~~pages légales~~ ✅ (boilerplates #27), ~~« Mon compte »~~ ✅ (boilerplates #32). Fait : écran « Mon compte » avec « Exporter mes données » (téléchargement JSON) et « Supprimer mon compte » (mot de passe et confirmation, puis retour à l'accueil, cache vidé avec `resetUserCache()`). Tests et E2E.
-   3. ~~**Android**~~ ✅ (boilerplates #33), puis **iOS**, **la prochaine étape**. Reprendre le découpage et les textes d'Android :
+   3. ~~**Android**~~ ✅ (boilerplates #33), ~~**iOS**~~ ✅ (boilerplates #34). Découpage commun aux deux apps :
       - « Mon compte » est la **seule** action de la barre des notes ; « Se déconnecter » est dans « Mon compte » (deux boutons texte débordaient en grande police) ;
       - lien « Politique de confidentialité » (`WEB_BASE_URL/legal/privacy`), bouton « Exporter depuis le site web » (`WEB_BASE_URL/account`) ;
       - « Supprimer mon compte » : mot de passe actuel + case de confirmation, `POST /v1/auth/delete-user`, erreurs `INVALID_PASSWORD` → « Mot de passe incorrect. », 429, réseau ; écran verrouillé pendant l'envoi (retour bloqué) ;
       - après succès : le message « Votre compte et vos données ont été supprimés. » est posé **avant** l'effacement de la session (sinon la navigation détruit l'écran avant), puis affiché sur l'écran de connexion jusqu'à la session suivante ;
       - durée des sauvegardes (14 jours) dans une ressource, alignée sur `legal-info.ts` et l'infra ; pas d'e-mail affiché (choix de l'utilisateur).
+      - petite reprise possible sur Android : l'écran se déverrouille pendant une image entre le succès et le retour à la connexion (`isDeleting` repasse à `false`) ; iOS garde `isDeleting` à vrai après le succès et prévient l'app depuis le ViewModel.
    4. ~~Checklist « nouveau projet », section Légal~~ ✅ (PR de cette passation).
 3. ~~**Tâche G, front full responsive**~~ ✅ (FE-008 : engineering-guidelines #33 ; web : boilerplates #31 ; agent `reviewer` : boilerplates #30). Fait.
 4. **Tâche I, rôles, permissions et écrans d'erreur** (décision du 2026-10-29, **BE-010**) : plugin `admin` de Better Auth + access control ; écrans 403, 404 ressource, hors ligne sur web et mobile. Après B3 mobile. Détail dans `PLAN-SUITE.md`.
@@ -107,6 +109,7 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
 Pistes non bloquantes :
 
 - cache de build GHA pour le job `stack` ;
+- apps mobiles : exiger `https` pour `WEB_BASE_URL` et `API_BASE_URL` en Release (garde-fou au build ou au démarrage), et faire échouer le build Release tant que `example.com` reste dans les URL (suggestions security et devops, boilerplates #33, #34) ;
 - `verify-ca` pour PostgreSQL, avec le certificat de l'instance ;
 - documenter dans un ADR que l'app tourne aussi dans compose (profil `app`).
 - les routes `/v1/auth/*` (Better Auth) ne passent pas par pino-http : elles ne sont pas journalisées (BE-007).

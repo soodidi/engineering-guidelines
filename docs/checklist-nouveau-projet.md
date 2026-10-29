@@ -133,14 +133,14 @@ Le compte Scaleway existe ; chaque projet a son **projet Scaleway** pour isoler 
 - [ ] iOS, facultatif : Associated Domains (`webcredentials:<domaine du front>`) et fichier `apple-app-site-association` servi par le front, pour que le trousseau relie les mots de passe de l'app et du site.
 - [ ] Essai sur appareil avant soumission : VoiceOver (TalkBack sur Android), grande taille de police, mode sombre, enregistrement du mot de passe par le trousseau.
 - [ ] Fiches store : nom, description, captures, icône, catégorie, contact, lien vers la politique de confidentialité (`<web_origin>/legal/privacy`, la page ouverte par l'app), questionnaire de données (Data safety, App Privacy).
-- [ ] Suppression du compte déclarée : Google Play (Data safety) demande une URL où l'on peut supprimer son compte sans l'app, `<web_origin>/account` ; l'App Store vérifie que la suppression est possible dans l'app (« Mon compte », GLB-013).
+- [ ] Suppression du compte déclarée : Google Play (Data safety) demande une URL où l'on peut supprimer son compte sans l'app, `<web_origin>/account` ; l'App Store vérifie que la suppression est possible dans l'app (« Mon compte », GLB-013, règle 5.1.1(v)). App Store Connect n'a pas de champ pour cela : écrire le chemin dans les notes de revue (Notes → Mon compte → Supprimer mon compte) et fournir un compte de démonstration **dédié**, que le relecteur peut supprimer (à recréer après chaque revue).
 
 ## Légal (RGPD)
 
 - [ ] `web/src/features/legal/legal-info.ts` rempli : plus aucun champ entre crochets (`[NOM DE L'ÉDITEUR]`, `[AAAA-MM-JJ]`…). Un particulier qui publie à titre non professionnel peut rester anonyme (voir le commentaire du fichier).
 - [ ] Textes de `web/src/features/legal/content/` relus : données collectées, sous-traitants, durées. Toute donnée ou tout service ajouté par l'app y figure (GLB-013).
 - [ ] Durées vérifiées et reportées dans `legal-info.ts` : rétention des logs dans Cockpit (console Scaleway, 7 jours par défaut), rétention des événements Sentry selon l'offre (30 jours en gratuit), sauvegardes (`backup_retention_days` de `infra/envs/production`).
-- [ ] Même durée des sauvegardes dans les apps mobiles, qui l'annoncent avant la suppression du compte : Android `app/src/main/res/values/legal.xml` (`legal_backup_retention_days`).
+- [ ] Même durée des sauvegardes dans les apps mobiles, qui l'annoncent avant la suppression du compte : Android `app/src/main/res/values/legal.xml` (`legal_backup_retention_days`), iOS `App/LegalInfo.swift` (`backupRetentionDays`).
 - [ ] Organisation Sentry en région UE (sinon, corriger la politique de confidentialité).
 - [ ] Production avec `min_scale >= 1` pour l'API : la purge quotidienne des sessions et jetons expirés en dépend.
 
