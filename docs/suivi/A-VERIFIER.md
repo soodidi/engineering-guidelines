@@ -54,6 +54,8 @@ Règles :
 | [ ] | Supprimer mon compte avec le bon mot de passe | Retour à l'accueil avec le message ; la reconnexion échoue ; plus aucune ligne en base pour ce compte | GLB-013 |
 | [ ] | App iOS : supprimer le compte avec un mauvais puis le bon mot de passe ; verrouiller l'iPhone pendant l'envoi | Comme Android ; noter ce qui se passe si la réponse se perd (erreur réseau, puis retour à la connexion sans message) | GLB-013, boilerplates #34 |
 | [ ] | App Android : supprimer le compte avec un mauvais puis le bon mot de passe | « Mot de passe incorrect. », puis retour à la connexion avec « Votre compte et vos données ont été supprimés. » ; la reconnexion échoue | GLB-013, boilerplates #33 |
+| [ ] | Premier administrateur : inscription confirmée, puis `user:promote` (procédure de staging à décider, voir `HANDOFF.md`) | `GET /v1/admin/stats` répond 200 à l'admin, 403 à un compte ordinaire | BE-010, boilerplates #35 |
+| [ ] | Bannir un compte depuis l'admin, puis tenter de se connecter avec ce compte | Session coupée tout de suite ; connexion refusée (`BANNED_USER`) | BE-010, boilerplates #35 |
 | [ ] | Le web sur un téléphone (Android et iPhone) : toutes les pages | Aucun défilement horizontal, boutons faciles à toucher | FE-008, boilerplates #31 |
 
 ## 4. En staging : données personnelles et observabilité

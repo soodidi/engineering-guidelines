@@ -122,9 +122,10 @@ Un module par domaine métier ; un module n'importe que l'`index.ts` d'un autre,
 ```mermaid
 flowchart TB
   subgraph modules["src/modules"]
-    AUTH["auth<br/>Better Auth, tables users / sessions,<br/>guard global, purge des données expirées"]
+    AUTH["auth<br/>Better Auth, tables users / sessions,<br/>guard global, rôles et permissions,<br/>purge des données expirées"]
     ACC["account<br/>GET /v1/account/export"]
     NOTES["notes<br/>module d'exemple"]
+    ADMIN["admin<br/>GET /v1/admin/stats,<br/>exemple de route réservée"]
   end
   subgraph shared["Code partagé"]
     UD["common/user-data<br/>registre UserDataContributor"]
@@ -135,6 +136,8 @@ flowchart TB
   end
 
   NOTES -- "Session (index.ts)" --> AUTH
+  ADMIN -- "UserHasPermission, UsersService" --> AUTH
+  ADMIN -- "NotesService" --> NOTES
   ACC -- "Session (index.ts)" --> AUTH
   ACC -- "exportAll" --> UD
   AUTH -- "eraseAll à la suppression" --> UD
@@ -146,6 +149,7 @@ flowchart TB
 ```
 
 - Une requête passe par : guard d'auth (route protégée par défaut), validation Zod, controller, service, repository ([BE-004](../adr/backend/BE-004-api-rest-et-openapi.md), [BE-005](../adr/backend/BE-005-validation-aux-frontieres.md)).
+- Une route réservée porte `@UserHasPermission` ou `@Roles` ; les permissions sont déclarées une seule fois dans `auth/access-control.ts` ([BE-010](../adr/backend/BE-010-roles-et-permissions.md)).
 - Toute table avec une colonne `user_id` est couverte par un contributeur du registre, qui l'exporte et l'efface avec le compte ([GLB-013](../adr/global/GLB-013-donnees-personnelles-et-rgpd.md)).
 
 ## 6. Dans le web

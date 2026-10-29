@@ -94,7 +94,7 @@ But : des recettes prêtes à appliquer **quand une app en a besoin**, sans les 
 3. ~~Tâche F — Chaîne de déploiement prête~~ ✅ (boilerplates #17, engineering-guidelines #19, #20)
 4. ~~B1 mobile~~ ✅ : Android (boilerplates #18, #19), iOS (boilerplates #22, #23).
 5. ~~Tâche G — front full responsive~~ ✅, puis B3 — RGPD : ~~ADR~~ ✅, ~~API~~ ✅, ~~web~~ ✅, ~~Android~~ ✅, ~~iOS~~ ✅.
-6. Tâche I — rôles, permissions et écrans d'erreur (BE-010), après B3 mobile.
+6. Tâche I — rôles, permissions et écrans d'erreur (BE-010) : ~~API~~ ✅, web, Android, iOS.
 7. Tâche C, puis tâche D (app jetable de bout en bout).
 
 ## Tâche G — Front full responsive (demande du 2026-10-28)
@@ -110,6 +110,8 @@ But : toutes les apps web s'utilisent confortablement du téléphone (320 px) au
 ## Tâche I — Rôles, permissions et écrans d'erreur (demande du 2026-10-29)
 
 > Décision de l'utilisateur : plugin `admin` de Better Auth + access control (pas CASL, `organization` en module optionnel) ; écrans d'erreur dans le même chantier. ADR : **BE-010**.
+>
+> État : API ✅ (boilerplates #35 : exemple `GET /v1/admin/stats`, `GET /v1/notes/:id`). Reste web, Android, iOS. Décisions en attente : voir `HANDOFF.md`, point 4.
 
 1. **API** : plugin `admin` (migration `role`, `banned`…), `src/modules/auth/access-control.ts` (rôles `user`, `admin`), `@UserHasPermission` / `@Roles`, 403 Problem Details, 404 sur la ressource d'un autre ; commande `npm run user:promote -- <email>` ; usurpation désactivée ; `role` ajouté à l'export du compte (GLB-013) ; tests (403, accès admin, 404 IDOR). Exemple : une route d'administration minimale (liste des utilisateurs) ou une permission sur `notes`.
 2. **Web** : `requirePermission` (`beforeLoad`), `useCan`, écrans 403, 404 ressource (`notFound()` sur une 404 de l'API), erreur serveur et hors ligne ; tests et E2E.
