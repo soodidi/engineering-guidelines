@@ -121,6 +121,7 @@ Le compte Scaleway existe ; chaque projet a son **projet Scaleway** pour isoler 
 - [ ] `BETTER_AUTH_SECRET` : rien à faire, OpenTofu le génère pour chaque environnement.
 - [ ] **En priorité au premier déploiement en staging** : se connecter, puis vérifier dans la table `sessions` que `ip_address` est ta vraie IP publique, et pas une adresse interne (`10.…`, `100.64.…`, `172.16.…`). Si c'est une adresse interne, il y a plus de proxys que prévu devant l'API : augmenter `TRUST_PROXY_HOPS`. Sinon, tous les utilisateurs partagent le même compteur de rate limiting, et un seul attaquant bloque la connexion de tout le monde (5 essais par minute).
 - [ ] Parcours complet testé en staging : inscription, e-mail de vérification reçu, connexion, mot de passe oublié, déconnexion.
+- [ ] **Premier administrateur** (BE-010), en staging puis en production : le compte s'inscrit et confirme son adresse, puis `user:promote` (`node dist/modules/auth/promote-user.js <email>`). Contrôle : `GET /v1/admin/stats` répond 200 pour cet admin et 403 pour un compte ordinaire. Tant que l'accès ponctuel au réseau privé n'est pas décidé par un ADR, cette étape ne se fait qu'en local.
 
 ## Mobile (Android, iOS)
 
