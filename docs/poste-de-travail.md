@@ -50,8 +50,8 @@ Les secrets (clés Scaleway, `TF_STATE_PASSPHRASE`) viennent du **gestionnaire d
 | Outil | Pourquoi | Installation | Vérification |
 |-------|----------|--------------|--------------|
 | Android Studio (Apple Silicon) | SDK, émulateur, AGP Upgrade Assistant | <https://developer.android.com/studio> | ouvrir `boilerplates/android-compose` |
-| JDK 17 ou plus | Gradle et AGP 8.13 | celui d'Android Studio (JBR 21), ou `brew install --cask temurin@17` | `java -version` |
-| SDK Android 36 | compilation | Android Studio → SDK Manager → Android 16 (API 36) | `ls ~/Library/Android/sdk/platforms` |
+| JDK 17 ou plus | Gradle et AGP 8.13 | celui d'Android Studio (JBR 21), ou `brew install --cask temurin@17`, ou `brew install openjdk@21` | `java -version` |
+| SDK Android 36 | compilation | Android Studio → SDK Manager → Android 16 (API 36) ; sans Android Studio : `brew install --cask android-commandlinetools`, puis `sdkmanager --sdk_root=$HOME/Library/Android/sdk --install "platforms;android-36" "build-tools;36.0.0" platform-tools` (après `sdkmanager --licenses`) | `ls ~/Library/Android/sdk/platforms` |
 
 - Dans `~/.zshrc` : `export ANDROID_HOME=~/Library/Android/sdk`, et ajouter `$ANDROID_HOME/platform-tools` au PATH.
 - **Émulateur sur Apple Silicon** : image **`arm64-v8a`** (et non `x86_64`). En ligne de commande :
@@ -62,7 +62,8 @@ Les secrets (clés Scaleway, `TF_STATE_PASSPHRASE`) viennent du **gestionnaire d
   ```
 
 - Vérification : `./gradlew ktlintCheck lintDebug testDebugUnitTest assembleDebug`, puis `./gradlew connectedDebugAndroidTest` avec l'émulateur lancé. Ne pas lancer deux Gradle en parallèle sur le même projet : KSP casse.
-- L'émulateur joint l'API locale sur `http://10.0.2.2:3000`.
+- L'émulateur joint l'API locale sur `http://10.0.2.2:3000`. Les liens vers le front web (`WEB_BASE_URL`, `http://localhost:5173` en debug) s'ouvrent dans le navigateur de l'émulateur : `adb reverse tcp:5173 tcp:5173` pour qu'ils joignent le front de la machine.
+- **Poste partagé avec une configuration Gradle pro** : un `~/.gradle/gradle.properties` pro s'applique à tous les builds (options JVM, propriétés, identifiants). Lancer les builds perso avec un dossier Gradle à part : `GRADLE_USER_HOME=~/.gradle-perso ./gradlew …` (dans Android Studio : *Settings → Build Tools → Gradle → Gradle user home*, réglé par projet). Ne pas l'exporter dans `~/.zshrc`, pour ne pas toucher les projets pro.
 
 ## 5. iOS (Mac obligatoire)
 

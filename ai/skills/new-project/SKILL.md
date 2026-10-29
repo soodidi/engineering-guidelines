@@ -92,7 +92,7 @@ Explique-la simplement à l'humain, **avant** tout `tofu init` et sans la lui de
 
 Lis `<racine>/engineering-guidelines/docs/checklist-nouveau-projet.md` et adapte-la au projet :
 
-- Garde la section **Tous les projets** et seulement les sections des briques choisies : Sentry (web, api), Scaleway (infra, ou web/api qui déploient), Domaine (web ou api déployés), Mobile (android, ios), Légal (dès qu'une app est publique).
+- Garde la section **Tous les projets** et seulement les sections des briques choisies : Sentry (web, api), Scaleway (infra, ou web/api qui déploient), Domaine (web ou api déployés), Mobile (android, ios), Légal (dès qu'une app est publique, donc toujours avec android ou ios : une app sur un store l'est).
 - Remplace `<nom>`, `<repo>` et les noms des repos par les vrais. Vérifie que les secrets et variables listés correspondent bien à ceux des workflows copiés (`grep -rhoE '(secrets|vars)\.[A-Za-z0-9_]+' .github/workflows | sort -u`, hors `GITHUB_TOKEN`) et ajoute ceux qui manqueraient.
 - **Coche** ce que tu as fait toi-même (repo, réglages, labels, protection de `main` si elle a réussi). Laisse décoché tout le reste.
 
