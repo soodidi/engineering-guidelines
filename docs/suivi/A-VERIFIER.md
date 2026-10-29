@@ -18,6 +18,9 @@ Règles :
 | [ ] | Android : mêmes parcours avec **TalkBack** et en grande police | Idem | B1, boilerplates #18, #19 |
 | [ ] | Web, page « Mon compte » : au **clavier** seul puis au **lecteur d'écran** | Export et suppression utilisables sans souris, erreurs annoncées | GLB-013, boilerplates #32 |
 | [ ] | Web en **mode sombre** : pages légales, « Mon compte » (bouton de suppression) | Contrastes lisibles, bordure rouge visible | FE-005, boilerplates #27, #32 |
+| [ ] | Android : `./gradlew connectedDebugAndroidTest` sur émulateur ou appareil (jamais lancé : ni émulateur sur le poste, ni job en CI) | Tous les tests UI passent, dont `AccountScreenTest` | boilerplates #33 |
+| [ ] | Android, « Mon compte » avec **TalkBack** et en **grande police** | Case annoncée comme case à cocher, erreurs lues, rien de tronqué ; barre des notes lisible | GLB-013, boilerplates #33 |
+| [ ] | Android, « Mon compte » : liens « Politique de confidentialité » et « Exporter depuis le site web » (en debug : `adb reverse tcp:5173 tcp:5173`) | La page web s'ouvre dans le navigateur | boilerplates #33 |
 | [ ] | Web sur Safari (macOS ou iOS) : « Télécharger mes données » | Le fichier `export-AAAA-MM-JJ.json` est bien téléchargé | boilerplates #32 |
 
 ## 2. En staging : infra et déploiement
@@ -32,7 +35,7 @@ Règles :
 | [ ] | Migrations au démarrage sous verrou : déployer deux fois de suite | Une seule instance migre ; pas d'erreur dans les logs | OPS-004 |
 | [ ] | Commande et champs de la CLI `scw` dans le workflow de déploiement | Le déploiement passe sans retouche | boilerplates #17 |
 | [ ] | Bucket policy du front et clé `deploy-web` | Le déploiement du web écrit dans le bucket | boilerplates #17 |
-| [ ] | Accès direct à une route du front : `curl -sI https://<web>/legal/privacy` et `/account` | `text/html` ; noter le statut (404 aujourd'hui) et le `cache-control` | devops, boilerplates #27, #32 |
+| [ ] | Accès direct à une route du front : `curl -sI https://<web>/legal/privacy` et `/account` | `text/html` ; noter le statut (404 aujourd'hui) et le `cache-control`. Ces URL sont aussi les liens des apps et de la fiche Play : un 404 pourrait être refusé par Google | devops, boilerplates #27, #32, #33 |
 | [ ] | Onglet resté ouvert pendant un déploiement, puis ouvrir « Mon compte » ou les pages légales | Noter si la page plante (anciens fichiers JS supprimés) ; sinon garder une version de plus | devops, boilerplates #32 |
 | [ ] | Quotas Scaleway TEM | Les e-mails partent ; noter la limite d'envoi | BE-009 |
 
@@ -46,6 +49,7 @@ Règles :
 | [ ] | « Mon compte » : exporter mes données | Le fichier contient le compte, les sessions et les notes, sans token ni hachage | GLB-013, boilerplates #24, #32 |
 | [ ] | Supprimer mon compte avec un **mauvais** mot de passe, 6 fois de suite | « Mot de passe incorrect. », puis « Trop de tentatives » au 6ᵉ essai | GLB-013, boilerplates #24 |
 | [ ] | Supprimer mon compte avec le bon mot de passe | Retour à l'accueil avec le message ; la reconnexion échoue ; plus aucune ligne en base pour ce compte | GLB-013 |
+| [ ] | App Android : supprimer le compte avec un mauvais puis le bon mot de passe | « Mot de passe incorrect. », puis retour à la connexion avec « Votre compte et vos données ont été supprimés. » ; la reconnexion échoue | GLB-013, boilerplates #33 |
 | [ ] | Le web sur un téléphone (Android et iPhone) : toutes les pages | Aucun défilement horizontal, boutons faciles à toucher | FE-008, boilerplates #31 |
 
 ## 4. En staging : données personnelles et observabilité
@@ -66,4 +70,6 @@ Règles :
 | [ ] | `web/src/features/legal/legal-info.ts` | Plus aucun champ entre crochets ; date au format AAAA-MM-JJ | GLB-013, checklist « nouveau projet » |
 | [ ] | Textes de `web/src/features/legal/content/` relus | Données, sous-traitants et durées conformes à ce que l'app fait vraiment | GLB-013 |
 | [ ] | Production : `min_scale >= 1` pour l'API | La purge quotidienne tourne | boilerplates #25 |
+| [ ] | Play Console (fiche et Data safety) | URL de la politique de confidentialité et URL de suppression du compte (`<web_origin>/account`) renseignées | GLB-013, boilerplates #33 |
+| [ ] | `res/values/legal.xml` (Android) | Même durée des sauvegardes que `legal-info.ts` et l'infra de production | boilerplates #33 |
 | [ ] | Checklist « nouveau projet » | Toutes les cases des briques utilisées sont cochées | `docs/checklist-nouveau-projet.md` |
