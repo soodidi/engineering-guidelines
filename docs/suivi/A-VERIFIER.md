@@ -24,6 +24,7 @@ Règles :
 | [ ] | iOS, « Mon compte » avec **VoiceOver** et la plus grande police, sur iPhone SE | Interrupteur annoncé, erreurs lues ; le message « compte supprimé » est lu une fois à la connexion, sans être coupé | GLB-013, boilerplates #34 |
 | [ ] | iOS : pendant la suppression, échappement VoiceOver (Z à deux doigts) et ⌘[ sur iPad | On ne revient pas aux notes | boilerplates #34 |
 | [ ] | iOS : liens « Politique de confidentialité » et « Exporter depuis le site web » | Safari s'ouvre sur la bonne page ; l'écran est intact au retour | boilerplates #34 |
+| [ ] | Web, page « Administration » : au clavier, au lecteur d'écran, en mode sombre | Confirmation atteinte au clavier, focus rendu après « Confirmer » / « Annuler », « Modification enregistrée. » annoncé | BE-010, boilerplates #36 |
 | [ ] | Web sur Safari (macOS ou iOS) : « Télécharger mes données » | Le fichier `export-AAAA-MM-JJ.json` est bien téléchargé | boilerplates #32 |
 
 ## 2. En staging : infra et déploiement
@@ -38,7 +39,7 @@ Règles :
 | [ ] | Migrations au démarrage sous verrou : déployer deux fois de suite | Une seule instance migre ; pas d'erreur dans les logs | OPS-004 |
 | [ ] | Commande et champs de la CLI `scw` dans le workflow de déploiement | Le déploiement passe sans retouche | boilerplates #17 |
 | [ ] | Bucket policy du front et clé `deploy-web` | Le déploiement du web écrit dans le bucket | boilerplates #17 |
-| [ ] | Accès direct à une route du front : `curl -sI https://<web>/legal/privacy` et `/account` | `text/html` ; noter le statut (404 aujourd'hui) et le `cache-control`. Ces URL sont aussi les liens des apps et de la fiche Play : un 404 pourrait être refusé par Google | devops, boilerplates #27, #32, #33 |
+| [ ] | Accès direct à une route du front : `curl -sI https://<web>/legal/privacy`, `/account`, `/admin` et `/notes/<uuid>` | `text/html` ; noter le statut (404 aujourd'hui) et le `cache-control`. Ces URL sont aussi les liens des apps et de la fiche Play : un 404 pourrait être refusé par Google | devops, boilerplates #27, #32, #33 |
 | [ ] | Onglet resté ouvert pendant un déploiement, puis ouvrir « Mon compte » ou les pages légales | Noter si la page plante (anciens fichiers JS supprimés) ; sinon garder une version de plus | devops, boilerplates #32 |
 | [ ] | Quotas Scaleway TEM | Les e-mails partent ; noter la limite d'envoi | BE-009 |
 
@@ -55,6 +56,7 @@ Règles :
 | [ ] | App iOS : supprimer le compte avec un mauvais puis le bon mot de passe ; verrouiller l'iPhone pendant l'envoi | Comme Android ; noter ce qui se passe si la réponse se perd (erreur réseau, puis retour à la connexion sans message) | GLB-013, boilerplates #34 |
 | [ ] | App Android : supprimer le compte avec un mauvais puis le bon mot de passe | « Mot de passe incorrect. », puis retour à la connexion avec « Votre compte et vos données ont été supprimés. » ; la reconnexion échoue | GLB-013, boilerplates #33 |
 | [ ] | Premier administrateur : inscription confirmée, puis `user:promote` (procédure de staging à décider, voir `HANDOFF.md`) | `GET /v1/admin/stats` répond 200 à l'admin, 403 à un compte ordinaire | BE-010, boilerplates #35 |
+| [ ] | Web déployé contre `api.` : sur `/admin`, suspendre, réactiver, changer un rôle | Aucune erreur CORS ni « Invalid origin » ; un compte ordinaire voit « Accès refusé » | BE-010, boilerplates #36 |
 | [ ] | Bannir un compte depuis l'admin, puis tenter de se connecter avec ce compte | Session coupée tout de suite ; connexion refusée (`BANNED_USER`) | BE-010, boilerplates #35 |
 | [ ] | Le web sur un téléphone (Android et iPhone) : toutes les pages | Aucun défilement horizontal, boutons faciles à toucher | FE-008, boilerplates #31 |
 

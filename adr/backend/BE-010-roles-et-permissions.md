@@ -35,7 +35,8 @@ Il faut une base unique pour l'API, le web et le mobile, sans dupliquer les règ
 **Web et mobile**
 
 - Le rôle arrive avec la session. Les clients s'en servent **uniquement pour l'affichage** : cacher un bouton, une entrée de menu, une page. L'API reste la seule autorité.
-- Web : `requirePermission(…)` dans `beforeLoad` d'une route réservée affiche l'écran « Accès refusé » ; un composant ou hook (`useCan`) lit les permissions du rôle via le client Better Auth (`checkRolePermission`), à partir du même `access-control.ts` exposé par l'API.
+- Web : `requirePermission(…)` dans `beforeLoad` d'une route réservée affiche l'écran « Accès refusé » ; un hook (`useCan`) cache un lien ou un bouton. Les deux **demandent à l'API** si l'utilisateur connecté a ces permissions (route `has-permission` du plugin `admin`), avec un cache vidé au changement de compte. Le web ne copie pas `access-control.ts` : avec un repo par brique, les deux copies divergeraient (choix de l'utilisateur, 2026-10-29).
+- Les appels du client Better Auth vers des routes réservées sont traités comme les autres appels de l'API : 401 → retour à la connexion, 403 → « Accès refusé », API injoignable → écran « hors ligne ».
 - Mobile : pas de copie des règles en Kotlin ou Swift ; l'affichage s'appuie sur le rôle de la session, et tout 403 de l'API affiche l'écran « Accès refusé ».
 
 **Écrans d'erreur (web et mobile)**
@@ -48,6 +49,7 @@ Il faut une base unique pour l'API, le web et le mobile, sans dupliquer les règ
 
 ## Alternatives envisagées
 
+- **Copie d'`access-control.ts` dans le web** (`checkRolePermission` du client Better Auth, sans appel réseau) : prévu au départ. Écarté : un projet a un repo par brique, et rien ne garantirait que les deux copies restent identiques ; une permission vérifiée par l'API coûte un petit appel, mis en cache.
 - **CASL** : règles isomorphes très expressives (conditions par attribut). Écarté : une dépendance et un paquet partagé de plus, inutilisables par les apps Kotlin et Swift, et en partie redondants avec l'access control de Better Auth. À reconsidérer pour une app aux règles conditionnelles complexes (ADR de projet).
 - **Plugin `organization` dès le départ** : couvre les équipes. Écarté par défaut : trop lourd pour des apps d'abord personnelles ; disponible comme module optionnel.
 - **Table de rôles maison** : écarté, Better Auth le fait déjà, avec l'administration des comptes (bannissement, révocation des sessions).
