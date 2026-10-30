@@ -1,4 +1,4 @@
-# Passation : suite du chantier boilerplates (2026-10-29)
+# Passation : suite du chantier boilerplates (2026-10-31)
 
 Ce document résume l'état d'une session précédente. Lis-le en entier avant d'agir. La feuille de route détaillée est dans `PLAN-SUITE.md`, dans ce même dossier : ce document la complète, il ne la remplace pas.
 
@@ -34,6 +34,7 @@ Ces deux fichiers vivent dans `engineering-guidelines/docs/suivi/`. Ce sont des 
 
 | Sujet | Où | PR |
 |---|---|---|
+| Tâche I, agent `security` : vérifie décorateur + test de refus des routes réservées, et le classement des routes du plugin `admin` ; nouvelle liste `ADMIN_SELF_PATHS` (`has-permission`, test e2e) ; test garde-fou qui échoue si une route du plugin n'est dans aucune liste | `_shared/claude/agents/security.md`, `api-nestjs/src/modules/auth/access-control.ts` | boilerplates #39 |
 | Auth : BE-006, Better Auth 1.7.14, sessions opaques (cookie pour le web, Bearer signé pour le mobile), Argon2id, plafond de 90 jours, CSRF, IP client via `TRUST_PROXY_HOPS` | `api-nestjs/src/modules/auth/` | boilerplates #12, #14 ; engineering-guidelines #12, #13 |
 | E-mails : BE-009, module `mail` (SMTP, nodemailer), Mailpit en local, Scaleway TEM | `api-nestjs/src/mail/` | boilerplates #10 ; engineering-guidelines #14 |
 | Auth web : pages, routes privées, nettoyage du cache entre comptes, exception FE-002 pour le SDK | `web-react-vite/src/features/auth/` | boilerplates #15 ; engineering-guidelines #17 |
@@ -79,7 +80,7 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
 
 **Isolation perso / pro** (2026-10-28) : la configuration Claude vit dans `<racine>` (`CLAUDE.md`, `.claude/skills`, `.claude/settings.json`), rien dans `~/.claude` ; l'identité Git perso passe par `includeIf` vers `~/.gitconfig-perso`. Les chemins `~/Documents/projects` codés en dur sont remplacés par `<racine>` (engineering-guidelines et boilerplates, PR « workspace-relative paths »). Ne pas cloner dans `~/Documents/projects` : c'est le dossier pro de ce Mac.
 
-**État au moment de la passation** (2026-10-29) : **B3 terminé** sur les quatre briques. **Tâche I terminée** : API (boilerplates #35), web (#36), Android (#37), iOS (#38), sauf l'agent `security` (point 4.3, petite PR). Prochaine étape : ce point, puis **tâche C** (catalogue de modules), sauf si l'utilisateur tranche d'abord les décisions en attente du point 4. La stack locale de l'API est arrêtée.
+**État au moment de la passation** (2026-10-31) : **B3 terminé** sur les quatre briques. **Tâche I terminée** : API (boilerplates #35), web (#36), Android (#37), iOS (#38), agent `security` (#39). Prochaine étape : **tâche C** (catalogue de modules), sauf si l'utilisateur tranche d'abord les décisions en attente du point 4. La stack locale de l'API est arrêtée.
 
 ## Ce qui reste, dans l'ordre convenu
 
@@ -105,7 +106,7 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
       - écran d'erreur commun avec les textes d'Android (`error_*`, sans « L'équipe a été prévenue »), règle testable sans simulateur (titre, explication, action : réessayer pour réseau et serveur, retour pour 403 et 404) ;
       - écran de détail d'une note (`GET /v1/notes/:id`, « Note introuvable », « Toutes les notes »), ouvert depuis la liste ; la liste utilise l'écran d'erreur commun ;
       - **pas de lecture du rôle** dans la session ni de bandeau hors ligne global (choix validé pour Android : aucun élément réservé sur mobile ; à ajouter avec le premier qui en dépend).
-   3. **Reste à faire** : agent `security` (`boilerplates/_shared/claude/agents/security.md`, puis `scripts/sync-shared.sh`) : vérifier qu'une route réservée a son décorateur (`@UserHasPermission` / `@Roles`) et son test de refus (403), et qu'une route du plugin `admin` ajoutée est dans `ADMIN_OPEN_PATHS` ou `ADMIN_DISABLED_PATHS`. Petite PR à faire avant la tâche C.
+   3. ~~**Agent `security`**~~ ✅ (boilerplates #39) : décorateur et test de refus des routes réservées, classement des routes du plugin `admin` dans `ADMIN_OPEN_PATHS`, `ADMIN_SELF_PATHS` (`has-permission`) ou `ADMIN_DISABLED_PATHS`, vérifié aussi par `access-control.spec.ts`.
    - **Décisions en attente de l'utilisateur** (signalées par les agents, PR #35) :
      - **lancer `user:promote` en staging et en production** : la base est privée, le conteneur n'a pas de shell, et OPS-004 écarte le job GitHub. Options proposées par devops : Serverless Job lancé par `workflow_dispatch` (si Jobs joint le réseau privé), bastion temporaire (Public Gateway en `count`, puis tunnel SSH), endpoint public temporaire limité à une IP (contraire à OPS-005). Un ADR `/adr` à écrire après le choix ;
      - protection des admins entre eux (aujourd'hui un admin peut en rétrograder ou en bannir un autre ; `user:promote` permet de reprendre la main) ;
@@ -130,7 +131,8 @@ Pistes non bloquantes :
 - Android : `assembleRelease` dans la CI (R8 n'est vérifié qu'à la main) ; recharger la liste des notes au retour d'une note introuvable ; en debug, logcat affiche le contenu des notes (corps hors `/v1/auth/`) : à trancher dans AND-004 ;
 - **budget du bundle web** : `size-limit` ne mesure que `index-*.js` (115 Ko), mais `index.html` précharge d'autres chunks (zod, client Better Auth…) : environ 194 Ko sur 200 en tout (devops, #36). Mesurer tout le JS initial (manifeste Vite) ;
 - **Playwright en CI** : le workflow du monorepo (`boilerplates.yml`) ne lance que `npm run verify` pour le web ; le job `e2e` de `web-react-vite/.github/workflows/ci.yml` ne tourne qu'une fois le boilerplate copié dans son repo. Les E2E sont lancés à la main avant chaque PR ;
-- test e2e de `has-permission` côté API (user → false, admin → true, sans session → 401), dont dépend le web ;
+- Renovate : `:maintainLockFilesWeekly` peut monter better-auth dans `^1.7` en fusion automatique, sans l'étiquette `security-review` (devops, boilerplates #39). Le test des routes `admin` bloque une route non classée, rien d'autre. Exclure better-auth de cette maintenance dans `shared-libs` : à décider ;
+- BE-010 ne cite pas les listes `ADMIN_OPEN_PATHS` / `ADMIN_SELF_PATHS` / `ADMIN_DISABLED_PATHS` que l'agent `security` impose désormais : les y reporter (reviewer, boilerplates #39) ;
 - apps mobiles : exiger `https` pour `WEB_BASE_URL` et `API_BASE_URL` en Release (garde-fou au build ou au démarrage), et faire échouer le build Release tant que `example.com` reste dans les URL (suggestions security et devops, boilerplates #33, #34) ;
 - `verify-ca` pour PostgreSQL, avec le certificat de l'instance ;
 - documenter dans un ADR que l'app tourne aussi dans compose (profil `app`).
@@ -171,6 +173,7 @@ Pistes non bloquantes :
 - **Plugin `admin` et anti-énumération** : la réponse d'inscription pour une adresse déjà utilisée est un compte factice ; sans `customSyntheticUser`, il a `role: null` au lieu de `user` et trahit l'adresse. Le test de forme de `auth.e2e-spec.ts` le détecte.
 - **Client Better Auth et erreurs (web)** : ses appels ne passent pas par `request()`. Une panne réseau donnait un `TypeError` brut ; `customFetchImpl: fetchOrNetworkError` la change en `NetworkError`. Les routes réservées passent par `unwrapProtected` (401 → `notifyUnauthorized`, 403 → `ForbiddenError`). Le `retry` de TanStack Query ne réessaie aucune 4xx (`isClientError`).
 - **Nom accessible avec un `<span className="sr-only">`** : Testing Library calcule « SuspendreOther » (sans espace) ; utiliser un `aria-label` qui commence par le libellé visible.
+- **`auth.api.userHasPermission` côté serveur** : sans `headers`, il croit le `role` envoyé dans le corps. Toujours lui passer les en-têtes de la requête. Par HTTP, la session est exigée et le corps ignoré.
 - **Routes `/v1/auth/admin/*` avec un id mal formé** : 500 (erreur PostgreSQL sur une colonne uuid) ; le hook `before` répond 400.
 - **SwiftUI, pile typée et feature** : un `NavigationLink(value:)` dont le type n'est pas celui de la pile (`[Route]` de l'app) est ignoré sans erreur. La feature reçoit un callback (`onOpenNote`) et l'app déclare la route, comme pour « Mon compte » (IOS-002). Trouvé par le XCUITest.
 - **Textes chargés par une clé dynamique** (iOS, `ErrorState.swift`) : Xcode ne les extrait pas et peut les marquer « stale » ; `ErrorContentTests` vérifie qu'ils existent en fr et en en **dans le catalogue source** : en CI, `swift test` ne compile pas le `.xcstrings` en `.lproj` (en local, si), donc `Bundle.module` n'a pas les traductions.
