@@ -73,6 +73,8 @@ BE-006 fixe les règles (Argon2id, cookie `HttpOnly` sur le web, access token co
 
 ## Tâche C — Catalogue de modules optionnels
 
+> ✅ Fait : `modules/` (engineering-guidelines #46, #47 et la PR de cette passation), agent `planner` (boilerplates #40). Sept fiches au statut « Proposé » : upload, paiement, mesure d'audience, notifications push, client OpenAPI, organisations, temps réel. Lien depuis le README et `ai/CLAUDE.global.md`.
+
 But : des recettes prêtes à appliquer **quand une app en a besoin**, sans les mettre dans les boilerplates.
 
 1. Créer `engineering-guidelines/modules/README.md` (index : quand utiliser chaque module) et une fiche par module :
@@ -95,7 +97,7 @@ But : des recettes prêtes à appliquer **quand une app en a besoin**, sans les 
 4. ~~B1 mobile~~ ✅ : Android (boilerplates #18, #19), iOS (boilerplates #22, #23).
 5. ~~Tâche G — front full responsive~~ ✅, puis B3 — RGPD : ~~ADR~~ ✅, ~~API~~ ✅, ~~web~~ ✅, ~~Android~~ ✅, ~~iOS~~ ✅.
 6. ~~Tâche I — rôles, permissions et écrans d'erreur (BE-010)~~ ✅ : API, web, Android, iOS, agent `security`.
-7. Tâche C, puis tâche D (app jetable de bout en bout).
+7. ~~Tâche C~~ ✅, puis tâche D (app jetable de bout en bout).
 
 ## Tâche G — Front full responsive (demande du 2026-10-28)
 
