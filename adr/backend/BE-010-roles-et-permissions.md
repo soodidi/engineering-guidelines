@@ -1,7 +1,7 @@
 # BE-010 : Rôles et permissions
 
 - **Statut** : Proposé
-- **Date** : 2026-10-29
+- **Date** : 2026-10-29 (premiers admins : 2026-10-31)
 - **Périmètre** : backend (avec ses conséquences sur le web et le mobile)
 - **Auteurs** : Mo, Claude
 - **Liens** : BE-006, BE-004, FE-004, GLB-013, AND-004, IOS-004
@@ -29,7 +29,10 @@ Il faut une base unique pour l'API, le web et le mobile, sans dupliquer les règ
 - Une route réservée DOIT porter un décorateur du module NestJS de Better Auth : `@UserHasPermission({ permissions })` de préférence, `@Roles([...])` pour une route d'administration. Le guard global les applique.
 - Refus : **403** au format Problem Details (BE-004) quand l'utilisateur est connecté mais n'a pas la permission. Une ressource qui existe mais appartient à un autre utilisateur répond **404**, jamais 403, pour ne pas révéler son existence (IDOR).
 - Les routes `/v1/auth/admin/*` du plugin (lister, bannir, changer de rôle, révoquer les sessions) ne sont ouvertes qu'au rôle `admin`. L'usurpation d'identité (`impersonate`) est **désactivée** par défaut : l'activer demande un ADR de projet (durée courte, journalisation).
-- Le premier administrateur est promu par une commande lancée à la main (`npm run user:promote -- <email>`), jamais par une variable d'environnement ni à l'inscription.
+- Les administrateurs sont **déclarés dans la configuration** de l'environnement : `ADMIN_EMAILS` (variable `admin_emails` de l'infra, versionnée dans `<env>.auto.tfvars`, 5 adresses au plus). À chaque démarrage, après les migrations, l'API promeut chaque compte de la liste dont l'adresse est **vérifiée**, et lève un éventuel bannissement. Jamais à l'inscription, jamais depuis une requête.
+- La liste **fait autorité** : un admin listé, rétrogradé ou banni depuis l'interface, le redevient au démarrage suivant ; c'est ce qui permet de reprendre la main si plus aucun admin n'est actif. Écarter un admin listé (compte compromis, départ) : le retirer d'abord de la liste, puis le bannir.
+- Protections : la liste ne change que par une PR sur le repo infra, puis un déploiement (validation manuelle de l'Environment `production`) ; la variable est sensible (absente des plans de la CI) ; l'API ne journalise que des nombres ; le changement d'adresse reste **désactivé** (`change-email`, testé) pour qu'aucun compte ne puisse prendre l'adresse d'un admin. L'activer demande de revoir cet ADR.
+- En local, `npm run user:promote -- <email>` fait la même chose sans redémarrer.
 - Un utilisateur banni n'a plus de session valide ; un changement de rôle s'applique à la requête suivante (pas de cache de session, BE-006).
 
 **Web et mobile**
@@ -53,6 +56,10 @@ Il faut une base unique pour l'API, le web et le mobile, sans dupliquer les règ
 - **CASL** : règles isomorphes très expressives (conditions par attribut). Écarté : une dépendance et un paquet partagé de plus, inutilisables par les apps Kotlin et Swift, et en partie redondants avec l'access control de Better Auth. À reconsidérer pour une app aux règles conditionnelles complexes (ADR de projet).
 - **Plugin `organization` dès le départ** : couvre les équipes. Écarté par défaut : trop lourd pour des apps d'abord personnelles ; disponible comme module optionnel.
 - **Table de rôles maison** : écarté, Better Auth le fait déjà, avec l'administration des comptes (bannissement, révocation des sessions).
+- **Premiers admins par une commande lancée à la main** (`user:promote`), décision initiale : en staging et en production, la base n'est joignable que depuis le réseau privé et le conteneur n'a pas de shell. Pour la lancer (choix de l'utilisateur, 2026-10-31, option « configuration » retenue) :
+  - **Serverless Job** lancé depuis GitHub : les Jobs ne rejoignent pas de réseau privé (FAQ Scaleway, à revérifier) ; il faudrait ouvrir la base ;
+  - **bastion temporaire** (instance et passerelle SSH dans le réseau privé, tunnel) : un `tofu apply` et une porte SSH ouverte à chaque fois ; gardé comme procédure de dernier recours pour une intervention manuelle sur la base, à écrire le jour où elle sert ;
+  - **accès public temporaire à la base**, limité à une IP : contraire à OPS-005.
 
 ## Conséquences
 
