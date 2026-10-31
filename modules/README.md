@@ -20,8 +20,8 @@ Une fiche ne déroge à aucun ADR **Accepté** : quand le module en demande une,
 | Upload de fichiers | L'utilisateur envoie des images, documents ou pièces jointes | [upload-fichiers.md](upload-fichiers.md) |
 | Paiement | L'app vend un abonnement, un achat unique ou des crédits | [paiement.md](paiement.md) |
 | Mesure d'audience | On veut savoir quelles pages sont vues et d'où viennent les visiteurs | [analytics.md](analytics.md) |
-| Notifications push | L'app mobile prévient l'utilisateur hors de l'app | à venir |
-| Client d'API généré | L'API grossit et les appels écrits à la main divergent du contrat | à venir |
+| Notifications push | L'app mobile prévient l'utilisateur hors de l'app | [notifications-push.md](notifications-push.md) |
+| Client d'API généré | L'API grossit et les appels écrits à la main divergent du contrat | [client-api-openapi.md](client-api-openapi.md) |
 | Organisations et équipes | Plusieurs utilisateurs partagent des données dans un espace commun | à venir |
 | Temps réel | L'écran se met à jour sans recharger (notifications in-app, collaboration, chat) | à venir |
 
