@@ -49,17 +49,18 @@ Le compte Scaleway existe ; chaque projet a son **projet Scaleway** pour isoler 
 - [ ] Projet Scaleway `<nom>` créé ; noter son ID et celui de l'organisation.
 - [ ] **Alerte budget** sur le projet (Console → Billing → Budget alerts), avec un seuil bas au départ.
 - [ ] Bucket d'état OpenTofu créé à la main (privé, versioning activé), nom reporté à la place de `CHANGE-ME-tfstate` dans les `main.tf` de l'infra.
-- [ ] **Passphrase de chiffrement du state** (16 caractères au moins) rangée dans le gestionnaire de mots de passe et dans le secret `TF_STATE_PASSPHRASE` des quatre environnements du repo infra (OPS-006).
+- [ ] **Passphrase de chiffrement du state** (16 caractères au moins) rangée dans le gestionnaire de mots de passe et dans le secret `TF_STATE_PASSPHRASE` des trois environnements du repo infra (OPS-006).
 - [ ] `envs/iam` appliqué **à la main** avec ta clé personnelle (droits IAM) : il crée la clé de la CI, **limitée au projet** et sans droit IAM, et les clés SMTP. Récupérer la clé de la CI avec `tofu -chdir=envs/iam output -raw ci_access_key` et `ci_secret_key` (OPS-006).
-- [ ] Environnements GitHub `staging` et `production` dans chaque repo qui déploie, **reviewers obligatoires sur `production`** :
+- [ ] **GitHub Pro** (ou Team) sur le compte qui possède des repos privés : sans lui, pas de secrets d'Environment ni de protection de `main` pour un repo privé (OPS-006).
+- [ ] Environnements GitHub créés par `/new-project`, **limités à la branche `main`** (OPS-006) : `staging` et `production` dans chaque repo qui déploie, plus `production-plan` dans le repo infra. Contrôle : `gh api repos/soodidi/<repo>/environments -q '.environments[] | [.name, .deployment_branch_policy.custom_branch_policies] | @tsv'` affiche `true` pour chacun. À la main si besoin :
 
   ```bash
-  gh api -X PUT repos/soodidi/<repo>/environments/staging
-  gh api -X PUT repos/soodidi/<repo>/environments/production \
-    -F 'reviewers[][type]=User' -F "reviewers[][id]=$(gh api user -q .id)"
+  gh api -X PUT repos/soodidi/<repo>/environments/<env> \
+    -F 'deployment_branch_policy[protected_branches]=false' -F 'deployment_branch_policy[custom_branch_policies]=true'
+  gh api -X POST repos/soodidi/<repo>/environments/<env>/deployment-branch-policies -f name=main -f type=branch
   ```
 
-- [ ] Repo infra : environnements `staging-plan` et `production-plan` (sans reviewers) en plus, puis pour chacun des quatre :
+- [ ] Repo infra, pour chacun des trois environnements :
 
   ```bash
   gh secret set SCW_ACCESS_KEY -R soodidi/<nom>-infra --env <env>
@@ -74,7 +75,7 @@ Le compte Scaleway existe ; chaque projet a son **projet Scaleway** pour isoler 
   | Repo | Clé | Commande |
   |---|---|---|
   | infra, environnements `staging` et `production` (apply) | CI infra (tous les produits du projet) | `tofu -chdir=envs/iam output -raw ci_access_key` / `ci_secret_key` |
-  | infra, environnements `staging-plan` et `production-plan` (plans des PR) | `ci-plan` (lecture seule) | `tofu -chdir=envs/iam output -raw ci_plan_access_key` / `ci_plan_secret_key` |
+  | infra, environnement `production-plan` (plan avant l'apply de production) | `ci-plan` (lecture seule) | `tofu -chdir=envs/iam output -raw ci_plan_access_key` / `ci_plan_secret_key` |
   | API | `deploy-api` (registre et conteneurs) | `tofu -chdir=envs/iam output -json deploy_access_keys` / `deploy_secret_keys`, entrée `api` |
   | web | `deploy-web` (Object Storage) | mêmes sorties, entrée `web` |
 
