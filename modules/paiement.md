@@ -51,9 +51,9 @@ Coût : plus cher que Stripe Payments seul (commission de marchand officiel en p
   | abonnement `canceled`, `unpaid`, `incomplete_expired` | fermé |
   | `charge.refunded` (achat unique), `charge.dispute.created` | fermé (un remboursement ne change pas l'état d'un abonnement : le traiter à part) |
 
-- Les routes payantes vérifient le droit **et** `current_period_end` : un webhook manqué ne laisse pas un droit ouvert indéfiniment. Resynchronisation quotidienne avec Stripe, alerte Sentry quand un webhook échoue.
+- Les routes payantes vérifient le droit **et** `current_period_end` (`null` pour un achat unique : sans fin) : un webhook manqué ne laisse pas un abonnement ouvert indéfiniment. Resynchronisation quotidienne avec Stripe, alerte Sentry quand un webhook échoue.
 - Crédits : décrément atomique (`UPDATE … SET balance = balance - n WHERE balance >= n`), jamais lire puis écrire.
-- Ne jamais journaliser le corps d'un webhook (données personnelles, BE-007).
+- Ne jamais journaliser le corps d'un webhook ni l'envoyer à Sentry (données personnelles, BE-007).
 - Mobile avec RevenueCat : webhook `@Public()` dont l'en-tête `Authorization` est comparé **en temps constant** au secret ; l'événement sert de signal, l'API relit l'abonné par l'API REST de RevenueCat, puis écrit `entitlements` ; dédoublonnage par `id` d'événement. Comportement de restauration des achats (transfert entre comptes) fixé explicitement dans RevenueCat.
 - Variables dans `env.ts` et `.env.example` : `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (et `REVENUECAT_*` si retenu). En local, `stripe listen --forward-to localhost:3000/v1/billing/webhooks/stripe` donne un secret de webhook propre au poste.
 
@@ -87,7 +87,8 @@ Coût : plus cher que Stripe Payments seul (commission de marchand officiel en p
 
 - Stripe (et RevenueCat, Apple, Google) deviennent des sous-traitants ou des responsables de traitement : les lister dans la politique de confidentialité.
 - L'app ne stocke ni numéro de carte ni adresse de facturation : seulement l'id client Stripe et les droits.
-- **Effacement du compte** : dans `erase(userId, tx)` du module, supprimer d'abord le client chez Stripe (`customers.del`, qui résilie ses abonnements ; à confirmer avec Managed Payments au premier usage), puis les lignes. Si Stripe ne répond pas, `erase` échoue et le compte reste : l'utilisateur réessaie. Les **pièces comptables** (factures) se gardent 10 ans (Code de commerce) : chez Stripe, marchand officiel, pas dans la base de l'app. Le dire dans la politique.
+- Contributeur `BillingUserData` (`@ContributesUserData()`), avec `tables` : `billing_customers`, `entitlements` (et `billing_events` s'il garde l'id de l'utilisateur).
+- **Effacement du compte** : dans `erase(userId, tx)`, supprimer d'abord le client chez Stripe (`customers.del`, qui résilie ses abonnements ; à confirmer avec Managed Payments au premier usage), puis les lignes. Un client déjà absent chez Stripe (`resource_missing`) compte comme un succès : sinon, une première tentative interrompue après `customers.del` rendrait le compte impossible à supprimer. Si Stripe ne répond pas, `erase` échoue et le compte reste : l'utilisateur réessaie. Les **pièces comptables** (factures) se gardent 10 ans (Code de commerce) : chez Stripe, marchand officiel, pas dans la base de l'app. Le dire dans la politique.
 - Export : droits et historique d'abonnement de l'utilisateur.
 
 ## Pièges
@@ -106,7 +107,8 @@ Niveau e2e : API réelle et PostgreSQL en Testcontainers (BE-008), client Stripe
 - Routes `checkout` et `portal` sans session → 401 ; le portail ouvert est toujours celui du compte de la session.
 - Webhook : un événement **correctement signé** envoyé par `app.inject()` → 200 et traité (prouve que le corps brut est bien branché) ; signature absente ou fausse → 400 ; même événement deux fois → un seul traitement ; échec du traitement → 5xx et rien d'enregistré ; webhook sans session et sans en-tête `Origin` → accepté ; pas limité par le rate limiting global.
 - Table des états : chaque ligne du tableau ci-dessus ouvre ou ferme le droit comme prévu, y compris `invoice.payment_failed` puis `past_due`, et le remboursement d'un achat unique.
-- Droits : route payante refusée (403) sans droit, ouverte avec ; refusée après `current_period_end`.
+- Droits : route payante refusée (403) sans droit, ouverte avec ; abonnement refusé après `current_period_end` ; achat unique (`current_period_end` à `null`) toujours ouvert.
+- Effacement rejoué : client déjà supprimé chez Stripe → `erase` réussit.
 - Checkout : prix et URL de retour fixés par le serveur ; second abonnement → 409.
 - RevenueCat : en-tête faux → 401 ; événement rejoué → un seul traitement ; droit écrit d'après l'abonné relu.
 - Crédits : deux décréments simultanés ne passent pas sous zéro.

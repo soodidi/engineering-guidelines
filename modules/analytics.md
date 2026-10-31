@@ -20,7 +20,7 @@ Pourquoi :
 - script léger (environ 1 Ko), sans effet notable sur les performances (FE-008) ;
 - tableau de bord simple, événements personnalisés et objectifs suffisants pour ces apps.
 
-**Consentement** : en France, un outil peut se passer de consentement s'il remplit les conditions de l'exemption de la CNIL : mesure d'audience pour le seul compte de l'éditeur, données anonymes et agrégées, pas de suivi entre sites, **moyen de s'y opposer**… D'après nos recherches de 2026, la CNIL ne publie plus de liste d'outils exemptés (à confirmer sur cnil.fr au premier usage) ; sa grille d'auto-évaluation s'adresse d'abord aux fournisseurs. Au premier usage : demander à Plausible son auto-évaluation, vérifier **notre configuration** contre les conditions, garder le résultat dans le repo du projet, et ne pas ajouter de bandeau tant qu'elle tient.
+**Consentement** : en France, un outil peut se passer de consentement s'il remplit les conditions de l'exemption de la CNIL : mesure d'audience pour le seul compte de l'éditeur, données anonymes et agrégées, pas de suivi entre sites, **moyen de s'y opposer**… D'après nos recherches de 2026, la CNIL ne publie plus de liste d'outils exemptés (à confirmer sur [sa page consacrée à la mesure d'audience](https://www.cnil.fr/fr/solutions-pour-la-mesure-daudience) au premier usage) ; sa grille d'auto-évaluation s'adresse d'abord aux fournisseurs. Au premier usage : demander à Plausible son auto-évaluation, vérifier **notre configuration** contre les conditions, garder le résultat dans le repo du projet, et ne pas ajouter de bandeau tant qu'elle tient.
 
 ## Alternatives
 

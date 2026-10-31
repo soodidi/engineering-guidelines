@@ -44,7 +44,9 @@ Ajouter un module : copier la structure d'une fiche existante, l'ajouter à l'in
 
 ### Effacement hors de la base
 
-Le contrat `UserDataContributor` n'a qu'`erase(userId, tx)`, appelé avant la suppression du compte, puis une seconde fois après. Un module qui garde des données ailleurs que dans PostgreSQL (bucket, Stripe…) les supprime **dans `erase`, avant ses lignes** : si le service externe ne répond pas, `erase` échoue, la transaction est annulée et le compte reste ; l'utilisateur réessaie. Ne pas ajouter de hook au contrat sans un ADR (GLB-013).
+Le contrat `UserDataContributor` n'a qu'`erase(userId, tx)`, appelé avant la suppression du compte, puis une seconde fois après. Un module qui garde des données ailleurs que dans PostgreSQL (bucket, Stripe…) les supprime **dans `erase`, avant ses lignes** : au premier passage, si le service externe ne répond pas, `erase` échoue, la transaction est annulée et le compte reste ; l'utilisateur réessaie. (Le second passage tourne après la suppression du compte : il ne fait que rattraper.)
+
+La suppression externe DOIT être **idempotente** : une ressource déjà absente compte comme un succès. Sinon, une tentative interrompue après la suppression externe (autre contributeur en échec, transaction annulée) rendrait le compte impossible à supprimer. Ne pas ajouter de hook au contrat sans un ADR (GLB-013).
 
 ### Secrets saisis à la main
 
