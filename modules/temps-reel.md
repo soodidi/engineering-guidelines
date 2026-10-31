@@ -22,7 +22,7 @@ Pourquoi SSE d'abord : c'est du HTTP ordinaire. L'authentification (cookie sur l
 
 **Le message temps réel signale, l'API reste la source** : un événement dit « la note 42 a changé », le client recharge par la route REST (ou met à jour son cache TanStack Query). On évite ainsi un second contrat de données, et les droits d'accès restent vérifiés au même endroit. **Après chaque (re)connexion, le client resynchronise par REST** : rien n'est rejoué (l'API ne garde pas d'historique, donc `Last-Event-ID` ne sert à rien).
 
-**Plusieurs instances** : un conteneur ne voit que ses propres connexions. Un événement produit sur une instance doit atteindre les clients connectés aux autres : **PostgreSQL `LISTEN` / `NOTIFY`** suffit pour ces apps (aucune infra en plus, message de moins de 8 000 octets, d'où « signaler, pas transporter ») ; **Redis pub/sub** (Managed Redis Scaleway) au-delà, par un ADR (un secret généré par OpenTofu et un coût fixe en plus).
+**Plusieurs instances** : un conteneur ne voit que ses propres connexions. Un événement produit sur une instance doit atteindre les clients connectés aux autres : **PostgreSQL `LISTEN` / `NOTIFY`** suffit pour ces apps (aucune infra en plus, message de moins de 8 000 octets, d'où « signaler, pas transporter ») ; **Redis pub/sub** (Managed Database for Redis de Scaleway) au-delà, par un ADR : `NOTIFY` sérialise les commits qui l'émettent, et Redis apporte un secret généré par OpenTofu et un coût fixe.
 
 ## Alternatives
 
@@ -34,17 +34,18 @@ Pourquoi SSE d'abord : c'est du HTTP ordinaire. L'authentification (cookie sur l
 
 **API**
 
-- **SSE** : route `GET /v1/events` protégée comme les autres, réponse `text/event-stream` (`@Sse()` de NestJS), un commentaire de maintien toutes les 15 à 30 secondes. CORS avec `credentials` déjà configuré pour le web.
+- **SSE** : route `GET /v1/events` protégée comme les autres, réponse `text/event-stream` (`@Sse()` de NestJS), un commentaire de maintien toutes les 15 à 30 secondes, un champ `retry:` avec un délai aléatoire (pour éviter que tous les clients se reconnectent ensemble après un déploiement), et un plafond de flux ouverts par utilisateur. CORS avec `credentials` déjà configuré pour le web.
 - **WebSocket** : `@nestjs/websockets` avec l'adaptateur `ws` (`@nestjs/platform-ws`), pas Socket.IO. Les guards globaux ne s'exécutent que sur les **messages**, pas à l'ouverture, et sans en-têtes HTTP : `AuthGuard` refuserait tout, et `CsrfGuard` comme `ThrottlerGuard` doivent laisser passer ce qui n'est pas du HTTP. La passerelle est donc `@Public()` **et** authentifie elle-même dans `handleConnection` :
-  - session lue avec `getSession` (cookie sur le web, `Authorization: Bearer` sur mobile) ; sans session, connexion fermée. **Jamais de jeton dans l'URL** : il finirait dans les logs ;
+  - **authentifier à l'upgrade** (option `verifyClient` de `ws`, ou contrôle avant `handleUpgrade`) plutôt que dans `handleConnection` : Nest n'attend pas un `handleConnection` asynchrone avant de traiter les messages, donc un message reçu pendant la vérification passerait sans authentification. Session lue avec `getSession` (`fromNodeHeaders(req.headers)` : cookie sur le web, `Authorization: Bearer` sur mobile) ; sans session, upgrade refusé. **Jamais de jeton dans l'URL** : il finirait dans les logs ;
+  - ranger l'utilisateur authentifié sous une clé propre (ou dans une `WeakMap` indexée par le client), **pas** sous `client.user` ni `client.session` : l'`AuthGuard` global de `@thallesp/nestjs-better-auth` tourne sur chaque message, ne trouve pas d'en-têtes et remet ces champs à `null` (une requête SQL par message au passage) ; chaque `@SubscribeMessage` vérifie l'utilisateur rattaché ;
   - **`Origin`** suit la règle de `CsrfGuard` : s'il est présent, il doit être dans la liste des origines du web (sinon une page tierce ouvre une connexion avec le cookie de l'utilisateur) ; s'il est absent (OkHttp, `URLSessionWebSocketTask`), seul un `Bearer` est accepté ;
   - `maxPayload` de 16 à 64 Kio (100 Mio par défaut dans `ws`), débit de messages limité, chaque message validé avec un schéma Zod (BE-005) ;
-  - nombre de connexions plafonné par utilisateur et par IP.
+  - nombre de connexions plafonné par utilisateur et par IP. L'IP se lit dans `X-Forwarded-For` selon `TRUST_PROXY_HOPS` : le `trustProxy` de Fastify ne s'applique pas à l'upgrade, et l'adresse du socket est celle de la passerelle Scaleway (tout le monde partagerait le même plafond). Les hooks Fastify (id de requête, rate limiting) ne s'appliquent pas non plus à l'upgrade.
 - Dans les deux cas : **revérifier la session** à intervalle régulier (quelques minutes, intervalle injecté pour les tests) avec `getSession` et `disableRefresh: true` (sinon le contrôle prolonge la session), et fermer la connexion d'une session révoquée ou d'un compte banni ; ne diffuser à un utilisateur que les événements de **ses** ressources, destinataires calculés au moment de l'envoi.
 - Module `realtime` qui expose `publish(userId, event)` aux autres modules (par son `index.ts`, BE-002) :
   - `pg_notify` sur un **canal fixe**, avec un message paramétré (jamais de nom de canal construit par concaténation), envoyé **dans la transaction de l'écriture** : il ne part qu'au commit ;
-  - message validé avec Zod à la réception, sans donnée personnelle (un type et un id de ressource) ;
-  - connexion `LISTEN` **dédiée** (hors du pool), même `DATABASE_URL` et même TLS, avec `keepAlive` et un ping régulier ; à la reconnexion (bascule de la base, coupure silencieuse), dire aux clients de resynchroniser. Budget : taille du pool + 1 connexion par instance.
+  - message validé avec Zod à la réception, réduit au strict nécessaire (type, id de ressource, id du destinataire, qui reste une donnée pseudonyme : jamais journalisé) ;
+  - connexion `LISTEN` **dédiée** (hors du pool, et jamais à travers un pooler en mode transaction), même `DATABASE_URL` et même TLS, avec `keepAlive` et un ping régulier ; à la reconnexion (bascule de la base, coupure silencieuse), dire aux clients de resynchroniser. Budget : taille du pool + 1 connexion par instance.
 - **Arrêt** (à chaque déploiement) : fermer les flux SSE et les WebSocket, puis `UNLISTEN`, avant de fermer le pool ; sinon `app.close()` attend des flux qui ne finissent jamais.
 
 **Web**
@@ -62,14 +63,14 @@ Pourquoi SSE d'abord : c'est du HTTP ordinaire. L'authentification (cookie sur l
 
 - Les WebSockets sont acceptés sur les domaines personnalisés des conteneurs depuis août 2025 ; à vérifier en staging au premier usage.
 - Une connexion longue est une requête en cours : elle est coupée au **délai maximal de requête** du conteneur. Le module `app-service` le fixe **en dur à 60 secondes** (`timeout = 60`) : l'exposer en variable et le monter (900 à 3 600 s, plafond actuel de Scaleway). Ce délai vaut aussi pour les requêtes REST. Le client doit se reconnecter de toute façon.
-- Chaque connexion ouverte occupe une place de concurrence (80 au plus par instance) : capacité = 80 × `max_scale`, partagée avec le REST. Le staging ne descend plus à zéro tant qu'un onglet reste ouvert. `max_concurrency` est déprécié au profit de `scaling_option` dans le provider : vérifier avec la version épinglée. Au-delà de quelques dizaines de connexions, un conteneur dédié au temps réel.
-- Edge Services ne sert que le front : rien à régler côté API (NestJS pose déjà `X-Accel-Buffering: no` sur les flux SSE).
+- Chaque connexion ouverte occupe une place de concurrence. `app-service` ne règle pas la concurrence : la valeur par défaut (50 par instance) s'applique, 80 au plus si on la relève. Capacité = concurrence × `max_scale` (aujourd'hui 100 en staging, 250 en production), partagée avec le REST. Le staging ne descend plus à zéro tant qu'un onglet reste ouvert. `max_concurrency` est déprécié au profit de `scaling_option` dans le provider : vérifier avec la version épinglée. Au-delà de quelques dizaines de connexions, un conteneur dédié au temps réel.
+- Edge Services ne sert que le front. NestJS pose déjà `X-Accel-Buffering: no` sur les flux SSE ; vérifier en staging que la passerelle de Scaleway ne met pas la réponse en tampon, et qu'elle répond en HTTP/2 (en HTTP/1.1, le navigateur limite les connexions par domaine, et chaque onglet garde un `EventSource`).
 
 ## Comptes et secrets (checklist du projet)
 
 Aucun compte ni secret (Redis managé seulement au-delà de `LISTEN` / `NOTIFY`). À reporter dans l'issue « Mise en route » :
 
-- [ ] Délai maximal de requête du conteneur de l'API relevé dans OpenTofu, et plan relu.
+- [ ] Délai maximal de requête et concurrence du conteneur de l'API relevés dans OpenTofu, `min_scale` et coût revus (le staging ne descend plus à zéro avec un onglet ouvert), plan relu.
 
 ## Données personnelles (GLB-013)
 
@@ -92,7 +93,8 @@ Aucun compte ni secret (Redis managé seulement au-delà de `LISTEN` / `NOTIFY`)
 
 Niveau e2e : API réelle et PostgreSQL en Testcontainers (BE-008). `app.inject()` ne sait pas tenir un flux : lancer l'app sur un port libre (`app.listen(0)`) et utiliser un vrai client SSE ou WebSocket.
 
-- Un client reçoit l'événement de sa ressource, pas celui d'un autre utilisateur ; connexion sans session → 401 (SSE) ou fermée (WebSocket) ; WebSocket avec une `Origin` inconnue → refusé ; sans `Origin` et sans `Bearer` → refusé.
+- Un client reçoit l'événement de sa ressource, pas celui d'un autre utilisateur ; connexion sans session → 401 (SSE) ou upgrade refusé (WebSocket) ; WebSocket avec une `Origin` inconnue → refusé ; sans `Origin` et sans `Bearer` → refusé ; `Bearer` sans `Origin` → accepté.
+- Message WebSocket envoyé aussitôt l'ouverture : jamais traité sans utilisateur authentifié ; l'utilisateur rattaché survit aux messages suivants.
 - CORS avec credentials sur `/v1/events` depuis l'origine du web.
 - Session révoquée ou compte banni → connexion fermée au contrôle suivant (intervalle réduit en test).
 - `NOTIFY` dans une transaction annulée → aucun événement.
@@ -101,4 +103,4 @@ Niveau e2e : API réelle et PostgreSQL en Testcontainers (BE-008). `app.inject()
 - Arrêt de l'app avec des flux ouverts → `app.close()` se termine.
 - Web : à un événement reçu, la bonne requête est invalidée (MSW et un faux `EventSource`) ; resynchronisation après reconnexion ; `EventSource` fermé à la déconnexion.
 - Mobile : connexion fermée au passage en arrière-plan, rouverte au retour avec resynchronisation.
-- À la main en staging (`A-VERIFIER.md`) : connexion à travers le domaine personnalisé, qui tient plus de 60 s ; coupure au délai maximal, puis reconnexion.
+- À la main en staging (`A-VERIFIER.md`) : connexion à travers le domaine personnalisé, qui tient plus de 60 s ; événements SSE reçus aussitôt (pas de mise en tampon) ; HTTP/2 côté client ; coupure au délai maximal, puis reconnexion.

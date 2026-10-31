@@ -11,7 +11,7 @@ S'en passer quand le partage reste ponctuel (partager une note avec une personne
 
 ## Recommandation
 
-**Plugin `organization` de Better Auth**, comme le prévoit BE-010 : organisations, membres, invitations par e-mail, rôles par organisation (`owner`, `admin`, `member`) et contrôle d'accès déclaré comme `access-control.ts`. Il cohabite avec le plugin `admin` : le rôle global sert à l'administration de l'app, le rôle dans l'organisation sert aux données partagées.
+**Plugin `organization` de Better Auth**, comme le prévoit BE-010 : organisations, membres, invitations par e-mail, rôles par organisation (`owner`, `admin`, `member`) et contrôle d'accès déclaré sur le modèle d'`access-control.ts` (un `ac` et des rôles propres aux organisations). Il cohabite avec le plugin `admin` : le rôle global sert à l'administration de l'app, le rôle dans l'organisation sert aux données partagées.
 
 Pourquoi : même librairie que l'auth (sessions, e-mails, rate limiting), tables et routes déjà écrites, garde-fous déjà en place (une invitation n'est acceptée que par la session dont l'adresse est celle de l'invitation ; le dernier `owner` ne peut ni partir, ni être retiré, ni être rétrogradé).
 
@@ -19,7 +19,7 @@ Pourquoi : même librairie que l'auth (sessions, e-mails, rate limiting), tables
 
 Options à fixer au premier usage :
 
-- `requireEmailVerificationOnInvitation: true` : sans elle, un compte **non vérifié** créé avec l'adresse invitée accepterait l'invitation ;
+- `requireEmailVerificationOnInvitation: true` : déjà actif par défaut avec les identifiants UUID du boilerplate, à écrire explicitement pour qu'un compte **non vérifié** créé avec l'adresse invitée ne puisse jamais accepter l'invitation ;
 - `invitationExpiresIn` (48 h par défaut), `membershipLimit`, `invitationLimit`, `organizationLimit` ;
 - `teams` (sous-équipes) seulement si le besoin est réel ;
 - rôles et permissions propres à l'app dans un `ac` dédié, en partant des déclarations par défaut du plugin.
@@ -35,23 +35,26 @@ Options à fixer au premier usage :
 
 - Migration générée pour les tables du plugin, au pluriel comme les autres tables d'auth (`organizations`, `members`, `invitations`, colonne de l'organisation active sur `sessions`). Elles appartiennent au module `auth` (BE-002).
 - Chaque table de données partagées porte `organization_id`. Le module métier ne lit jamais `members` : il passe par un service que le module `auth` **ajoute** à son `index.ts` (adhésion et permission d'un utilisateur dans une organisation).
-- **Guard d'organisation** propre à l'app (`@OrgPermission({ permissions })`, BE-010 : toute route réservée porte un décorateur) qui lit `:orgId` dans l'URL et appelle `auth.api.hasPermission({ headers, body: { permissions, organizationId } })`, **toujours avec les en-têtes de la requête et l'`organizationId` de l'URL** :
+- **Guard d'organisation** propre à l'app (`@OrgPermission({ permissions })`) qui valide `:orgId` (UUID : les pipes passent après les guards, un id mal formé ferait échouer `hasPermission` en 500), le lit dans l'URL et appelle `auth.api.hasPermission({ headers, body: { permissions, organizationId } })`, **toujours avec les en-têtes de la requête et l'`organizationId` de l'URL** :
   - non-membre → **404**, comme pour l'IDOR (BE-006). `hasPermission` répond 401 à un non-membre : le guard le convertit, sinon les clients prendraient ce 401 pour une session expirée et déconnecteraient l'utilisateur ;
   - membre sans la permission → **403**.
+  - **Écart à BE-010** (Proposé), à porter par l'ADR du projet : BE-010 demande les décorateurs du module NestJS de Better Auth, appliqués par le guard global ; ce décorateur et ce guard maison les complètent pour les organisations. L'agent `security` doit reconnaître `@OrgPermission` comme décorateur de route réservée.
 - Les décorateurs du module NestJS (`@MemberHasPermission`, `@OrgRoles`, `@RequireActiveOrg`) vérifient l'organisation **active** : ne pas les utiliser sur une route dont l'organisation est dans l'URL. `@UserHasPermission` et `@Roles` lisent le rôle **global** : jamais pour les données d'une organisation.
 - Le repository filtre toujours par `organization_id` (celui de l'URL, déjà vérifié par le guard).
 - Invitations : `sendInvitationEmail` branché sur `Mailer` (BE-009), lien vers le web, noms d'organisation et d'invitant échappés dans l'e-mail. Débit limité (`customRules` du rate limiting de Better Auth) sur `/organization/create` et `/organization/invite-member` : sinon n'importe quel compte fait envoyer des e-mails, au nom de l'app, à n'importe quelle adresse.
-- Le hook `before` de `auth.config.ts` valide aussi les identifiants des routes `/organization/*` (UUID), comme pour `/admin/*` : un id mal formé donnerait un 500.
+- Le hook `before` de `auth.config.ts` valide aussi les identifiants des routes `/organization/*` (UUID), comme pour `/admin/*` : un id mal formé donnerait un 500. Exception : `memberIdOrEmail` accepte un e-mail.
+- **Le plugin répond 401 à un refus**, pas seulement à une session absente : `has-permission` pour un non-membre, `remove-member` pour un membre sans `member:delete`… Les clients déconnectent sur un 401 : soit les routes du plugin utilisées par les clients passent par des routes de l'app qui convertissent (404 ou 403), soit le client web traite le 401 des routes `/organization/*` à part (vérifier la session avant de déconnecter).
 - Hooks du plugin (`organizationHooks`) pour les règles de l'app : limiter la création, et effacer les données des modules à la suppression d'une organisation (`beforeDeleteOrganization`), par un contrat par organisation (voir Données personnelles).
-- Les invitations expirées s'ajoutent à la purge du module `auth`.
+- Les invitations expirées, annulées ou refusées (elles gardent l'e-mail d'un tiers) s'ajoutent à la purge du module `auth`.
+- Contributeur du module `auth` : `members` (colonne `user_id`) et `invitations` dans ses `tables`, sinon le test d'architecture `user-data-tables` échoue. Les colonnes `inviter_id` et `created_by` échappent à ce test : les traiter à la main.
 - Routes du plugin à classer comme celles du plugin `admin` (ouvertes, fermées), avec le même test garde-fou que `access-control.spec.ts`.
 - Destinataires d'un événement d'organisation (e-mail, push, temps réel) calculés **au moment de l'envoi**, pour ne pas prévenir un membre retiré entre-temps.
 
 **Web**
 
-- Organisation courante dans l'URL des pages (`/orgs/$orgId/...`) ; sélecteur dans l'en-tête ; changer d'organisation change de page et **vide le cache** (`resetUserCache()`), comme au changement de compte.
+- Organisation courante dans l'URL des pages (`/orgs/$orgId/...`) ; sélecteur dans l'en-tête ; changer d'organisation change de page et **vide le cache** (`resetUserCache(queryClient, session)`), comme au changement de compte.
 - Pages : membres, invitations, rôles ; acceptation d'une invitation après connexion avec la bonne adresse.
-- Permissions dans l'organisation : un hook dédié (`useOrgCan`) qui interroge `/organization/has-permission` avec l'`organizationId` ; `useCan` reste pour le rôle global. Réponses validées avec Zod (FE-002).
+- Permissions dans l'organisation : un hook dédié (`useOrgCan`) qui interroge l'API avec l'`organizationId` ; `useCan` reste pour le rôle global. Un non-membre ne doit pas recevoir de 401 (voir API), sinon le client le déconnecte. Réponses validées avec Zod (FE-002).
 
 **Android / iOS**
 
@@ -99,6 +102,10 @@ Niveau e2e : API réelle et PostgreSQL en Testcontainers (BE-008).
 - Admin global non membre → 404 sur les données d'une organisation.
 - Membre retiré, avec l'organisation encore active dans sa session → 404.
 - Id d'organisation ou de membre mal formé → 400.
+- Le dernier `owner` ne peut ni partir, ni être retiré, ni être rétrogradé (garde-fou du plugin, à garder sous test).
+- Membre sans `member:delete` qui tente de retirer quelqu'un, et `useOrgCan` d'un non-membre : aucune déconnexion côté client.
+- Suppression d'une organisation par la route du plugin : données des modules effacées.
+- Purge : invitations expirées, annulées, refusées supprimées.
 - Invitation : acceptée seulement par l'adresse invitée et vérifiée ; refusée après expiration ou annulation ; débit limité sur la création d'invitations.
 - Suppression d'un compte : adhésions effacées ; seul `owner` avec d'autres membres → refus avec le code attendu (pas 500), compte intact ; organisation à un seul membre supprimée avec les données de ses modules.
 - Export : organisations, rôle, invitations.
