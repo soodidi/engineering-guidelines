@@ -1,7 +1,7 @@
 # Module : notifications push
 
 - **Statut** : Proposé
-- **ADR impactés** : BE-002, BE-004, BE-006, BE-007, BE-008, BE-009, GLB-005, GLB-013, OPS-006, AND-002, AND-004, IOS-002, IOS-004
+- **ADR impactés** : BE-002, BE-004, BE-005, BE-006, BE-007, BE-008, BE-009, GLB-005, GLB-008, GLB-013, OPS-006, OPS-007, AND-002, AND-004, IOS-002, IOS-004
 
 ## Quand l'utiliser
 
@@ -36,25 +36,26 @@ Bonnes pratiques iOS suivies :
 - Table `push_devices` : `id`, `user_id`, `session_id`, `platform` (`ios`, `android`), `token` (unique), `apns_environment` (`sandbox`, `production`), `locale`, `registered_at`, `last_seen_at`. Au plus une dizaine d'appareils par compte : au-delà, le plus ancien est retiré.
 - `POST /v1/push/devices` (jeton, plateforme, environnement, langue dans le corps) : enregistre l'appareil pour l'utilisateur **et la session** de la requête, met à jour `last_seen_at`, renvoie son `id`. Un jeton déjà connu pour un autre compte **passe** au compte actuel (même appareil, autre session). Risque accepté : quelqu'un qui connaîtrait le jeton d'un autre appareil pourrait le rattacher à son compte ; un jeton ne circule pas hors de l'appareil et de l'API.
 - `DELETE /v1/push/devices/:id` : appelé à la déconnexion, **avant** la révocation de la session ; seul le propriétaire peut supprimer son appareil (404 sinon). **Jamais de jeton dans une URL** : l'API journalise les URL (BE-007).
-- Envoi seulement aux appareils dont la session est encore active, vérifiée par l'`index.ts` du module `auth` (BE-002).
-- Table `notification_preferences` (`user_id`, `category`, `enabled`) et routes de lecture et de modification ; chaque envoi la respecte.
+- Envoi seulement aux appareils dont la session est encore active. Le module `auth` doit **ajouter** à son `index.ts` un service qui le vérifie (il n'en exporte pas aujourd'hui) : BE-002 interdit de lire sa table de session.
+- Table `notification_preferences` (`user_id`, `category`, `enabled`) et routes de lecture et de modification ; chaque envoi la respecte. Sans ligne, la valeur par défaut est fixée par catégorie : toute catégorie promotionnelle est **désactivée** par défaut.
+- Jeton validé avec Zod à la frontière (format et longueur par plateforme, BE-005).
 - Contrat `PushSender` : `send(devices, notification)` renvoie **un résultat par appareil** (`sent`, `invalid-token`, `retry`, `config-error`), que le module applique :
-  - APNs `410 Unregistered` → supprimer l'appareil si son jeton a été enregistré avant l'horodatage de la réponse ; `400 BadDeviceToken` isolé → supprimer ; `DeviceTokenNotForTopic`, ou une vague de `BadDeviceToken` → erreur de configuration : **alerter sans supprimer** ;
-  - FCM `UNREGISTERED` → supprimer ; `INVALID_ARGUMENT` → alerter sans supprimer ;
+  - APNs `410` (`Unregistered`, `ExpiredToken`) → supprimer l'appareil si son dernier enregistrement (`last_seen_at`) précède l'horodatage de la réponse ; `400 BadDeviceToken` isolé → supprimer ; `403 ExpiredProviderToken` → renouveler le JWT et réessayer une fois ; `DeviceTokenNotForTopic`, ou une vague de `BadDeviceToken` → erreur de configuration : **alerter sans supprimer** ;
+  - FCM `UNREGISTERED` → supprimer ; `INVALID_ARGUMENT` avec une charge utile connue valide → jeton invalide, supprimer ; une vague d'erreurs → alerter ;
   - `429` et `5xx` → nouvel essai avec délai croissant, en respectant `Retry-After`.
 - Envoi après la validation de la transaction qui le déclenche. Au-delà de quelques envois par requête, une file de tâches : ADR à écrire.
 - Texte construit par l'API dans la langue de l'appareil (`locale`), à partir des mêmes textes pour les deux plateformes.
 - APNs : client HTTP/2 natif de Node, JWT signé avec `jose`, **gardé en cache** et renouvelé entre 20 et 60 minutes (un JWT par requête donne `429 TooManyProviderTokenUpdates`). FCM : API HTTP v1 avec un jeton OAuth du compte de service (`google-auth-library`), sans le SDK `firebase-admin` complet.
-- Configuration : `env.ts` exige les variables APNs et FCM en production (démarrage refusé sinon, GLB-005) ; en développement, sans elles, un `PushSender` qui journalise « notification non envoyée » sans jeton ; en test, `InMemoryPushSender` remplace le provider, comme `InMemoryMailer`.
+- Configuration : variable `PUSH_SENDER` explicite, `apns-fcm` ou `log` (journalise « notification non envoyée », sans jeton). `env.ts` exige les variables APNs et FCM quand `PUSH_SENDER=apns-fcm`. `log` sert au développement et à `npm run stack` (qui tourne avec `NODE_ENV=production`) : comme `SMTP_INSECURE`, il est refusé hors d'un environnement local, jamais un repli silencieux. En test, `InMemoryPushSender` remplace le provider, comme `InMemoryMailer`. À l'arrêt de l'API, attendre les envois en cours (comme le `Mailer`, BE-009).
 - Variables dans `env.ts` et `.env.example` : `APNS_KEY_ID`, `APNS_TEAM_ID`, `APNS_TOPIC` ; secrets : `APNS_KEY` et `FCM_SERVICE_ACCOUNT`, **encodés en base64** (ce sont des fichiers sur plusieurs lignes).
 - Purge propre au module (voir « Purges » dans le [README du catalogue](README.md#purges)) : appareils dont la session n'existe plus, ou sans activité depuis plusieurs mois.
 
 **Android**
 
 - `firebase-messaging` (BoM Firebase) et plugin Gradle `com.google.gms.google-services`.
-- `google-services.json` est ignoré par git (GLB-005) : la CI le reçoit d'un secret d'Environment GitHub (en base64), écrit avant le build.
+- `google-services.json` est ignoré par git (GLB-005). Le plugin `google-services` n'est appliqué que si le fichier existe, pour que le projet compile sans lui sur un poste neuf (GLB-010), notifications désactivées. La CI le reçoit d'un secret d'Environment GitHub (en base64), écrit avant le build : le job qui le lit déclare son `environment:`. Clé d'API Firebase du fichier restreinte à l'app Android dans la console Google Cloud.
 - Permission `POST_NOTIFICATIONS` (Android 13 et plus), demandée en contexte comme sur iOS.
-- Canaux de notification par catégorie, créés au démarrage ; `onNewToken` et chaque connexion envoient le jeton à l'API.
+- Canaux de notification par catégorie, créés au démarrage ; le jeton est envoyé à l'API à `onNewToken`, après chaque connexion **et à chaque lancement** (comme sur iOS : sinon `last_seen_at` ne bouge pas et la purge retire des appareils actifs).
 - Écran verrouillé : `VISIBILITY_PRIVATE` avec une version publique sans contenu.
 - À la déconnexion : suppression côté API, puis `FirebaseMessaging.deleteToken()`.
 - Toucher la notification ouvre la bonne destination de navigation (AND-002).
@@ -62,8 +63,9 @@ Bonnes pratiques iOS suivies :
 **iOS**
 
 - Capacité « Push Notifications » (droit `aps-environment`), `UNUserNotificationCenterDelegate` pour l'affichage au premier plan et le toucher.
-- L'environnement APNs dépend du **profil de provisioning** : profil de développement → sandbox ; distribution (TestFlight, App Store) → production. L'app envoie son environnement avec le jeton.
-- `APIClient` gagne les méthodes `post` (avec corps JSON) et `delete` nécessaires.
+- L'environnement APNs dépend du **profil de provisioning** : profil de développement → sandbox ; distribution (TestFlight, App Store) → production. L'app le déduit de sa configuration de build (Debug → sandbox, Release → production, valeur dans `project.yml`) et l'envoie avec le jeton.
+- Une extension Notification Service, si elle sert à aller chercher le contenu, partage le jeton de session par un groupe de trousseau, et vérifie que la notification concerne bien le compte connecté.
+- `APIClient` a déjà `post(_:body:)` ; il lui faut `delete`, et une variante sans corps de réponse pour un `204`.
 
 **Web**
 
@@ -77,8 +79,8 @@ Bonnes pratiques iOS suivies :
 
 À reporter dans l'issue « Mise en route » du projet (section Mobile) :
 
-- [ ] Apple : clé APNs `.p8` **par environnement de l'API**, limitée à l'app si Apple le permet (clés par app et par environnement annoncées en 2025, à vérifier) ; `APNS_KEY` (base64) saisi dans Secret Manager, `APNS_KEY_ID`, `APNS_TEAM_ID`, `APNS_TOPIC`. La clé n'expire pas mais se révoque : la ranger dans le gestionnaire de mots de passe, la renouveler une fois par an (OPS-006). Ajouter `*.p8` au `.gitignore`.
-- [ ] Firebase : projet créé, app Android déclarée ; `google-services.json` en secret d'Environment GitHub ; **un compte de service par environnement**, avec le seul rôle d'envoi FCM ; `FCM_SERVICE_ACCOUNT` (base64) saisi dans Secret Manager ; rotation annuelle de la clé.
+- [ ] Apple : une clé APNs `.p8` par **environnement APNs** utilisé par l'API qui la reçoit (aujourd'hui, le Debug vise une API locale en sandbox et le Release, TestFlight compris, l'API de production en production), limitée à l'app si Apple le permet (clés par app et par environnement annoncées en 2025, à vérifier) ; `APNS_KEY` (base64) saisi dans Secret Manager, `APNS_KEY_ID`, `APNS_TEAM_ID`, `APNS_TOPIC`. La clé n'expire pas mais se révoque : la ranger dans le gestionnaire de mots de passe, la renouveler une fois par an (OPS-006) : nouvelle clé, saisie dans Secret Manager, ré-application de l'environnement, puis révocation de l'ancienne. Ajouter `*.p8` au `.gitignore`.
+- [ ] Firebase : projet créé, app Android déclarée ; `google-services.json` en secret d'Environment GitHub ; **un compte de service par environnement**, avec le seul rôle d'envoi FCM ; `FCM_SERVICE_ACCOUNT` (base64) saisi dans Secret Manager ; rotation annuelle de la clé, comme pour APNs.
 - [ ] Fiches des stores : déclarer les identifiants d'appareil (Data safety, App Privacy).
 
 ## Données personnelles (GLB-013)
@@ -109,7 +111,7 @@ API, niveau e2e (PostgreSQL en Testcontainers, `InMemoryPushSender`) :
 - purge : appareils sans session ou inactifs supprimés, appareils actifs gardés ;
 - export et effacement avec le compte ;
 - aucun jeton dans les logs de requête ;
-- démarrage refusé en production sans les variables APNs et FCM.
+- démarrage refusé avec `PUSH_SENDER=apns-fcm` sans les variables APNs et FCM, et avec `PUSH_SENDER=log` hors environnement local.
 
 API, niveau unitaire :
 
@@ -120,5 +122,5 @@ API, niveau unitaire :
 Apps :
 
 - iOS : `xcrun simctl push` avec un fichier `.apns` pour l'affichage et l'ouverture de la bonne route ; test du ViewModel qui renvoie le jeton après chaque connexion.
-- Android : test unitaire de l'envoi du jeton (`onNewToken`, connexion) ; test UI de l'ouverture de la destination depuis une intention de notification.
+- Android : test unitaire de l'envoi du jeton (`onNewToken`, connexion, lancement) ; test UI de l'ouverture de la destination depuis une intention de notification.
 - À la main (`A-VERIFIER.md`) : réception sur un vrai iPhone (TestFlight, APNs production) et un vrai Android ; plus rien après la déconnexion ni après une réinitialisation du mot de passe faite depuis le web ; mode Ne pas déranger ; écran verrouillé sans contenu.

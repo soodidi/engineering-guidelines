@@ -41,8 +41,8 @@ S'en passer tant que l'API est petite et stable : le code généré a un coût (
 **API**
 
 - `operationIdFactory` (`src/common/openapi.ts`) ne garde que le nom de la méthode (`list`, `get`…) : les noms entreront en collision dès qu'un deuxième module en reprend un. Préfixer par le contrôleur (`notesList`) avant de générer quoi que ce soit.
-- Passer la spec en OpenAPI 3.1 (option de `@nestjs/swagger`) ou corriger BE-004 : à trancher dans l'ADR.
-- Job CI : `npm run openapi`, `git diff --exit-code openapi.json`, puis `oasdiff breaking --fail-on ERR` contre la spec de `main` (récupérée avec `git show origin/main:openapi.json`, le checkout étant superficiel). Version d'`oasdiff` épinglée. Un changement cassant voulu passe par une nouvelle version de l'API (`/v2`, BE-004), pas par une désactivation du contrôle.
+- Passer la spec en OpenAPI 3.1 (`setOpenAPIVersion` de `@nestjs/swagger`, et la cible `openapi-3.0` de `responseSchema` dans `src/common/openapi.ts`) ou corriger BE-004 : à trancher dans l'ADR.
+- Job CI : `npm run openapi`, `git diff --exit-code openapi.json`, puis `oasdiff breaking --fail-on ERR` contre la spec de `main`, lue dans un **second checkout** de `main` dans un sous-dossier (le checkout de la PR est superficiel et sans identifiants : `origin/main` n'y existe pas). Sur un push vers `main`, comparer au commit précédent ; tant que `main` n'a pas de spec, sauter la comparaison. Version d'`oasdiff` épinglée. Un changement cassant voulu passe par une nouvelle version de l'API (`/v2`, BE-004), pas par une désactivation du contrôle.
 - Décrire les réponses d'erreur (Problem Details) dans la spec.
 
 **Web, Android, iOS**
@@ -61,11 +61,11 @@ S'en passer tant que l'API est petite et stable : le code généré a un coût (
 
 ## Pièges
 
-- **Valeurs d'énumération nouvelles** : une app ancienne ne doit pas planter sur une valeur ajoutée par l'API. Kotlin : `enumUnknownDefaultCase=true` ; Swift : `swift-openapi-generator` rejette une valeur inconnue d'une énumération de chaînes, donc déclarer dans la spec une **énumération ouverte** (`anyOf` d'un `enum` et d'un `string`) pour toute valeur qui peut grandir ; web : `.catch()` sur le `z.enum`.
+- **Valeurs d'énumération nouvelles** : une app ancienne ne doit pas planter sur une valeur ajoutée par l'API. Kotlin : `enumUnknownDefaultCase=true` ; Swift : `swift-openapi-generator` rejette une valeur inconnue d'une énumération de chaînes, donc déclarer dans la spec une **énumération ouverte** (`anyOf` d'un `enum` et d'un `string`) pour toute valeur qui peut grandir ; web : l'union générée depuis l'énumération ouverte suffit. Kotlin : un `anyOf` d'énumération et de chaîne n'est plus une énumération, et openapi-generator gère mal ces unions : vérifier le code généré au premier usage.
 - **Champ optionnel ou `null`** : les générateurs ne les traitent pas tous pareil ; vérifier le code généré sur un exemple.
 - **Problem Details absents de la spec** : les clients générés les traitent comme des réponses inconnues.
 - **Code généré modifié à la main** : interdit ; corriger la spec ou la configuration du générateur.
-- **Mise à jour du générateur** : traiter comme une dépendance (GLB-008), avec relecture du diff du code généré ; exclure les générateurs de la fusion automatique de Renovate.
+- **Mise à jour du générateur** : traiter comme une dépendance (GLB-008), avec relecture du diff du code généré ; exclure les générateurs de la fusion automatique de Renovate, ce qui déroge à GLB-008 (qui ne l'exclut que pour les librairies d'auth) : à porter dans l'ADR.
 
 ## Tests à écrire
 
