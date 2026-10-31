@@ -149,7 +149,9 @@ Bloquants d'un premier déploiement réel (`boilerplates/infra-scaleway/.claude/
 
 ## Tâche D — Une app « jetable » de bout en bout
 
-But : prouver que toute la chaîne marche avant le premier vrai projet. À faire une fois A, B et C fusionnées.
+But : prouver que toute la chaîne marche avant le premier vrai projet. À faire une fois A, B et C fusionnées, **après** les décisions en attente et les vérifications à la main sans staging (ordre fixé par l'utilisateur le 2026-10-31, voir `HANDOFF.md`).
+
+Actions de l'utilisateur regroupées ici : projet Scaleway et alerte budget, projets Sentry (web, api), domaine, passphrase `TF_STATE_PASSPHRASE` (gestionnaire de mots de passe), `envs/iam` appliqué à la main, secrets des Environments GitHub, `tofu apply` en staging, premier admin (inscription, mot de passe réinitialisé, `admin_emails` par PR).
 
 1. `/new-project` : nom `sandbox`, briques web + api + infra, thème `warm`, repos privés.
 2. Créer une issue « Fonctionnalité » simple (ex. marquer une note comme favorite) et la dérouler avec `/feature`.
