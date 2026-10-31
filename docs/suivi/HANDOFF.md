@@ -81,7 +81,13 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
 
 **Isolation perso / pro** (2026-10-28) : la configuration Claude vit dans `<racine>` (`CLAUDE.md`, `.claude/skills`, `.claude/settings.json`), rien dans `~/.claude` ; l'identité Git perso passe par `includeIf` vers `~/.gitconfig-perso`. Les chemins `~/Documents/projects` codés en dur sont remplacés par `<racine>` (engineering-guidelines et boilerplates, PR « workspace-relative paths »). Ne pas cloner dans `~/Documents/projects` : c'est le dossier pro de ce Mac.
 
-**État au moment de la passation** (2026-10-31) : **B3 terminé** sur les quatre briques. **Tâche I terminée** : API (boilerplates #35), web (#36), Android (#37), iOS (#38), agent `security` (#39). **Tâche C terminée** (catalogue `modules/`). Prochaine étape : **tâche D** (app jetable en staging). Avant le premier déploiement, l'utilisateur doit trancher le lancement de `user:promote` en staging et en production ; les autres décisions du point 4 (protection des admins entre eux, journalisation des actions d'administration, compte banni) restent en attente. La stack locale de l'API est arrêtée.
+**État au moment de la passation** (2026-10-31) : **B3**, **tâche I** et **tâche C** terminées. L'utilisateur a fixé l'ordre de la suite :
+
+1. **trancher les décisions en attente une par une** (liste ci-dessous, point 4) ; décision n°1 (premiers admins) ✅ : `ADMIN_EMAILS` (BE-010 modifié, boilerplates et engineering-guidelines « ADMIN_EMAILS ») ;
+2. **vérifications à la main faisables sans staging** (`A-VERIFIER.md`, section 1), que l'utilisateur fait lui-même avec l'aide de Claude ;
+3. **tâche D**, qui reprend aussi toutes les actions de comptes liées à une app (projet Scaleway, projets Sentry, domaine, `TF_STATE_PASSPHRASE`, `envs/iam`, secrets, `tofu apply`).
+
+La stack locale de l'API est arrêtée.
 
 ## Ce qui reste, dans l'ordre convenu
 
@@ -108,8 +114,9 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
       - écran de détail d'une note (`GET /v1/notes/:id`, « Note introuvable », « Toutes les notes »), ouvert depuis la liste ; la liste utilise l'écran d'erreur commun ;
       - **pas de lecture du rôle** dans la session ni de bandeau hors ligne global (choix validé pour Android : aucun élément réservé sur mobile ; à ajouter avec le premier qui en dépend).
    3. ~~**Agent `security`**~~ ✅ (boilerplates #39) : décorateur et test de refus des routes réservées, classement des routes du plugin `admin` dans `ADMIN_OPEN_PATHS`, `ADMIN_SELF_PATHS` (`has-permission`) ou `ADMIN_DISABLED_PATHS`, vérifié aussi par `access-control.spec.ts`.
-   - **Décisions en attente de l'utilisateur** (signalées par les agents, PR #35) :
-     - **lancer `user:promote` en staging et en production** : la base est privée, le conteneur n'a pas de shell, et OPS-004 écarte le job GitHub. Options proposées par devops : Serverless Job lancé par `workflow_dispatch` (si Jobs joint le réseau privé), bastion temporaire (Public Gateway en `count`, puis tunnel SSH), endpoint public temporaire limité à une IP (contraire à OPS-005). Un ADR `/adr` à écrire après le choix ;
+   - **Décisions en attente de l'utilisateur**, à trancher une par une (2 ou 3 options, recommandation, puis ADR) :
+     - ~~premiers admins en staging et en production~~ ✅ (2026-10-31) : liste `ADMIN_EMAILS` dans la configuration de l'infra, promue au démarrage de chaque instance (BE-010). Les Serverless Jobs ne rejoignent pas de réseau privé ; bastion gardé comme dernier recours pour une intervention manuelle sur la base ;
+     - **CI de l'infra et secrets** (trouvé par l'agent `security` pendant la décision n°1, sévérité haute, préexistant) : le job `plan` tourne sur chaque PR avec l'Environment `production-plan`, sans validation, avec la passphrase du state et une clé de lecture. Une PR qui ajoute un `output` avec `nonsensitive(...)` afficherait `BETTER_AUTH_SECRET` dans le step summary, et ce secret permet de forger un lien `/verify-email` qui ouvre une session sur n'importe quel compte. `workflow_dispatch` peut aussi appliquer une branche non fusionnée (staging sans validation ; même chose dans `deploy.yml` de l'API). Pistes : validation sur `production-plan` ou plan de production après fusion seulement, règle tflint/conftest contre `nonsensitive` / `external` / `local-exec`, Environments limités à `main`, refus de `/verify-email` avec `updateTo` dans `hooks.before` ;
      - protection des admins entre eux (aujourd'hui un admin peut en rétrograder ou en bannir un autre ; `user:promote` permet de reprendre la main) ;
      - journalisation des actions d'administration (ids seulement, BE-007) ;
      - procédure d'export ou d'effacement pour un compte banni (GLB-013 : il ne peut plus se connecter).
@@ -126,6 +133,7 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
 
 Pistes non bloquantes :
 
+- **Trouvés pendant la décision n°1** : purger les comptes non vérifiés anciens (un inconnu peut réserver l'adresse d'un futur utilisateur) ; un test qui vérifie l'appel à Sentry quand la promotion des admins échoue.
 - **Trouvés en écrivant le catalogue (tâche C)**, à traiter au premier module qui en a besoin, ou avant :
   - OPS-006 range les secrets saisis à la main dans Secret Manager, mais l'infra n'a aucun chemin de Secret Manager jusqu'au conteneur (recette proposée dans `modules/README.md`, à confirmer par un ADR ; vérifier que `ci-plan` peut lire les valeurs) ;
   - le bucket du state OpenTofu n'a pas de bucket policy : les droits IAM Object Storage valent pour tout le projet ;
