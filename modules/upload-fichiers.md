@@ -1,7 +1,7 @@
 # Module : upload de fichiers
 
 - **Statut** : Proposé
-- **ADR impactés** : BE-002, BE-005, BE-006, BE-008, GLB-013, OPS-003, OPS-005, OPS-006, FE-008, AND-004, IOS-004
+- **ADR impactés** : BE-002, BE-005, BE-006, BE-007, BE-008, GLB-013, OPS-001, OPS-003, OPS-005, OPS-006, OPS-007, FE-008, FE-009, AND-004, IOS-004
 
 ## Quand l'utiliser
 
@@ -9,37 +9,44 @@ L'utilisateur envoie des images, des documents ou des pièces jointes que l'app 
 
 ## Recommandation
 
-**Object Storage Scaleway**, bucket **privé**, et **URL présignées** :
+**Object Storage Scaleway**, bucket **privé**, **POST présigné** vers une zone d'arrivée, puis **copie par l'API** vers l'emplacement définitif :
 
 1. le client demande l'autorisation d'envoyer (`POST /v1/files/uploads` avec nom, type, taille) ;
-2. l'API vérifie le type, la taille et le quota, crée une ligne `files` au statut `pending`, et renvoie un **POST présigné** valable quelques minutes, avec ses conditions : clé imposée, `content-length-range`, `Content-Type` ;
-3. le client envoie le fichier **directement au bucket** : il ne passe pas par l'API ;
-4. le client confirme (`POST /v1/files/:id/complete`) ; l'API relit l'objet (taille, premiers octets pour le vrai type), passe la ligne à `ready`, ou supprime l'objet et refuse ;
-5. lecture : l'API vérifie l'appartenance, puis renvoie une **URL GET présignée** courte (5 minutes).
+2. l'API vérifie le type, la taille et le quota (envois en attente compris), crée une ligne `files` au statut `pending`, et renvoie un **POST présigné** valable **deux minutes**, avec des conditions strictes : clé exacte sous `incoming/<userId>/<uuid>`, `Content-Type` exact, `content-length-range` ;
+3. le client envoie le fichier **directement au bucket** ;
+4. le client confirme (`POST /v1/files/:id/complete`). L'API lit l'objet d'arrivée (taille, premiers octets pour le vrai type), **réencode les images** (ce qui retire les métadonnées EXIF), puis le **copie** vers `files/<userId>/<uuid>`, une clé qu'aucune signature donnée au client ne permet d'écrire, et supprime l'objet d'arrivée. La ligne passe à `ready` (ou `quarantined`, voir l'antivirus). En cas d'écart, l'objet est supprimé et la confirmation refusée ;
+5. lecture : l'API vérifie l'appartenance, puis renvoie une **URL GET présignée** courte (5 minutes) qui fixe le type et `Content-Disposition` (`ResponseContentType`, `ResponseContentDisposition`, nom de fichier encodé).
 
-Pourquoi : l'API ne transporte pas les octets (pas de mémoire ni de délai de requête consommés sur Serverless Containers), le bucket reste privé, et chaque accès passe par la vérification d'appartenance (BE-006).
+Pourquoi :
+
+- l'API ne transporte pas les octets à l'envoi (ni mémoire ni durée de requête consommées sur Serverless Containers), et le bucket reste privé ;
+- la copie vers une clé que le client ne peut pas signer empêche de **remplacer un fichier après sa vérification** (un POST présigné reste valable quelques minutes) ;
+- chaque lecture passe par la vérification d'appartenance (BE-006).
 
 ## Alternatives
 
-- **Envoi par l'API** (multipart vers NestJS, puis l'API écrit dans le bucket) : plus simple à valider, acceptable pour de petits fichiers (moins de 5 Mo) et peu de trafic ; consomme la mémoire et la durée de requête du conteneur.
-- **PUT présigné** au lieu du POST : plus simple côté client, mais n'impose pas de taille maximale : à écarter.
+- **Envoi par l'API** (multipart vers NestJS, qui écrit dans le bucket) : plus simple à valider, acceptable pour de petits fichiers (moins de 5 Mo) et peu de trafic ; consomme la mémoire et la durée de requête du conteneur.
+- **PUT présigné** au lieu du POST : il peut signer une taille exacte, mais ni un intervalle de tailles ni d'autres conditions ; moins souple, à écarter.
 - **Service tiers d'images** (transformation, CDN) : utile pour beaucoup d'images publiques ; c'est un sous-traitant de plus (GLB-013).
 
 ## Intégration par brique
 
 **API** (module `files`, BE-002)
 
-- Table `files` : `id`, `user_id`, `key`, `content_type`, `size`, `status` (`pending`, `ready`), `created_at`. La **clé est générée par l'API** (`users/<userId>/<uuid>`), jamais construite avec le nom envoyé par le client ; le nom d'origine se garde à part, nettoyé, pour l'affichage.
-- Signature avec `@aws-sdk/client-s3` et `@aws-sdk/s3-presigned-post` (API S3 de Scaleway, signature v4).
-- Liste blanche de types par usage (ex. `image/jpeg`, `image/png`, `image/webp`, `application/pdf`), contrôlée à la demande **et** à la confirmation, sur les premiers octets du fichier (le `Content-Type` déclaré peut mentir).
-- Purge des lignes `pending` de plus de 24 h et de leurs objets, avec la purge quotidienne existante.
-- Les autres modules référencent un fichier par son `id` et passent par l'`index.ts` du module `files`.
+- Table `files` : `id`, `user_id`, `key`, `content_type`, `size`, `original_name` (nettoyé, pour l'affichage), `status` (`pending`, `quarantined`, `ready`), `created_at`. La **clé est générée par l'API**, jamais construite avec le nom envoyé par le client.
+- Signature avec `@aws-sdk/client-s3` et `@aws-sdk/s3-presigned-post` (API S3 de Scaleway, signature v4). Chaque champ du formulaire doit avoir sa condition dans la politique.
+- Liste blanche de types par usage (ex. `image/jpeg`, `image/png`, `image/webp`, `application/pdf`), contrôlée à la demande **et** à la confirmation, sur les premiers octets (le `Content-Type` déclaré peut mentir). Réencodage des images avec `sharp`, dans la limite de taille fixée.
+- Limite de débit sur `POST /v1/files/uploads` ; quota par utilisateur qui compte aussi les envois `pending`.
+- `index.ts` expose `attach(fileId, userId)` aux autres modules : il vérifie que le fichier appartient à l'utilisateur et qu'il est `ready`. Un module ne référence jamais un `fileId` sans passer par là (sinon IDOR).
+- **Purge propre au module** (BE-002 : pas dans celle du module `auth`), sur le même modèle que `ExpiredAuthDataPurge` : lignes `pending` de plus de 24 h et leurs objets. Elle tourne au démarrage puis toutes les 24 h : en staging (mise à zéro des instances), elle ne tourne qu'aux démarrages.
+- Variables dans `env.ts`, `.env.example` et `compose.yaml` : `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET` ; secrets : `S3_ACCESS_KEY`, `S3_SECRET_KEY`.
 
 **Web**
 
 - `<input type="file" accept="…">`, contrôle de taille avant l'envoi (confort seulement : l'API et le bucket font foi).
-- `FormData` avec les champs renvoyés par l'API, **le fichier en dernier** (exigence S3), puis la confirmation.
-- Progression avec `XMLHttpRequest` (`fetch` n'expose pas la progression d'envoi).
+- `FormData` avec les champs renvoyés par l'API, **le fichier en dernier** (exigence S3), puis la confirmation. Progression avec `XMLHttpRequest`.
+- Politique de sécurité du contenu, si elle existe : domaine du bucket dans `connect-src` (envoi) et `img-src` (affichage).
+- Sentry : retirer la chaîne de requête des URL du bucket dans les fils d'Ariane (`beforeBreadcrumb`) ; une URL présignée donne l'accès au fichier.
 
 **Android**
 
@@ -52,37 +59,52 @@ Pourquoi : l'API ne transporte pas les octets (pas de mémoire ni de délai de r
 
 **Infra**
 
-- `scaleway_object_bucket` privé, dans la région de l'app ; règle CORS limitée à l'origine du web (méthode `POST`) ; règle de cycle de vie qui abandonne les envois multipart incomplets.
-- Clé API dédiée à l'API, limitée à l'Object Storage du projet (OPS-006), rangée dans Secret Manager.
-- Variables : `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`.
-- En local : un émulateur S3 dans `compose.yaml` (MinIO, Garage ou s3mock : vérifier la licence et la maintenance de l'image au moment de l'ajouter), le même dans Testcontainers.
+- `scaleway_object_bucket` privé par environnement, dans la région de l'app.
+- **Bucket policy** (`scaleway_object_bucket_policy`) qui ne cite que l'application IAM de l'API de **cet** environnement et celles de la CI infra (`ci`, `ci-plan`), sur le modèle de `modules/static-site`. Indispensable : chez Scaleway, les droits IAM Object Storage valent pour **tout le projet**, pas pour un bucket ; sans policy, la clé de l'API de staging lit les fichiers de production et le bucket du state, et la clé `deploy-web` aussi.
+- Clé de l'API créée dans `envs/iam` (module `api-key`, droits limités à la lecture, l'écriture et la suppression d'objets), lue par staging et production avec `terraform_remote_state` et passée en `secret_environment_variables` (OPS-006, comme `SMTP_URL`). Ré-appliquer `envs/iam` à la main.
+- CORS : origine `var.web_origin`, méthode `POST` (et `GET` si le web lit les fichiers avec `fetch`).
+- Cycle de vie : abandon des envois multipart incomplets ; expiration des objets de `incoming/` après un jour (rattrape les envois jamais confirmés, y compris après la suppression d'un compte).
+- **Production** : versioning activé (OPS-007), avec `noncurrent_version_expiration` égale à la durée des sauvegardes annoncée dans la politique de confidentialité (sinon un fichier effacé survit pour toujours dans ses versions).
+- En local : un émulateur S3 dans `compose.yaml` et dans Testcontainers, qui **applique les conditions du POST** (sinon les tests ne prouvent rien). MinIO le fait, mais son édition communautaire est en maintenance : vérifier la licence et l'état de l'image au moment de l'ajouter. `forcePathStyle` en local seulement, et une URL signée pour `localhost` (joignable par le navigateur), pas pour le nom du service dans compose.
 
 ## Comptes et secrets (checklist du projet)
 
-- [ ] Bucket créé par OpenTofu (staging, production), privé, CORS vérifié.
-- [ ] Clé API Object Storage de l'API, par environnement, dans Secret Manager.
-- [ ] Durée de conservation des sauvegardes ou des versions du bucket reportée dans la politique de confidentialité.
+À reporter dans l'issue « Mise en route » du projet :
+
+- [ ] `envs/iam` ré-appliqué à la main pour créer la clé Object Storage de l'API (rien à saisir : OpenTofu la passe au conteneur).
+- [ ] Plan OpenTofu relu avant l'`apply` : bucket privé, policy limitée à l'API et à la CI, CORS, cycle de vie, versioning en production.
+- [ ] Section Légal : durée de conservation des versions du bucket reportée dans la politique de confidentialité.
 
 ## Données personnelles (GLB-013)
 
-- Un fichier envoyé par l'utilisateur est une donnée personnelle : `FilesUserData` (`@ContributesUserData()`) exporte les métadonnées et **efface les objets** puis les lignes avec le compte. Les objets se suppriment hors transaction : effacer les lignes dans `beforeDelete`, puis les objets du préfixe `users/<userId>/` dans `afterDelete`, avec reprise si le bucket ne répond pas.
-- **Photos** : retirer les métadonnées EXIF (position GPS, appareil) avant de stocker, côté client ou dans un traitement de l'API.
-- Si le versioning du bucket est activé, un objet supprimé survit dans ses versions : fixer leur durée de vie et l'écrire dans la politique.
+- Un fichier envoyé par l'utilisateur est une donnée personnelle, couverte par `FilesUserData` (`@ContributesUserData()`).
+- **Effacement** : le contrat n'a qu'`erase(userId, tx)`, appelé avant la suppression du compte (puis une seconde fois après). `erase` supprime d'abord les objets de `files/<userId>/` et `incoming/<userId>/`, puis les lignes dans la transaction. Si le bucket ne répond pas, `erase` échoue : la transaction est annulée, le compte reste, et l'utilisateur réessaie. Un objet supprimé alors que la transaction échoue ensuite laisse une ligne sans objet : la lecture répond 404 et la purge nettoie la ligne.
+- **Export** : métadonnées de chaque fichier et lien de téléchargement présigné valable 24 heures. Une archive complète (zip) se décide au premier usage, si les fichiers sont nombreux.
+- Photos : le réencodage à la confirmation retire les métadonnées EXIF (position GPS, appareil).
+- Versions du bucket en production : leur durée de vie est écrite dans la politique de confidentialité.
 
 ## Pièges
 
+- **Remplacement après vérification** : sans copie vers une clé que seul l'API écrit, un second envoi sur la même clé contourne le contrôle du type et l'antivirus.
 - **SVG et HTML** : servis tels quels, ils exécutent du JavaScript. Les refuser, ou les servir en `Content-Disposition: attachment` depuis le domaine du bucket, jamais depuis celui de l'app.
-- **Ordre des champs du POST présigné** : le fichier doit être le dernier champ, sinon S3 refuse.
+- **Ordre et conditions du POST présigné** : le fichier en dernier champ ; une condition pour chaque champ, sinon Scaleway refuse.
 - **Taille** : le POST présigné plafonne à 5 Go ; au-delà, upload multipart présigné (rarement utile pour ces apps).
-- **Bucket public par erreur** : vérifier la policy dans le plan OpenTofu ; aucun objet ne doit répondre sans signature.
-- **Antivirus** : nécessaire dès qu'un fichier envoyé par un utilisateur est ouvert par un autre (partage, admin). ClamAV dans un Serverless Job déclenché à la confirmation, fichier `quarantined` tant qu'il n'est pas analysé.
-- **Logs** : ne jamais journaliser une URL présignée (elle donne l'accès).
+- **Bucket sans policy** : la clé d'un environnement atteint tous les buckets du projet.
+- **Antivirus** : nécessaire dès qu'un fichier envoyé par un utilisateur est ouvert par un autre (partage, admin). ClamAV dans un Serverless Job déclenché à la confirmation : fichier `quarantined` jusqu'au résultat. Le Job demande une clé avec les droits Jobs et un cache de la base de signatures (les miroirs officiels limitent le débit).
+- **Logs et Sentry** : ne jamais journaliser une URL présignée (BE-007).
 
 ## Tests à écrire
 
-- Demande d'envoi : type ou taille hors liste refusés (400) ; la politique signée contient la clé, le `content-length-range` et le `Content-Type`.
-- Confirmation : objet absent, taille ou type réel différent → refus et objet supprimé ; fichier d'un autre utilisateur → 404 (IDOR).
-- Lecture : URL présignée seulement pour le propriétaire ; 404 sinon.
-- Effacement du compte : plus aucune ligne ni aucun objet sous `users/<userId>/` (intégration, émulateur S3 en Testcontainers).
+Niveau intégration : API réelle, PostgreSQL et émulateur S3 en Testcontainers (BE-008).
+
+- Accès : chaque route sans session → 401.
+- Demande d'envoi : type ou taille hors liste → 400 ; quota atteint (envois en attente compris) → refus ; la politique signée contient la clé exacte, le `Content-Type` et le `content-length-range`.
+- Envoi trop gros ou sous une autre clé → refusé par le bucket (émulateur).
+- Confirmation : objet absent, taille ou type réel différent, SVG ou HTML déguisé en image → refus et objet supprimé ; fichier d'un autre utilisateur → 404 ; après confirmation, l'objet final est sous `files/` et l'objet d'arrivée a disparu ; image réencodée sans EXIF.
+- Lecture : URL présignée seulement pour le propriétaire (404 sinon), avec le type et `Content-Disposition` fixés.
+- `attach` : fichier d'un autre utilisateur ou `pending` refusé.
+- Export : les fichiers de l'utilisateur, et seulement les siens.
+- Effacement du compte : plus aucune ligne ni aucun objet sous les préfixes de l'utilisateur ; bucket indisponible → suppression du compte refusée, compte intact.
 - Purge : une ligne `pending` ancienne et son objet disparaissent.
 - Web : E2E du parcours d'envoi avec MSW (demande, envoi, confirmation, erreur de taille).
+- En staging, à la main (`A-VERIFIER.md`) : envoi réel par POST présigné, lecture d'un objet sans signature → 403, CORS refusé depuis une autre origine.
