@@ -34,6 +34,7 @@ Ces deux fichiers vivent dans `engineering-guidelines/docs/suivi/`. Ce sont des 
 
 | Sujet | Où | PR |
 |---|---|---|
+| Tâche C : catalogue de modules optionnels (fiches « Proposé ») : upload, paiement (Stripe Managed Payments), mesure d'audience (Plausible), notifications push (APNs en direct + FCM), client OpenAPI (écart AND-004/IOS-004 signalé, non tranché), organisations (plugin `organization`), temps réel (SSE puis WebSocket) ; règles communes (effacement externe idempotent dans `erase`, secrets saisis à la main, purges) ; l'agent `planner` lit la fiche | `modules/`, `_shared/claude/agents/planner.md` | engineering-guidelines #46, #47 et la PR de cette passation ; boilerplates #40 |
 | Tâche I, agent `security` : vérifie décorateur + test de refus des routes réservées, et le classement des routes du plugin `admin` ; nouvelle liste `ADMIN_SELF_PATHS` (`has-permission`, test e2e) ; test garde-fou qui échoue si une route du plugin n'est dans aucune liste | `_shared/claude/agents/security.md`, `api-nestjs/src/modules/auth/access-control.ts` | boilerplates #39 |
 | Auth : BE-006, Better Auth 1.7.14, sessions opaques (cookie pour le web, Bearer signé pour le mobile), Argon2id, plafond de 90 jours, CSRF, IP client via `TRUST_PROXY_HOPS` | `api-nestjs/src/modules/auth/` | boilerplates #12, #14 ; engineering-guidelines #12, #13 |
 | E-mails : BE-009, module `mail` (SMTP, nodemailer), Mailpit en local, Scaleway TEM | `api-nestjs/src/mail/` | boilerplates #10 ; engineering-guidelines #14 |
@@ -80,7 +81,7 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
 
 **Isolation perso / pro** (2026-10-28) : la configuration Claude vit dans `<racine>` (`CLAUDE.md`, `.claude/skills`, `.claude/settings.json`), rien dans `~/.claude` ; l'identité Git perso passe par `includeIf` vers `~/.gitconfig-perso`. Les chemins `~/Documents/projects` codés en dur sont remplacés par `<racine>` (engineering-guidelines et boilerplates, PR « workspace-relative paths »). Ne pas cloner dans `~/Documents/projects` : c'est le dossier pro de ce Mac.
 
-**État au moment de la passation** (2026-10-31) : **B3 terminé** sur les quatre briques. **Tâche I terminée** : API (boilerplates #35), web (#36), Android (#37), iOS (#38), agent `security` (#39). Prochaine étape : **tâche C** (catalogue de modules), sauf si l'utilisateur tranche d'abord les décisions en attente du point 4. La stack locale de l'API est arrêtée.
+**État au moment de la passation** (2026-10-31) : **B3 terminé** sur les quatre briques. **Tâche I terminée** : API (boilerplates #35), web (#36), Android (#37), iOS (#38), agent `security` (#39). **Tâche C terminée** (catalogue `modules/`). Prochaine étape : **tâche D** (app jetable en staging). Avant le premier déploiement, l'utilisateur doit trancher le lancement de `user:promote` en staging et en production ; les autres décisions du point 4 (protection des admins entre eux, journalisation des actions d'administration, compte banni) restent en attente. La stack locale de l'API est arrêtée.
 
 ## Ce qui reste, dans l'ordre convenu
 
@@ -112,7 +113,7 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
      - protection des admins entre eux (aujourd'hui un admin peut en rétrograder ou en bannir un autre ; `user:promote` permet de reprendre la main) ;
      - journalisation des actions d'administration (ids seulement, BE-007) ;
      - procédure d'export ou d'effacement pour un compte banni (GLB-013 : il ne peut plus se connecter).
-5. **Tâche C** : catalogue de modules optionnels.
+5. ~~**Tâche C**~~ ✅ : catalogue de modules optionnels (engineering-guidelines #46, #47 et la PR de cette passation ; agent `planner` : boilerplates #40). Choix de l'utilisateur : Matomo écarté ; push « selon les bonnes pratiques iOS » (APNs en direct) ; « le meilleur » pour le paiement (Stripe Managed Payments) ; fiche organisations ; fiche temps réel (WebSocket demandé) ; client OpenAPI : écart signalé sans trancher, à revoir après la tâche D.
 6. **Tâche D** : app jetable de bout en bout, déployée en staging. L'utilisateur y déroule [`A-VERIFIER.md`](A-VERIFIER.md) d'un coup. C'est là que se vérifie tout ce qui ne se teste pas sans compte Scaleway :
    - la chaîne `X-Forwarded-For` (`TRUST_PROXY_HOPS`, **prioritaire**) ;
    - la commande et les champs de la CLI `scw` ;
@@ -124,6 +125,13 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
    - une ligne de log sans IP ni navigateur, un événement Sentry sans user-agent, le log « Expired auth data purged » au démarrage.
 
 Pistes non bloquantes :
+
+- **Trouvés en écrivant le catalogue (tâche C)**, à traiter au premier module qui en a besoin, ou avant :
+  - OPS-006 range les secrets saisis à la main dans Secret Manager, mais l'infra n'a aucun chemin de Secret Manager jusqu'au conteneur (recette proposée dans `modules/README.md`, à confirmer par un ADR ; vérifier que `ci-plan` peut lire les valeurs) ;
+  - le bucket du state OpenTofu n'a pas de bucket policy : les droits IAM Object Storage valent pour tout le projet ;
+  - `infra-scaleway/modules/app-service` fixe `timeout = 60` (secondes) en dur : bloquant pour SSE / WebSocket, et la concurrence n'est pas réglée (50 par défaut ; `max_concurrency` est déprécié au profit de `scaling_option`) ;
+  - OpenAPI : la spec sort en 3.0.0 (BE-004 dit 3.1), `operationIdFactory` ne garde que le nom de la méthode (collisions dès le deuxième module), la spec n'est pas commitée et `oasdiff` n'est pas branché ; AND-004 et IOS-004 imposent un client généré que les boilerplates n'ont pas (décision reportée après la tâche D) ;
+  - un contrat d'effacement par organisation manquera au premier usage du module organisations (GLB-013).
 
 - cache de build GHA pour le job `stack` ;
 - iOS : le job CI dépasse souvent 10 min (simulateur 6 à 14 min, OPS-002) ; pistes à mesurer : part build / tests dans le `.xcresult`, `-parallel-testing-enabled NO`, tests du package hors schéma simulateur ou tests UI seulement sur `main` (ces deux dernières touchent IOS-005 : décision) ;
@@ -167,6 +175,8 @@ Pistes non bloquantes :
 - **Sentry v11, spans** : l'instrumentation HTTP ajoute `user_agent.original`, `network.peer.address`, `client.address` à chaque span serveur, quel que soit `dataCollection.httpHeaders` : `beforeSendSpan` (`redactSpan`) les retire. La liste `allow` des en-têtes compare par sous-chaîne (`accept` laisse passer `accept-language`).
 - **pino-http** : `serializers.req` / `res` / `err` reçoivent l'objet déjà passé par le sérialiseur standard ; le `res` standard journalise `location` (jeton de réinitialisation). `DrizzleQueryError` met les paramètres SQL dans son message.
 - **SwiftUI réécrit la même valeur dans un binding en fin d'édition** (par exemple quand le focus passe à nil) : un `didSet` qui efface des erreurs doit comparer à `oldValue`, sinon le message d'erreur disparaît aussitôt (trouvé par XCUITest).
+- **Fusion automatique bloquée** : CI verte, `mergeStateStatus` `CLEAN`, fusion automatique activée, mais rien ne se passe (aucune tentative dans la chronologie de la PR). Désactiver puis réactiver : `gh pr merge <n> --disable-auto`, puis `gh pr merge <n> --squash --auto --delete-branch` (boilerplates #39).
+- **`UserDataContributor`** : pour l'effacement, le contrat n'a qu'`erase(userId, tx)`, appelé avant puis après la suppression du compte (`beforeDelete` et `afterDelete` de Better Auth). Une donnée hors de PostgreSQL (bucket, Stripe) se supprime dans `erase`, avant les lignes, de façon idempotente.
 - **Runners macOS GitHub** : un job peut être annulé faute de runner (« not acquired by Runner… capacity constraints », 0 étape). Ce n'est pas un échec du code : `gh run rerun <id> --failed`.
 - **PostgreSQL pro sur le port 5432** (conteneur `sqool-postgresql-1`) : `npm run stack` ne peut pas publier ce port. Ne pas toucher aux conteneurs pro ; lancer la stack avec une surcharge hors du repo qui retire le port de `postgres` (`ports: !reset []`), l'API le joint par le réseau Docker.
 - **Plugin `admin` de Better Auth** : le rôle `admin` par défaut (`adminAc`) donne `set-password`, `set-email`, `update`, `create` : un admin peut prendre n'importe quel compte. Ne jamais l'hériter tel quel : `access-control.ts` liste les actions, et `ADMIN_DISABLED_PATHS` ferme les routes. `/admin/remove-user` supprime le compte sans passer par `user.deleteUser.beforeDelete`, donc sans effacer les données des modules (GLB-013) : fermé.
