@@ -36,7 +36,7 @@ Règles :
 | ✓ | Quoi | Attendu | Source |
 |---|------|---------|--------|
 | [ ] | **Chaîne `X-Forwarded-For`** (prioritaire) : se connecter, puis regarder `sessions.ip_address` | La vraie IP du client, pas celle d'un proxy ; sinon ajuster `TRUST_PROXY_HOPS` | BE-006, boilerplates #14 |
-| [ ] | Environnements GitHub des repos de l'app jetable | `staging`, `production` (et `production-plan` pour l'infra) limités à `main` ; une PR qui tente d'utiliser l'un d'eux échoue sans secret | OPS-006, boilerplates « secrets hors des PR » |
+| [ ] | Environnements GitHub des repos de l'app jetable | `staging` et `production` limités à `main` ; une branche qui tente d'utiliser l'un d'eux échoue sans secret ; aucun secret au niveau des repos (`gh secret list -R …` vide) | OPS-006, boilerplates « secrets hors des PR » |
 | [ ] | `tofu apply` de staging (lancé par l'utilisateur) | Pas d'erreur ; noter si le `dns_stage` d'Edge Services exige le CNAME avant l'apply | OPS-003, boilerplates #17 |
 | [ ] | DNS : CNAME du front et de l'API | Les deux domaines répondent en HTTPS | OPS-005 |
 | [ ] | Cookie de session entre `app.` et `api.` (même site) | Connexion web qui tient après rechargement | BE-006 |

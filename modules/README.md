@@ -57,7 +57,7 @@ OPS-006 range les secrets saisis par un humain (clé Stripe, clé APNs…) dans 
 3. OpenTofu la lit (`data "scaleway_secret_version"`) et la passe en `secret_environment_variables` du conteneur ;
 4. après chaque rotation, ré-appliquer l'environnement.
 
-À vérifier : la clé `ci-plan` (lecture seule) doit pouvoir lire la valeur, sinon le plan de production échoue.
+
 
 ### Purges
 

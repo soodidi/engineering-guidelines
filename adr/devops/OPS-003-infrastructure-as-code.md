@@ -26,7 +26,7 @@ infra/
 
 - Les environnements utilisent les **mêmes modules** avec des variables différentes (taille, nombre d'instances).
 - Versions des providers et de l'outil épinglées.
-- Toute modification passe par une PR avec le `plan` affiché en commentaire ; l'`apply` est fait par la CI après fusion (staging) ou approbation (production).
+- Toute modification passe par une PR. Aucun `plan` sur les PR (OPS-006 : il exposerait les secrets) ; après fusion, la CI affiche le plan puis l'applique (staging). Production : lancement manuel depuis `main`, plan affiché puis appliqué.
 - Ressources taguées : `env`, `project`, `managed-by=opentofu`.
 
 ## Alternatives envisagées
@@ -44,5 +44,5 @@ infra/
 ## Mise en application
 
 - CI : `tofu fmt -check`, `tofu validate`, `tflint`, `checkov` (ou `trivy config`) sur chaque PR touchant `infra/`.
-- `plan` commenté automatiquement sur la PR.
+- Plan affiché dans le résumé du job qui l'applique, jamais sur une PR (OPS-006).
 - Détection de dérive planifiée (`plan` hebdomadaire sur la production).

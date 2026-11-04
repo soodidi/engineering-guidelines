@@ -84,24 +84,24 @@ Récapitule ensuite le plan (repos créés, renommages, valeurs retenues) et att
 OPS-006 : les secrets vivent dans des environnements limités à `main`, pour qu'aucune PR ne les atteigne. Crée-les, sans demander aucune valeur :
 
 ```bash
-envs="staging production"            # repo infra : "staging production production-plan"
-for env in $envs; do
+for env in staging production; do
   gh api -X PUT repos/soodidi/<repo>/environments/$env \
     -F 'deployment_branch_policy[protected_branches]=false' -F 'deployment_branch_policy[custom_branch_policies]=true'
   gh api -X POST repos/soodidi/<repo>/environments/$env/deployment-branch-policies -f name=main -f type=branch
 done
 ```
 
-- Repo **public** seulement : ajoute la validation obligatoire sur `production` (`-F 'reviewers[][type]=User' -F "reviewers[][id]=$(gh api user -q .id)"` dans le `PUT`). Pour un repo privé, GitHub ne la propose pas hors Enterprise : la production ne part que d'un lancement manuel depuis `main`.
+- Repo **public** seulement : ajoute la validation obligatoire sur `production` (`-F 'reviewers[][type]=User' -F "reviewers[][id]=$(gh api user -q .id)"` dans le `PUT`). Pour un repo privé, GitHub ne la propose pas hors Enterprise (infra : la production ne part que d'un lancement manuel depuis `main` ; API et web : décision en attente dans le suivi).
 - Si l'API refuse (403 ou 422) sur un repo privé : le compte n'a pas GitHub Pro. Ne contourne pas : explique-le (sans Pro, pas de secrets d'Environment ni de limitation à `main` pour un repo privé) et laisse l'humain choisir.
-- Contrôle : `gh api repos/soodidi/<repo>/environments -q '.environments[] | [.name, .deployment_branch_policy.custom_branch_policies] | @tsv'` affiche `true` partout. Coche la case correspondante de la checklist.
+- Contrôle, pour chaque environnement : `gh api repos/soodidi/<repo>/environments/<env>/deployment-branch-policies -q '.branch_policies[].name'` affiche `main`. Coche la case correspondante de la checklist.
+- Aucun secret au niveau du repo (OPS-006) : les secrets vont dans `staging` ou `production` (`gh secret set … --env <env>`).
 
 ## 7. Passphrase du state (si la brique infra est choisie)
 
 Explique-la simplement à l'humain, **avant** tout `tofu init` et sans la lui demander dans la conversation :
 
 - **À quoi elle sert** : le state OpenTofu contient des secrets générés (mot de passe de la base, clés API Scaleway, secret d'auth). Il est chiffré avec cette passphrase (OPS-006).
-- **Ce qu'il doit faire** : en choisir une longue (16 caractères au moins, par exemple générée par son gestionnaire de mots de passe), la ranger dans le gestionnaire de mots de passe, puis dans le secret GitHub `TF_STATE_PASSPHRASE` des trois environnements du repo infra (`gh secret set TF_STATE_PASSPHRASE -R soodidi/<repo> --env <env>`). En local, `export TF_VAR_state_passphrase=…` avant chaque commande `tofu`, `tofu init` compris.
+- **Ce qu'il doit faire** : en choisir une longue (16 caractères au moins, par exemple générée par son gestionnaire de mots de passe), la ranger dans le gestionnaire de mots de passe, puis dans le secret GitHub `TF_STATE_PASSPHRASE` des deux environnements du repo infra (`gh secret set TF_STATE_PASSPHRASE -R soodidi/<repo> --env <env>`). En local, `export TF_VAR_state_passphrase=…` avant chaque commande `tofu`, `tofu init` compris.
 - **Le risque** : la perdre rend le state illisible. Il faudrait alors réimporter ou recréer toute l'infrastructure. Elle ne se change pas sans procédure.
 - Demande-lui de confirmer qu'il l'a rangée avant de passer à la suite.
 
