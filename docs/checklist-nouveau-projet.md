@@ -83,12 +83,17 @@ Le compte Scaleway existe ; chaque projet a son **projet Scaleway** pour isoler 
   gh variable set REGISTRY_IMAGE -R soodidi/<nom>-api --body rg.fr-par.scw.cloud/<namespace>/api
   ```
 
-- [ ] Repo API, par environnement (`staging`, `production`), après le premier `tofu apply` (clé `deploy-api`) :
+- [ ] Repo API, par environnement (`staging`, `production`), **dès `envs/iam` appliqué** (clé `deploy-api`) : le premier push de l'image en a besoin, il tourne dans `staging` :
 
   ```bash
   gh secret set SCW_ACCESS_KEY -R soodidi/<nom>-api --env <env>
   gh secret set SCW_SECRET_KEY -R soodidi/<nom>-api --env <env>
   gh variable set SCW_DEFAULT_PROJECT_ID -R soodidi/<nom>-api --env <env> --body <id-projet>
+  ```
+
+- [ ] Repo API, par environnement, **après le premier `tofu apply`** de cet environnement :
+
+  ```bash
   gh variable set CONTAINER_ID -R soodidi/<nom>-api --env <env> --body "$(tofu -chdir=envs/<env> output -raw api_container_id)"
   ```
 
