@@ -20,7 +20,7 @@ La CI est le garde-fou qui applique automatiquement la plupart des ADR. Elle doi
 5. Scans sécurité : secrets (`gitleaks`), dépendances, image (`trivy`).
 
 **Sur `main`** : même pipeline + publication de l'artefact + déploiement automatique en **staging** (OPS-004).
-**Production** : déploiement déclenché par une release (tag), avec approbation manuelle via un **GitHub Environment** protégé.
+**Production** : déploiement lancé à la main depuis `main` par le propriétaire du repo, avec l'artefact déjà déployé en staging (OPS-004), dans un **GitHub Environment** limité à `main` (OPS-006).
 
 **Objectif** : retour de CI sur une PR en **moins de 10 minutes**.
 
