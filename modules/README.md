@@ -57,8 +57,6 @@ OPS-006 range les secrets saisis par un humain (clé Stripe, clé APNs…) dans 
 3. OpenTofu la lit (`data "scaleway_secret_version"`) et la passe en `secret_environment_variables` du conteneur ;
 4. après chaque rotation, ré-appliquer l'environnement.
 
-À vérifier : la clé `ci-plan` (lecture seule) doit pouvoir lire la valeur, sinon les plans des PR échouent.
-
 ### Purges
 
 Une purge appartient au module qui possède les données (BE-002), sur le modèle de `ExpiredAuthDataPurge` : au démarrage, puis toutes les 24 h. En staging, les instances descendent à zéro : la purge ne tourne qu'aux démarrages.
