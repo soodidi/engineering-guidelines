@@ -66,6 +66,7 @@ Règles :
 | [ ] | App iOS contre le staging : note supprimée depuis le web, puis ouverte ; session révoquée pendant l'ouverture d'une note | « Note introuvable » puis « Toutes les notes » ; retour à la connexion sans écran d'erreur | BE-010, boilerplates #38 |
 | [ ] | App Android contre le staging : note supprimée depuis le web, puis ouverte ; session révoquée pendant l'ouverture d'une note | « Note introuvable » ; retour à la connexion sans écran d'erreur | BE-010, boilerplates #37 |
 | [ ] | Bannir un compte depuis l'admin, puis tenter de se connecter avec ce compte | Session coupée tout de suite ; connexion refusée (`BANNED_USER`) | BE-010, boilerplates #35 |
+| [ ] | Retirer une adresse de `admin_emails`, puis redéployer | Log « Configured admins applied » avec `demoted: 1` ; ce compte est déconnecté et voit « Accès refusé » sur `/admin` ; sur la page Administration, aucun bouton sur les comptes admins | BE-010, boilerplates « admins = la liste » |
 | [ ] | Le web sur un téléphone (Android et iPhone) : toutes les pages | Aucun défilement horizontal, boutons faciles à toucher | FE-008, boilerplates #31 |
 
 ## 4. En staging : données personnelles et observabilité
