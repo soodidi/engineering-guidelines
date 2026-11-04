@@ -22,7 +22,7 @@ But : ne jamais oublier les comptes et secrets propres à chaque projet.
 1. Créer `engineering-guidelines/docs/checklist-nouveau-projet.md` avec des cases à cocher, par brique :
    - **Tous** : repo GitHub créé et `main` protégée (PR obligatoire, CI verte) ; labels ; Renovate actif sur le repo (developer.mend.io) ; secrets rangés dans le gestionnaire de mots de passe.
    - **Sentry** (organisation `soodidi` déjà créée, région UE) : créer un projet par brique (web, api, android, ios) ; récupérer le DSN ; variables GitHub `SENTRY_DSN`, `SENTRY_ORG`, `SENTRY_PROJECT` ; secret `SENTRY_AUTH_TOKEN` (token d'organisation existant) ; alerte « nouvelle erreur » vers mon e-mail.
-   - **Scaleway** (infra) : projet Scaleway dédié ; clé API limitée à ce projet pour la CI (`SCW_ACCESS_KEY`, `SCW_SECRET_KEY`) ; bucket pour l'état OpenTofu ; **alerte budget** ; environnements GitHub `staging` et `production` (avec validation manuelle pour production).
+   - **Scaleway** (infra) : projet Scaleway dédié ; clé API limitée à ce projet pour la CI (`SCW_ACCESS_KEY`, `SCW_SECRET_KEY`) ; bucket pour l'état OpenTofu ; **alerte budget** ; environnements GitHub `staging` et `production` (production lancée à la main depuis `main`, OPS-004).
    - **Domaine** : nom de domaine acheté ; DNS vers l'app et l'API ; e-mails d'envoi configurés (SPF, DKIM, DMARC) quand la brique e-mail est utilisée.
    - **Mobile** : compte Apple Developer (99 €/an, validation en quelques jours) ; Google Play Console (25 $) ; identifiants d'app réservés ; fiches store.
    - **Légal** (voir tâche B3) : mentions légales, politique de confidentialité, CGU remplies.

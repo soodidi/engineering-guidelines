@@ -105,10 +105,10 @@ flowchart LR
   CI -- "verte : fusion auto (squash)" --> MAIN["main"]
   MAIN --> IMG["Image Docker<br/>poussée au registry"]
   IMG --> STG["Déploiement staging"]
-  STG -- "validation manuelle" --> PROD["Déploiement production"]
+  STG -- "lancement manuel depuis main<br/>(même image)" --> PROD["Déploiement production"]
   STG & PROD -. "démarrage : migrations<br/>sous pg_advisory_lock" .-> DB[("PostgreSQL")]
 
-  TF["infra-scaleway<br/>tofu plan en CI"] -. "tofu apply<br/>(par un humain)" .-> SCW["Ressources Scaleway"]
+  TF["infra-scaleway<br/>vérifs sans secret sur les PR"] -. "plan + apply par la CI :<br/>staging après fusion,<br/>production à la main" .-> SCW["Ressources Scaleway"]
 ```
 
 - Branches courtes, Conventional Commits, fusion automatique quand la CI est verte ([GLB-002](../adr/global/GLB-002-git-trunk-based-et-conventional-commits.md), [OPS-002](../adr/devops/OPS-002-ci-github-actions.md)).

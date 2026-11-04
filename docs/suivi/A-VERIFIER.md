@@ -37,6 +37,7 @@ Règles :
 |---|------|---------|--------|
 | [ ] | **Chaîne `X-Forwarded-For`** (prioritaire) : se connecter, puis regarder `sessions.ip_address` | La vraie IP du client, pas celle d'un proxy ; sinon ajuster `TRUST_PROXY_HOPS` | BE-006, boilerplates #14 |
 | [ ] | Environnements GitHub des repos de l'app jetable | `staging` et `production` limités à `main` ; une branche qui tente d'utiliser l'un d'eux échoue sans secret ; aucun secret au niveau des repos (`gh secret list -R …` vide) | OPS-006, boilerplates « secrets hors des PR » |
+| [ ] | Mise en production de l'API et du web : `gh workflow run deploy` sur chaque repo, après un staging réussi | La production reçoit la même image (API) et le même build (web) que le staging ; lancé avant la fin du staging, le run échoue avec un message clair ; lancé depuis une autre branche : échec ; « Re-run all jobs » d'un ancien run de production par le propriétaire : retour à cette version | OPS-004, boilerplates « production à la main » |
 | [ ] | `tofu apply` de staging (lancé par l'utilisateur) | Pas d'erreur ; noter si le `dns_stage` d'Edge Services exige le CNAME avant l'apply | OPS-003, boilerplates #17 |
 | [ ] | DNS : CNAME du front et de l'API | Les deux domaines répondent en HTTPS | OPS-005 |
 | [ ] | Cookie de session entre `app.` et `api.` (même site) | Connexion web qui tient après rechargement | BE-006 |
