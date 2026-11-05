@@ -33,7 +33,7 @@ gh repo clone soodidi/shared-libs
 
 - **npm uniquement** (jamais pnpm ni yarn). Les hooks Git (lefthook) s'installent avec `npm install`.
 - **Docker dans le PATH** : Testcontainers a besoin de `docker-credential-desktop`. S'il est introuvable, ajouter `/Applications/Docker.app/Contents/Resources/bin` au PATH dans `~/.zshrc`.
-- Premier lancement de l'API : `cd boilerplates/api-nestjs && npm install && npm run setup && npm run stack`. `setup` crée le `.env` et ses secrets de dev, il n'y a rien à copier depuis l'ancienne machine.
+- Premier lancement de l'API : `cd boilerplates/api-nestjs && npm install && npm run up` (`setup` puis `stack`). `setup` crée le `.env` et ses secrets de dev, il n'y a rien à copier depuis l'ancienne machine.
 
 ## 3. Infra (OpenTofu, Scaleway)
 
