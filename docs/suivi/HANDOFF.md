@@ -135,6 +135,8 @@ La stack locale de l'API est arrêtée.
 
 Pistes non bloquantes :
 
+- **TypeScript 7 retenu** (shared-libs #11, 2026-11-05) : le preset Renovate garde TypeScript en 6.x, car typescript-eslint 8.72 n'accepte que TypeScript < 6.1. Quand typescript-eslint acceptera la 7, retirer la règle et traiter la montée comme une majeure (tests de tous les boilerplates, build NestJS compris).
+
 - **Trouvés pendant la décision n°1** : purger les comptes non vérifiés anciens (un inconnu peut réserver l'adresse d'un futur utilisateur) ; un test qui vérifie l'appel à Sentry quand la promotion des admins échoue.
 - **Trouvés en écrivant le catalogue (tâche C)**, à traiter au premier module qui en a besoin, ou avant :
   - ~~chemin des secrets saisis à la main jusqu'au conteneur~~ ✅ (décision n°8, 2026-11-05, option B) : secrets d'environnement GitHub du repo infra, passés un par un par OpenTofu (OPS-006) ;
