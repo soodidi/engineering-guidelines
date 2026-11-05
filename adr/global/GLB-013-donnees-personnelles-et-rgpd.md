@@ -1,7 +1,7 @@
 # GLB-013 : Données personnelles, RGPD et suppression du compte
 
 - **Statut** : Proposé
-- **Date** : 2026-10-28
+- **Date** : 2026-10-28 (compte suspendu : 2026-11-05)
 - **Périmètre** : global
 - **Auteurs** : Mo, Claude
 - **Liens** : BE-002, BE-006, BE-007, FE-009, AND-004, IOS-004, OPS-007
@@ -37,13 +37,13 @@ Les données d'un utilisateur sont réparties entre plusieurs modules de l'API (
 **Droit à l'effacement**
 
 - La suppression DOIT être **immédiate et réelle** : pas d'anonymisation, pas de délai de grâce. Seules les sauvegardes gardent les données, pendant leur rétention.
-- Elle passe par la route `deleteUser` de Better Auth (`POST /delete-user`) et DOIT exiger la **ressaisie du mot de passe**. Better Auth rend ce mot de passe facultatif : sans lui, une session de moins d'un jour (`freshAge`) suffit. Un hook `before` DOIT donc refuser `/delete-user` sans mot de passe, et un test le vérifie.
+- Elle passe par la route `deleteUser` de Better Auth (`POST /delete-user`), sauf pour un compte suspendu (voir plus bas), et DOIT exiger la **ressaisie du mot de passe**. Better Auth rend ce mot de passe facultatif : sans lui, une session de moins d'un jour (`freshAge`) suffit. Un hook `before` DOIT donc refuser `/delete-user` sans mot de passe, et un test le vérifie.
 - Le web et les apps mobiles DOIVENT proposer « Supprimer mon compte » dans l'app, avec une confirmation explicite.
 
 **Compte suspendu** (2026-11-05, choix de l'utilisateur)
 
 - Un compte suspendu (BE-010) ne peut plus se connecter, donc plus exporter ni supprimer lui-même ses données. Il écrit à l'adresse de contact depuis l'adresse de son compte ; la politique de confidentialité le dit.
-- Un admin y répond depuis la page Administration, sans lui rendre l'accès : `GET /v1/admin/users/:id/export` (le même fichier que « Mon compte »), à lui envoyer, et `DELETE /v1/admin/users/:id` (effacement complet, comme `/delete-user` : registre puis compte, puis seconde passe). Seulement sur un compte suspendu, jamais sur un admin, journalisé avec des ids. Délai de réponse : un mois.
+- Un admin y répond depuis la page Administration, sans lui rendre l'accès : `GET /v1/admin/users/:id/export` (le même fichier que « Mon compte »), à lui envoyer, et `POST /v1/admin/users/:id/erase` avec le **mot de passe de l'admin** (une session volée ne suffit pas pour une action irréversible ; effacement complet comme `/delete-user`, dans une transaction qui verrouille le compte et revérifie qu'il est suspendu). Seulement sur un compte suspendu (suspension en cours, pas expirée), jamais sur un admin, journalisé avec des ids. Délai de réponse : un mois.
 
 **Registre des données d'utilisateur (API)**
 
