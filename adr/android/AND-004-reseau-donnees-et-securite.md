@@ -18,9 +18,9 @@ L'app consomme l'API décrite en OpenAPI (BE-004) et doit gérer le hors-ligne, 
 - À la connexion, le token de session **signé** arrive dans l'en-tête de réponse `set-auth-token` ; il est aussitôt chiffré et stocké (voir « Sécurité »). Le token du corps de la réponse n'est pas signé : l'API le refuse (`requireSignature`).
 - Un intercepteur OkHttp ajoute le token de session en `Authorization: Bearer` (BE-006), uniquement vers l'origine de l'API. Sur une réponse `401`, l'app efface le token et renvoie vers la connexion ; il n'y a pas de refresh token.
 - Inscription et mot de passe oublié : formulaires dans l'app ; les liens des e-mails (vérification, nouveau mot de passe) ouvrent le front web (`WEB_BASE_URL`, présent dans `CORS_ORIGINS` de l'API), puis l'utilisateur revient se connecter. Pas de deep links tant qu'un projet n'en a pas besoin.
-- Les corps des routes d'auth ne sont jamais journalisés, même en debug.
+- Aucun corps de requête ni de réponse n'est journalisé, même en debug (2026-11-05, choix de l'utilisateur) : logcat part avec les rapports de bug et les builds de test, et les corps contiennent des données personnelles (notes, export du compte) ou des secrets (mot de passe). Seuls méthode, URL, statut et en-têtes, ceux d'authentification masqués (GLB-013, BE-007).
 - Les erreurs Problem Details (BE-004) sont converties en erreurs typées du domaine.
-- Timeouts explicites ; logs HTTP détaillés uniquement en build debug.
+- Timeouts explicites ; logs HTTP (sans corps) uniquement en build debug.
 - HTTPS uniquement : `usesCleartextTraffic=false`, Network Security Config.
 
 **Données locales**
