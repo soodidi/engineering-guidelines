@@ -68,7 +68,8 @@ flowchart TB
 
 - Le front et l'API partagent le même domaine, pour que le cookie de session parte ([BE-006](../adr/backend/BE-006-authentification-et-securite.md)).
 - La base n'est joignable que depuis le réseau privé ; l'API y applique ses migrations au démarrage, sous verrou ([BE-003](../adr/backend/BE-003-donnees-drizzle-et-migrations.md), [OPS-004](../adr/devops/OPS-004-environnements-et-deploiement.md)).
-- Les secrets (URL de la base, secret Better Auth, SMTP) sont injectés dans le conteneur depuis OpenTofu ([OPS-006](../adr/devops/OPS-006-gestion-des-secrets-en-production.md)).
+- Les secrets sont injectés dans le conteneur par OpenTofu : ceux qu'il génère (URL de la base, secret Better Auth, SMTP) et ceux saisis à la main, rangés dans les secrets des environnements GitHub du repo infra ([OPS-006](../adr/devops/OPS-006-gestion-des-secrets-en-production.md)).
+- Les admins sont exactement la liste `admin_emails` de l'infra, appliquée par l'API au démarrage puis toutes les 10 minutes ([BE-010](../adr/backend/BE-010-roles-et-permissions.md)).
 - Ce que chaque service reçoit comme données personnelles est listé dans la politique de confidentialité du web ([GLB-013](../adr/global/GLB-013-donnees-personnelles-et-rgpd.md)).
 
 ## 3. En local
@@ -113,7 +114,8 @@ flowchart LR
 
 - Branches courtes, Conventional Commits, fusion automatique quand la CI est verte ([GLB-002](../adr/global/GLB-002-git-trunk-based-et-conventional-commits.md), [OPS-002](../adr/devops/OPS-002-ci-github-actions.md)).
 - Le front est construit puis copié dans le bucket ; l'API est une image déployée dans le conteneur ([OPS-001](../adr/devops/OPS-001-conteneurisation-docker.md), [OPS-004](../adr/devops/OPS-004-environnements-et-deploiement.md)).
-- L'infra ne change que par `tofu apply`, toujours lancé par un humain ([OPS-003](../adr/devops/OPS-003-infrastructure-as-code.md)).
+- Aucune PR n'atteint un secret : elles ne lancent que des vérifications. Les environnements GitHub qui portent les secrets sont limités à `main` ([OPS-006](../adr/devops/OPS-006-gestion-des-secrets-en-production.md)).
+- Staging (API, web, infra) se déploie à chaque fusion ; la production ne part que d'un lancement manuel depuis `main` par le propriétaire du repo, avec l'artefact déjà testé en staging ([OPS-004](../adr/devops/OPS-004-environnements-et-deploiement.md)). `envs/iam` (clés IAM) reste appliqué à la main ([OPS-003](../adr/devops/OPS-003-infrastructure-as-code.md)).
 
 ## 5. Dans l'API
 
@@ -122,10 +124,10 @@ Un module par domaine métier ; un module n'importe que l'`index.ts` d'un autre,
 ```mermaid
 flowchart TB
   subgraph modules["src/modules"]
-    AUTH["auth<br/>Better Auth, tables users / sessions,<br/>guard global, rôles et permissions,<br/>purge des données expirées"]
+    AUTH["auth<br/>Better Auth, tables users / sessions,<br/>guard global, rôles et permissions,<br/>admins = liste ADMIN_EMAILS,<br/>purge des données expirées"]
     ACC["account<br/>GET /v1/account/export"]
     NOTES["notes<br/>module d'exemple"]
-    ADMIN["admin<br/>GET /v1/admin/stats,<br/>exemple de route réservée"]
+    ADMIN["admin<br/>GET /v1/admin/stats,<br/>export et effacement<br/>d'un compte suspendu"]
   end
   subgraph shared["Code partagé"]
     UD["common/user-data<br/>registre UserDataContributor"]
@@ -138,6 +140,8 @@ flowchart TB
   NOTES -- "Session (index.ts)" --> AUTH
   ADMIN -- "UserHasPermission, UsersService" --> AUTH
   ADMIN -- "NotesService" --> NOTES
+  ADMIN -- "AccountService" --> ACC
+  ADMIN -- "eraseAllIn (compte suspendu)" --> UD
   ACC -- "Session (index.ts)" --> AUTH
   ACC -- "exportAll" --> UD
   AUTH -- "eraseAll à la suppression" --> UD
@@ -165,6 +169,8 @@ flowchart TB
   subgraph features["src/features"]
     FAUTH["auth<br/>pages, client Better Auth,<br/>session, garde"]
     FNOTES["notes"]
+    FACC["account<br/>Mon compte : export,<br/>suppression"]
+    FADMIN["admin<br/>Administration :<br/>suspendre, exporter, effacer"]
     FLEGAL["legal<br/>pages légales"]
     FHOME["home"]
   end
@@ -177,11 +183,12 @@ flowchart TB
   MOCKS["src/mocks<br/>MSW (dev et tests)"]
   APIX["API"]
 
-  ROUTER --> FAUTH & FNOTES & FLEGAL & FHOME
+  ROUTER --> FAUTH & FNOTES & FACC & FADMIN & FLEGAL & FHOME
   LAYOUT --> FAUTH & FLEGAL
-  FNOTES --> HTTP --> APIX
+  FNOTES & FACC & FADMIN --> HTTP --> APIX
   FAUTH -- "Better Auth SDK" --> APIX
-  FNOTES & FAUTH --> QC
+  FNOTES & FAUTH & FADMIN --> QC
+  FADMIN -- "useCan : permissions<br/>demandées à l'API" --> FAUTH
   HTTP -. "en dev sans API" .-> MOCKS
 ```
 
@@ -269,6 +276,8 @@ sequenceDiagram
 ```
 
 Règles : [GLB-013](../adr/global/GLB-013-donnees-personnelles-et-rgpd.md). L'export (`GET /v1/account/export`) passe par le même registre.
+
+Un compte **suspendu** ne peut plus se connecter : à sa demande, un admin exporte ses données (`GET /v1/admin/users/:id/export`) ou les efface (`POST /v1/admin/users/:id/erase`, avec le mot de passe de l'admin). L'effacement passe par le même registre (`eraseAllIn`), dans une transaction qui verrouille le compte et revérifie qu'il est suspendu et pas admin ([BE-010](../adr/backend/BE-010-roles-et-permissions.md)).
 
 ## 9. Le cycle de travail avec l'IA
 
