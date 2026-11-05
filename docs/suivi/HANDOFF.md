@@ -83,7 +83,7 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
 
 **État au moment de la passation** (2026-10-31) : **B3**, **tâche I** et **tâche C** terminées. L'utilisateur a fixé l'ordre de la suite :
 
-1. **trancher les décisions en attente une par une** (liste ci-dessous, point 4) ; décision n°1 (premiers admins) ✅ : `ADMIN_EMAILS` (BE-010) ; décision n°2 (secrets hors des PR) ✅ (OPS-006) ; décision n°3 (mise en production à la main) ✅ (OPS-004) ; décision n°4 (projets Scaleway séparés) reportée au premier vrai projet ; décision n°5 (admins = la liste) ✅ (BE-010) ; décision n°6 (journal des actions d'admin) ✅ ; décision n°7 (compte suspendu : export et effacement par un admin) ✅ ; décision n°8 (secrets saisis à la main : environnements GitHub) ✅ ;
+1. **trancher les décisions en attente une par une** (liste ci-dessous, point 4) ; décision n°1 (premiers admins) ✅ : `ADMIN_EMAILS` (BE-010) ; décision n°2 (secrets hors des PR) ✅ (OPS-006) ; décision n°3 (mise en production à la main) ✅ (OPS-004) ; décision n°4 (projets Scaleway séparés) reportée au premier vrai projet ; décision n°5 (admins = la liste) ✅ (BE-010) ; décision n°6 (journal des actions d'admin) ✅ ; décision n°7 (compte suspendu : export et effacement par un admin) ✅ ; décision n°8 (secrets saisis à la main : environnements GitHub) ✅ ; décision n°9 (`npm run up`) ✅ ;
 2. **vérifications à la main faisables sans staging** (`A-VERIFIER.md`, section 1), que l'utilisateur fait lui-même avec l'aide de Claude ;
 3. **tâche D**, qui reprend aussi toutes les actions de comptes liées à une app (projet Scaleway, projets Sentry, domaine, `TF_STATE_PASSPHRASE`, `envs/iam`, secrets, `tofu apply`). Avant, l'utilisateur prend **GitHub Pro** : sans lui, un repo privé n'a ni secrets d'Environment ni limitation à `main`.
 
@@ -156,7 +156,7 @@ Pistes non bloquantes :
 - documenter dans un ADR que l'app tourne aussi dans compose (profil `app`).
 - les routes `/v1/auth/*` (Better Auth) ne passent pas par pino-http : elles ne sont pas journalisées (BE-007).
 - la config `dataCollection` de Sentry (API) n'a pas de test automatisé ; `document.title` ne change pas par page (FE-008).
-- l'utilisateur a demandé si tout tourne « en une commande, avec Traefik ». Réponse donnée : `npm run setup && npm run stack` côté API, plus `npm run dev:api` côté web, sans Traefik. Améliorations proposées, **à lui faire valider** : une commande unique `npm run up` (setup + stack), ajouter le front à la même stack compose. Traefik seulement en cas de choix d'auto-hébergement sur un VPS, ce qui demande un ADR, car c'est un autre modèle qu'OPS-005.
+- ~~tout le local en une commande~~ ✅ (décision n°9, 2026-11-05, option A) : `npm run up` dans l'API (`setup` puis `stack`, relançable) ; le web garde `npm run dev:api` (rechargement à chaud) ; pas de front dans la stack de l'API (un repo par brique) ni de Traefik (hors OPS-005).
 
 ## Pièges déjà rencontrés (à ne pas redécouvrir)
 

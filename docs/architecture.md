@@ -73,7 +73,7 @@ flowchart TB
 
 ## 3. En local
 
-`npm run setup && npm run stack` côté API, puis `npm run dev:api` côté web. L'API tourne dans la **même image** qu'en production.
+`npm run up` côté API, puis `npm run dev:api` côté web. L'API tourne dans la **même image** qu'en production.
 
 ```mermaid
 flowchart LR
