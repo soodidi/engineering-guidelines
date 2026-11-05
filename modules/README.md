@@ -50,12 +50,12 @@ La suppression externe DOIT être **idempotente** : une ressource déjà absente
 
 ### Secrets saisis à la main
 
-OPS-006 range les secrets saisis par un humain (clé Stripe, clé APNs…) dans Scaleway Secret Manager, mais l'infra des boilerplates n'a pas encore de chemin de Secret Manager jusqu'au conteneur. Recette au premier usage, à confirmer par un ADR :
+OPS-006 : un secret saisi par un humain (clé Stripe, clé APNs…) va dans les secrets de l'environnement GitHub du repo infra, un par environnement :
 
-1. OpenTofu crée un `scaleway_secret` par environnement (jamais sa valeur) ;
-2. un humain saisit la valeur dans la console ou avec `scw` ;
-3. OpenTofu la lit (`data "scaleway_secret_version"`) et la passe en `secret_environment_variables` du conteneur ;
-4. après chaque rotation, ré-appliquer l'environnement.
+1. `gh secret set STRIPE_SECRET_KEY -R soodidi/<projet>-infra --env staging` (puis `--env production`), et la valeur rangée dans le gestionnaire de mots de passe ;
+2. une variable `sensitive` dans `envs/<env>/variables.tf`, et sa ligne dans `secret_environment_variables` du conteneur ;
+3. une ligne `TF_VAR_stripe_secret_key: ${{ secrets.STRIPE_SECRET_KEY }}` dans le job `apply` du workflow `infra` (emplacement commenté), jamais `toJSON(secrets)` ;
+4. rotation : `gh secret set`, puis relancer le workflow `infra`.
 
 ### Purges
 

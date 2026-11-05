@@ -83,7 +83,7 @@ Rapport devops : `boilerplates/infra-scaleway/.claude/work/deploy-chain/devops.m
 
 **État au moment de la passation** (2026-10-31) : **B3**, **tâche I** et **tâche C** terminées. L'utilisateur a fixé l'ordre de la suite :
 
-1. **trancher les décisions en attente une par une** (liste ci-dessous, point 4) ; décision n°1 (premiers admins) ✅ : `ADMIN_EMAILS` (BE-010) ; décision n°2 (secrets hors des PR) ✅ (OPS-006) ; décision n°3 (mise en production à la main) ✅ (OPS-004) ; décision n°4 (projets Scaleway séparés) reportée au premier vrai projet ; décision n°5 (admins = la liste) ✅ (BE-010) ; décision n°6 (journal des actions d'admin) ✅ ; décision n°7 (compte suspendu : export et effacement par un admin) ✅ ;
+1. **trancher les décisions en attente une par une** (liste ci-dessous, point 4) ; décision n°1 (premiers admins) ✅ : `ADMIN_EMAILS` (BE-010) ; décision n°2 (secrets hors des PR) ✅ (OPS-006) ; décision n°3 (mise en production à la main) ✅ (OPS-004) ; décision n°4 (projets Scaleway séparés) reportée au premier vrai projet ; décision n°5 (admins = la liste) ✅ (BE-010) ; décision n°6 (journal des actions d'admin) ✅ ; décision n°7 (compte suspendu : export et effacement par un admin) ✅ ; décision n°8 (secrets saisis à la main : environnements GitHub) ✅ ;
 2. **vérifications à la main faisables sans staging** (`A-VERIFIER.md`, section 1), que l'utilisateur fait lui-même avec l'aide de Claude ;
 3. **tâche D**, qui reprend aussi toutes les actions de comptes liées à une app (projet Scaleway, projets Sentry, domaine, `TF_STATE_PASSPHRASE`, `envs/iam`, secrets, `tofu apply`). Avant, l'utilisateur prend **GitHub Pro** : sans lui, un repo privé n'a ni secrets d'Environment ni limitation à `main`.
 
@@ -137,7 +137,7 @@ Pistes non bloquantes :
 
 - **Trouvés pendant la décision n°1** : purger les comptes non vérifiés anciens (un inconnu peut réserver l'adresse d'un futur utilisateur) ; un test qui vérifie l'appel à Sentry quand la promotion des admins échoue.
 - **Trouvés en écrivant le catalogue (tâche C)**, à traiter au premier module qui en a besoin, ou avant :
-  - OPS-006 range les secrets saisis à la main dans Secret Manager, mais l'infra n'a aucun chemin de Secret Manager jusqu'au conteneur (recette proposée dans `modules/README.md`, à confirmer par un ADR ; vérifier que la clé de la CI peut lire les valeurs) ;
+  - ~~chemin des secrets saisis à la main jusqu'au conteneur~~ ✅ (décision n°8, 2026-11-05, option B) : secrets d'environnement GitHub du repo infra, passés un par un par OpenTofu (OPS-006) ;
   - le bucket du state OpenTofu n'a pas de bucket policy : les droits IAM Object Storage valent pour tout le projet ;
   - `infra-scaleway/modules/app-service` fixe `timeout = 60` (secondes) en dur : bloquant pour SSE / WebSocket, et la concurrence n'est pas réglée (50 par défaut ; `max_concurrency` est déprécié au profit de `scaling_option`) ;
   - OpenAPI : la spec sort en 3.0.0 (BE-004 dit 3.1), `operationIdFactory` ne garde que le nom de la méthode (collisions dès le deuxième module), la spec n'est pas commitée et `oasdiff` n'est pas branché ; AND-004 et IOS-004 imposent un client généré que les boilerplates n'ont pas (décision reportée après la tâche D) ;

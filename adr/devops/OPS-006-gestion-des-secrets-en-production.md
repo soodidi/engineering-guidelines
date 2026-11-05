@@ -1,7 +1,7 @@
 # OPS-006 : Gestion des secrets en production
 
 - **Statut** : Proposé
-- **Date** : 2026-10-27
+- **Date** : 2026-10-27 (secrets saisis à la main : 2026-11-05)
 - **Périmètre** : devops
 - **Auteurs** : Mo, Claude
 
@@ -11,7 +11,7 @@ Déclinaison opérationnelle de GLB-005. Les secrets doivent être stockés dans
 
 ## Décision
 
-- Les secrets applicatifs **saisis par un humain** (clé d'une API tierce, par exemple) sont stockés dans **Scaleway Secret Manager** (ou l'équivalent OVH). OpenTofu crée leur emplacement et les droits d'accès, jamais leur valeur.
+- Les secrets applicatifs **saisis par un humain** (clé d'une API tierce, par exemple) sont stockés dans les **secrets de l'environnement GitHub** du repo infra (`staging`, `production`, limités à `main`) (2026-11-05, choix de l'utilisateur). Le workflow `infra` les passe un par un à OpenTofu (`TF_VAR_…`), qui les donne au conteneur en `secret_environment_variables`. Jamais toute la liste des secrets d'un coup (`toJSON(secrets)`) : les clés de la CI finiraient dans le conteneur. Rotation : `gh secret set`, puis relancer le workflow `infra`.
 - Les secrets **générés par OpenTofu** (mot de passe de la base, clé API Scaleway, secret de signature) PEUVENT passer directement dans les **variables secrètes du conteneur** (`secret_environment_variables`), sans Secret Manager. Leur valeur ne figure jamais dans le code ni dans les tfvars.
 - Le state contient alors ces secrets : il DOIT être **chiffré par OpenTofu** (bloc `encryption`, `enforced = true`), en plus du chiffrement du bucket. La passphrase est stockée dans le gestionnaire de mots de passe et dans le secret GitHub `TF_STATE_PASSPHRASE` du repo infra. La perdre rend le state illisible.
 - Les applications reçoivent leurs secrets en **variables d'environnement** injectées par la plateforme au démarrage.
@@ -31,6 +31,7 @@ Déclinaison opérationnelle de GLB-005. Les secrets doivent être stockés dans
 - **Fichiers `.env` sur les serveurs** : pas de contrôle d'accès ni d'historique.
 - **SOPS dans le repo** : envisageable pour la config d'infra ; gestion des clés à prévoir.
 - **Tous les secrets dans Secret Manager**, y compris ceux générés par OpenTofu : la valeur passerait quand même par le state au moment de sa création, et les conteneurs ne lisent pas une référence Secret Manager. On ajoute une étape sans gain réel.
+- **Secrets saisis à la main dans Scaleway Secret Manager**, lus par OpenTofu (décision initiale) : les Serverless Containers ne lisent pas Secret Manager (seuls les Serverless Jobs le font) ; il fallait créer le secret par OpenTofu, saisir sa valeur ailleurs, puis réappliquer, et la valeur finissait quand même dans le state. Écarté le 2026-11-05 pour un seul endroit, GitHub, et une commande. À reconsidérer si un Serverless Job doit lire les mêmes secrets.
 - **Droits IAM pour la clé de la CI** : elle pourrait créer des clés admin. Écarté.
 
 ## Conséquences
