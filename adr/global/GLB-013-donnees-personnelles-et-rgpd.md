@@ -40,6 +40,11 @@ Les données d'un utilisateur sont réparties entre plusieurs modules de l'API (
 - Elle passe par la route `deleteUser` de Better Auth (`POST /delete-user`) et DOIT exiger la **ressaisie du mot de passe**. Better Auth rend ce mot de passe facultatif : sans lui, une session de moins d'un jour (`freshAge`) suffit. Un hook `before` DOIT donc refuser `/delete-user` sans mot de passe, et un test le vérifie.
 - Le web et les apps mobiles DOIVENT proposer « Supprimer mon compte » dans l'app, avec une confirmation explicite.
 
+**Compte suspendu** (2026-11-05, choix de l'utilisateur)
+
+- Un compte suspendu (BE-010) ne peut plus se connecter, donc plus exporter ni supprimer lui-même ses données. Il écrit à l'adresse de contact depuis l'adresse de son compte ; la politique de confidentialité le dit.
+- Un admin y répond depuis la page Administration, sans lui rendre l'accès : `GET /v1/admin/users/:id/export` (le même fichier que « Mon compte »), à lui envoyer, et `DELETE /v1/admin/users/:id` (effacement complet, comme `/delete-user` : registre puis compte, puis seconde passe). Seulement sur un compte suspendu, jamais sur un admin, journalisé avec des ids. Délai de réponse : un mois.
+
 **Registre des données d'utilisateur (API)**
 
 - Chaque module qui garde des données liées à un utilisateur DOIT enregistrer un `UserDataContributor`, avec une clé, ses tables qui ont une colonne `user_id`, un schéma de sortie (BE-005), `export(userId)` et `erase(userId, tx)`. C'est la seule manière pour le module auth d'atteindre ces données (BE-002).
