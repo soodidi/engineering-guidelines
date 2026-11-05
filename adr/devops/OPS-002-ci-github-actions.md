@@ -22,7 +22,7 @@ La CI est le garde-fou qui applique automatiquement la plupart des ADR. Elle doi
 **Sur `main`** : même pipeline + publication de l'artefact + déploiement automatique en **staging** (OPS-004).
 **Production** : déploiement lancé à la main depuis `main` par le propriétaire du repo, avec l'artefact déjà déployé en staging (OPS-004), dans un **GitHub Environment** limité à `main` (OPS-006).
 
-**Objectif** : retour de CI sur une PR en **moins de 10 minutes**.
+**Objectif** : retour de CI sur une PR en **moins de 10 minutes**. Exception acceptée (2026-11-05, choix de l'utilisateur) : le job iOS prend 10 à 15 minutes (compilation et tests sur simulateur, tests d'interface compris, qui doivent bloquer la fusion automatique). Le filtre par chemins le limite aux PR qui touchent l'app iOS ; l'optimiser (cache de compilation, tests du package hors simulateur) viendra quand l'app iOS sera développée activement.
 
 **Sécurité des workflows**
 
