@@ -97,7 +97,7 @@ But : des recettes prêtes à appliquer **quand une app en a besoin**, sans les 
 4. ~~B1 mobile~~ ✅ : Android (boilerplates #18, #19), iOS (boilerplates #22, #23).
 5. ~~Tâche G — front full responsive~~ ✅, puis B3 — RGPD : ~~ADR~~ ✅, ~~API~~ ✅, ~~web~~ ✅, ~~Android~~ ✅, ~~iOS~~ ✅.
 6. ~~Tâche I — rôles, permissions et écrans d'erreur (BE-010)~~ ✅ : API, web, Android, iOS, agent `security`.
-7. ~~Tâche C~~ ✅, puis tâche D (app jetable de bout en bout).
+7. ~~Tâche C~~ ✅, ~~décisions en attente~~ ✅ (2026-11-05, voir `HANDOFF.md`), vérifications à la main sans staging (`A-VERIFIER.md`, section 1), puis tâche D (app jetable de bout en bout).
 
 ## Tâche G — Front full responsive (demande du 2026-10-28)
 
