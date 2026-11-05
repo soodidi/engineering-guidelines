@@ -66,7 +66,8 @@ Règles :
 | [ ] | App iOS contre le staging : note supprimée depuis le web, puis ouverte ; session révoquée pendant l'ouverture d'une note | « Note introuvable » puis « Toutes les notes » ; retour à la connexion sans écran d'erreur | BE-010, boilerplates #38 |
 | [ ] | App Android contre le staging : note supprimée depuis le web, puis ouverte ; session révoquée pendant l'ouverture d'une note | « Note introuvable » ; retour à la connexion sans écran d'erreur | BE-010, boilerplates #37 |
 | [ ] | Bannir un compte depuis l'admin, puis tenter de se connecter avec ce compte | Session coupée tout de suite ; connexion refusée (`BANNED_USER`) | BE-010, boilerplates #35 |
-| [ ] | Retirer une adresse de `admin_emails`, puis redéployer | Log « Configured admins applied » avec `demoted: 1` ; ce compte est déconnecté (au plus tard 10 minutes après) ; reconnecté, il voit « Accès refusé » sur `/admin` ; sur la page Administration, aucun bouton sur les comptes admins | BE-010, boilerplates « admins = la liste » |
+| [ ] | Suspendre puis réactiver un compte depuis l'administration, et regarder les logs dans Cockpit | Deux lignes `Admin action` (`user.banned`, `user.unbanned`) avec `actorId` et `targetId`, sans adresse | BE-010, boilerplates « journal des actions d'admin » |
+| [ ] | Retirer une adresse de `admin_emails`, puis redéployer | Log « Configured admins applied » avec `demoted: 1`, et une ligne `admin.role_changed` avec cet id dans `revokedIds` ; ce compte est déconnecté (au plus tard 10 minutes après) ; reconnecté, il voit « Accès refusé » sur `/admin` ; sur la page Administration, aucun bouton sur les comptes admins | BE-010, boilerplates « admins = la liste » |
 | [ ] | Le web sur un téléphone (Android et iPhone) : toutes les pages | Aucun défilement horizontal, boutons faciles à toucher | FE-008, boilerplates #31 |
 
 ## 4. En staging : données personnelles et observabilité
