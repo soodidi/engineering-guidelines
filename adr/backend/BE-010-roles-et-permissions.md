@@ -1,7 +1,7 @@
 # BE-010 : Rôles et permissions
 
 - **Statut** : Proposé
-- **Date** : 2026-10-29 (premiers admins : 2026-10-31)
+- **Date** : 2026-10-29 (premiers admins : 2026-10-31 ; admins = la liste : 2026-11-04)
 - **Périmètre** : backend (avec ses conséquences sur le web et le mobile)
 - **Auteurs** : Mo, Claude
 - **Liens** : BE-006, BE-004, FE-004, GLB-013, AND-004, IOS-004
@@ -29,11 +29,10 @@ Il faut une base unique pour l'API, le web et le mobile, sans dupliquer les règ
 - Une route réservée DOIT porter un décorateur du module NestJS de Better Auth : `@UserHasPermission({ permissions })` de préférence, `@Roles([...])` pour une route d'administration. Le guard global les applique.
 - Refus : **403** au format Problem Details (BE-004) quand l'utilisateur est connecté mais n'a pas la permission. Une ressource qui existe mais appartient à un autre utilisateur répond **404**, jamais 403, pour ne pas révéler son existence (IDOR).
 - Les routes `/v1/auth/admin/*` du plugin (lister, bannir, révoquer les sessions) ne sont ouvertes qu'au rôle `admin`, et seulement sur des comptes ordinaires : bannir un admin ou couper ses sessions répond 403. Changer un rôle (`set-role`) est fermé. L'usurpation d'identité (`impersonate`) est **désactivée** par défaut : l'activer demande un ADR de projet (durée courte, journalisation).
-- Les administrateurs sont **déclarés dans la configuration** de l'environnement : `ADMIN_EMAILS` (variable `admin_emails` de l'infra, versionnée dans `<env>.auto.tfvars`, 5 adresses au plus, même validation dans OpenTofu et dans l'API). Les admins sont **exactement** cette liste (2026-11-04, choix de l'utilisateur) : au démarrage de **chaque instance**, après les migrations, l'API rétrograde tout admin absent de la liste (rôle `user`, sessions coupées), puis promeut chaque compte de la liste dont l'adresse est **vérifiée**. Jamais à l'inscription, jamais depuis une requête ni depuis l'interface. Liste vide : rien n'est fait (en local, `user:promote` garde la main).
+- Les administrateurs sont **déclarés dans la configuration** de l'environnement : `ADMIN_EMAILS` (variable `admin_emails` de l'infra, versionnée dans `<env>.auto.tfvars`, 5 adresses au plus, même validation dans OpenTofu et dans l'API). Les admins sont **exactement** cette liste (2026-11-04, choix de l'utilisateur) : **liste vide comprise** (aucun admin). Au démarrage de **chaque instance**, après les migrations, puis toutes les 10 minutes (pour rattraper une instance de l'ancienne version redémarrée pendant un déploiement), l'API rétrograde tout compte hors liste dont le rôle n'est pas `user` (y compris une valeur multiple comme `user,admin`, que le plugin lit comme admin : rôle `user`, sessions coupées), puis promeut chaque compte de la liste dont l'adresse est **vérifiée**. Jamais à l'inscription, jamais depuis une requête ni depuis l'interface. En local aussi : son adresse dans `.env`.
 - Aucun admin ne peut en bannir, en rétrograder ou en déconnecter un autre : un compte admin volé ne peut enfermer personne dehors. Le bannissement d'un compte listé (posé avant qu'il soit admin) n'est levé au démarrage que si plus aucun admin n'est actif, pour reprendre la main.
 - Nommer un admin : inscription et adresse confirmée, puis réinitialisation du mot de passe (un compte créé d'avance par un inconnu avec cette adresse perd ainsi son mot de passe et ses sessions), puis ajout à la liste par PR. Écarter un admin (compte compromis, départ) : retirer son adresse de la liste par PR, puis redéployer ; il perd le rôle et ses sessions au démarrage.
 - Protections : la liste ne change que par une PR sur le repo infra, puis un déploiement (production : lancement manuel depuis `main`) ; le repo infra DOIT rester privé (les adresses y sont en clair, la variable n'est masquée que dans les plans de la CI) ; l'API ne journalise que des nombres ; le changement d'adresse reste **désactivé** (`change-email`, testé) pour qu'aucun compte ne puisse prendre l'adresse d'un admin. L'activer demande de revoir cet ADR.
-- En local, `npm run user:promote -- <email>` fait la même chose sans redémarrer.
 - Un utilisateur banni n'a plus de session valide ; un changement de rôle s'applique à la requête suivante (pas de cache de session, BE-006).
 
 **Web et mobile**
@@ -57,6 +56,8 @@ Il faut une base unique pour l'API, le web et le mobile, sans dupliquer les règ
 - **CASL** : règles isomorphes très expressives (conditions par attribut). Écarté : une dépendance et un paquet partagé de plus, inutilisables par les apps Kotlin et Swift, et en partie redondants avec l'access control de Better Auth. À reconsidérer pour une app aux règles conditionnelles complexes (ADR de projet).
 - **Plugin `organization` dès le départ** : couvre les équipes. Écarté par défaut : trop lourd pour des apps d'abord personnelles ; disponible comme module optionnel.
 - **Table de rôles maison** : écarté, Better Auth le fait déjà, avec l'administration des comptes (bannissement, révocation des sessions).
+- **Admins gérés depuis l'interface** (un admin nomme, rétrograde ou bannit un autre admin) : écarté le 2026-11-04. Un admin volé pouvait bannir ceux de la liste et rester le seul actif, sans reprise possible. Variante écartée aussi : deux niveaux (admins de la liste au-dessus de ceux de l'interface), plus compliquée et qui laissait le même blocage entre admins de la liste.
+- **Commande `user:promote`** : supprimée le 2026-11-04, ses promotions étant annulées au démarrage suivant.
 - **Premiers admins par une commande lancée à la main** (`user:promote`), décision initiale : en staging et en production, la base n'est joignable que depuis le réseau privé et le conteneur n'a pas de shell. Pour la lancer (choix de l'utilisateur, 2026-10-31, option « configuration » retenue) :
   - **Serverless Job** lancé depuis GitHub : les Jobs ne rejoignent pas de réseau privé (FAQ Scaleway, à revérifier) ; il faudrait ouvrir la base ;
   - **bastion temporaire** (instance et passerelle SSH dans le réseau privé, tunnel) : un `tofu apply` et une porte SSH ouverte à chaque fois ; gardé comme procédure de dernier recours pour une intervention manuelle sur la base, à écrire le jour où elle sert ;
@@ -65,7 +66,9 @@ Il faut une base unique pour l'API, le web et le mobile, sans dupliquer les règ
 ## Conséquences
 
 - ✅ Une seule source pour les permissions, appliquée par l'API, lisible par le web.
-- ✅ Administration des comptes (bannir, changer de rôle, révoquer) sans code maison.
+- ✅ Administration des comptes ordinaires (bannir, révoquer) par le plugin ; un peu de code maison pour la liste des admins (`ConfiguredAdmins`, hook qui refuse d'agir sur un admin).
+- ✅ Une seule règle pour savoir qui est admin : un fichier versionné de l'infra.
+- ⚠️ Écarter un admin demande une PR et un déploiement (quelques minutes), pas un clic.
 - ⚠️ Une migration ajoute `role`, `banned`, `ban_reason`, `ban_expires` à `users` (et `impersonated_by` à `sessions`) : à relire comme toute migration (BE-003), et à exporter avec le compte (GLB-013).
 - ⚠️ Les clients mobiles n'ont pas les règles fines : ils affichent selon le rôle et s'appuient sur les 403.
 - 🔁 BE-006 renvoie à cet ADR pour les rôles.
@@ -76,3 +79,4 @@ Il faut une base unique pour l'API, le web et le mobile, sans dupliquer les règ
 - Web : `requirePermission`, `useCan`, écrans 403, 404 ressource et hors ligne, avec tests et E2E.
 - Android et iOS : écrans 403, 404 et hors ligne ; rôle lu dans la session.
 - Agent `security` : toute nouvelle route réservée a son décorateur et son test de refus.
+- Admins = la liste : tests unitaires (`configured-admins.spec.ts` : ordre rétrogradation puis promotion, liste vide, passage toutes les 10 minutes, logs sans adresse ; `auth.config.spec.ts` : rôle à plusieurs valeurs) et e2e (`admin.e2e-spec.ts` : rétrogradation et sessions coupées, rôle `user,admin`, 403 sur un admin et 401 sans identifiant, `set-role` fermé) ; web : aucune action sur un admin hors « Réactiver ».
