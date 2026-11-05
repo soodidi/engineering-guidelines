@@ -22,7 +22,7 @@ On veut un hébergement **européen** (données en France/UE, RGPD, souverainet�
 | Base de données | **Managed Database for PostgreSQL** (sauvegardes auto, haute dispo en prod) |
 | Front statique (SPA) | Object Storage + Edge Services (CDN, HTTPS) |
 | Fichiers utilisateurs | Object Storage (bucket privé, URLs signées) |
-| Secrets | Secret Manager (OPS-006) |
+| Secrets | Variables secrètes des conteneurs, alimentées par OpenTofu (OPS-006) |
 | Logs / métriques | Cockpit (OPS-007) |
 | Cache / files (si besoin) | Managed Redis |
 | E-mails transactionnels | Transactional Email |

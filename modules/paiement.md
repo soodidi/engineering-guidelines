@@ -78,9 +78,9 @@ Coût : plus cher que Stripe Payments seul (commission de marchand officiel en p
 À reporter dans l'issue « Mise en route » du projet :
 
 - [ ] Compte Stripe (entreprise vérifiée), Managed Payments activé, produits et prix créés en mode test puis en production.
-- [ ] `STRIPE_SECRET_KEY` : clé **restreinte** aux ressources utilisées, en mode test pour le staging et en mode live pour la production ; saisie dans Secret Manager (une par environnement) et rangée dans le gestionnaire de mots de passe.
-- [ ] Endpoint de webhook déclaré dans Stripe pour chaque environnement, avec les seuls événements traités ; son `STRIPE_WEBHOOK_SECRET` saisi dans Secret Manager.
-- [ ] Section Mobile : produits créés dans App Store Connect et Play Console ; contrat « Paid Apps » signé chez Apple ; compte RevenueCat et son secret de webhook dans Secret Manager si retenu.
+- [ ] `STRIPE_SECRET_KEY` : clé **restreinte** aux ressources utilisées, en mode test pour le staging et en mode live pour la production ; saisie dans les secrets d'environnement GitHub du repo infra (une par environnement) et rangée dans le gestionnaire de mots de passe.
+- [ ] Endpoint de webhook déclaré dans Stripe pour chaque environnement, avec les seuls événements traités ; son `STRIPE_WEBHOOK_SECRET` saisi dans les secrets d'environnement GitHub du repo infra.
+- [ ] Section Mobile : produits créés dans App Store Connect et Play Console ; contrat « Paid Apps » signé chez Apple ; compte RevenueCat et son secret de webhook dans les secrets d'environnement GitHub du repo infra si retenu.
 - [ ] Section Légal : prix TTC, conditions de vente, droit de rétractation (renonciation expresse pour un contenu numérique fourni immédiatement), sous-traitants ajoutés.
 
 ## Données personnelles (GLB-013)
