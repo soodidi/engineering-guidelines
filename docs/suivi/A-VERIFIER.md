@@ -18,9 +18,9 @@ Règles :
 | [ ] | Android : mêmes parcours avec **TalkBack** et en grande police | Idem | B1, boilerplates #18, #19 |
 | [ ] | Web, page « Mon compte » : au **clavier** seul puis au **lecteur d'écran** | Export et suppression utilisables sans souris, erreurs annoncées | GLB-013, boilerplates #32 |
 | [ ] | Web en **mode sombre** : pages légales, « Mon compte » (bouton de suppression) | Contrastes lisibles, bordure rouge visible | FE-005, boilerplates #27, #32 |
-| [ ] | Android : `./gradlew connectedDebugAndroidTest` sur émulateur ou appareil (jamais lancé : ni émulateur sur le poste, ni job en CI) | Tous les tests UI passent, dont `AccountScreenTest`, `NoteDetailScreenTest` et `NotesScreenTest` | boilerplates #33, #37 |
+| [x] | Android : `./gradlew connectedDebugAndroidTest` sur émulateur ou appareil (jamais lancé : ni émulateur sur le poste, ni job en CI) | Tous les tests UI passent, dont `AccountScreenTest`, `NoteDetailScreenTest` et `NotesScreenTest` | boilerplates #33, #37. ✅ 2026-11-06, Galaxy S10 (Android 12) : 19 tests, 0 échec (écran déverrouillé, voir « Sur un téléphone » ci-dessous) |
 | [ ] | Android, détail d'une note : TalkBack, grande police, puis mode avion | « Connexion impossible » annoncé, « Réessayer » recharge la note ; titre lu comme un en-tête | BE-010, boilerplates #37 |
-| [ ] | Android, build release (R8) installé : ouvrir une note, pivoter, puis « Ne pas conserver les activités » | Aucun plantage (« Serializer for class … not found ») ; la note se recharge | boilerplates #37 |
+| [x] | Android, build release (R8) installé : ouvrir une note, pivoter, puis « Ne pas conserver les activités » | Aucun plantage (« Serializer for class … not found ») ; la note se recharge | boilerplates #37. ✅ 2026-11-06, Galaxy S10 : rotation, puis `wm_destroy_activity … always-finish` et `onCreate` dans les journaux ; note revenue, aucun plantage |
 | [ ] | Android, « Mon compte » avec **TalkBack** et en **grande police** | Case annoncée comme case à cocher, erreurs lues, rien de tronqué ; barre des notes lisible | GLB-013, boilerplates #33 |
 | [ ] | Android, « Mon compte » : liens « Politique de confidentialité » et « Exporter depuis le site web » (en debug : `adb reverse tcp:5173 tcp:5173`) | La page web s'ouvre dans le navigateur | boilerplates #33 |
 | [ ] | iOS, « Mon compte » avec **VoiceOver** et la plus grande police, sur iPhone SE | Interrupteur annoncé, erreurs lues ; le message « compte supprimé » est lu une fois à la connexion, sans être coupé | GLB-013, boilerplates #34 |
@@ -30,6 +30,15 @@ Règles :
 | [ ] | iOS, détail d'une note : VoiceOver, plus grande police, puis mode avion | Le focus se pose sur « Connexion impossible » (en-tête), « Réessayer » recharge la note | BE-010, boilerplates #38 |
 | [ ] | iOS, build Release (archive ou TestFlight), en français puis en anglais, en mode avion sur le détail | Textes de l'écran d'erreur traduits, jamais une clé brute (`error.network.title`) : le bundle de DesignSystem est embarqué | boilerplates #38 |
 | [ ] | Web sur Safari (macOS ou iOS) : « Télécharger mes données » | Le fichier `export-AAAA-MM-JJ.json` est bien téléchargé | boilerplates #32 |
+
+### Sur un téléphone Android branché (procédure du 2026-11-06)
+
+- **Écran déverrouillé** pendant `connectedDebugAndroidTest` : téléphone verrouillé, les 17 tests Compose échouent avec « No compose hierarchies found ». `adb shell svc power stayon usb` garde l'écran allumé (remettre `false` à la fin).
+- **API joignable** : le debug vise `10.0.2.2` (émulateur seulement) et la release `api.example.com`, sans signature. Le soir du test, en local et sans commit : URL `http://localhost:3000/` dans les deux builds, `localhost` autorisé en clair dans le `network_security_config` de `main`, release signée avec la clé de debug, puis `git restore`.
+- **Port 3000 pris** par le Vite du projet pro : surcharge compose hors du repo (`postgres` `ports: !reset []`, `api` `ports: !override ['3001:3000']`), puis `adb reverse tcp:3000 tcp:3001` et `adb reverse tcp:5173 tcp:5173`.
+- **Mode avion** : il ne coupe pas l'API, qui passe par le câble USB. Pour « Connexion impossible », retirer la redirection : `adb reverse --remove tcp:3000`.
+- **« Ne pas conserver les activités »** : l'activer à la main dans les options de développement. `settings put global always_finish_activities 1` change la valeur sans que le système l'applique. Contrôle : `adb logcat -b events | grep wm_destroy_activity` affiche `always-finish`.
+- Compte de test créé par l'API (inscription, lien Mailpit, connexion, `POST /v1/notes`) : `mobile@example.com`, dans le volume Docker local.
 
 ## 2. En staging : infra et déploiement
 
